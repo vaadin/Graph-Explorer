@@ -1,4 +1,4 @@
-package com.example.graph;
+package com.vaadin.graph;
 
 import com.vaadin.Application;
 import com.vaadin.ui.*;

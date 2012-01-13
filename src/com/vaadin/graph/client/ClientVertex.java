@@ -1,0 +1,122 @@
+/*
+ * Copyright 2011 Vaadin Ltd.
+ *
+ * Licensed under the GNU Affero General Public License, Version 3.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.gnu.org/licenses/agpl-3.0.html
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package com.vaadin.graph.client;
+
+/**
+ * A node in a graph.
+ * 
+ * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
+ */
+public final class ClientVertex extends IndexedElement {
+
+    public static final String ID = "id";
+    public static final String LABEL = "label";
+    public static final String X = "x";
+    public static final String Y = "y";
+
+    public static final String STATE = "state";
+    public static final String NORMAL = "normal";
+    public static final String GROUP = "group";
+    public static final String EMPTY = "empty";
+
+    public static final String KIND = "kind";
+    public static final String COLLAPSED = "collapsed";
+    public static final String EXPANDED = "expanded";
+
+    private String label = "";
+    private int x = -1;
+    private int y = -1;
+    private String kind = NORMAL;
+    private String state = COLLAPSED;
+    private int width;
+    private int height;
+    private boolean dragging = false;
+
+    public ClientVertex(String id) {
+        super(id);
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public boolean isDragging() {
+        return dragging;
+    }
+
+    public void setDragging(boolean dragging) {
+        this.dragging = dragging;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return '{' + key(ID) + q(id) + ',' + key(LABEL) + q(label) + ','
+                + key(X) + x + ',' + key(Y) + y + ',' + key(STATE)
+                + q("" + state) + ',' + key(KIND) + q("" + kind) + '}';
+    }
+}

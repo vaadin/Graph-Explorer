@@ -1,5 +1,5 @@
-GraphExplorer add-on for Vaadin
-===============================
+Graph Explorer add-on for Vaadin
+================================
 
-An interactive graph visualization component for the 
+An interactive data visualization component for the 
 [Vaadin](https://vaadin.com/) framework.

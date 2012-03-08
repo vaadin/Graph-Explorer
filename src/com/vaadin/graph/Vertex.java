@@ -21,4 +21,6 @@ public interface Vertex {
     Object getProperty(String key, Object defaultValue);
 
     String getId();
+
+    String getLabel();
 }

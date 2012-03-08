@@ -45,7 +45,7 @@ public class DefaultGraphLoader implements GraphLoader {
     private final Map<String, Map<String, Edge>> groups = new HashMap<String, Map<String, Edge>>();
 
     public DefaultGraphLoader(GraphProvider graphDb) {
-        this.graphProvider = graphDb;
+        graphProvider = graphDb;
     }
 
     private void addGroupRel(IndexedGraph graph, String relId, String relType,
@@ -69,14 +69,15 @@ public class DefaultGraphLoader implements GraphLoader {
         for (String key : node.getPropertyKeys()) {
             keys.add(key);
         }
-        if (keys.size() == 1) {
-            return "" + node.getProperty(keys.iterator().next(), null);
-        }
-        StringBuilder builder = new StringBuilder();
+        // if (keys.size() == 1) {
+        // return "" + node.getProperty(keys.iterator().next(), null);
+        // }
+        StringBuilder builder = new StringBuilder(node.getLabel() + ";");
         String delim = ", ";
         String before = "";
         String after = ": ";
         if (html) {
+            builder = new StringBuilder("<b>" + node.getLabel() + "</b><br>");
             delim = "<br>";
             before = "<i>";
             after = ":</i> ";
@@ -145,7 +146,8 @@ public class DefaultGraphLoader implements GraphLoader {
                 String parentId = tokenizer.nextToken();
                 Vertex parent = graphProvider.getVertexById(parentId);
                 for (Edge rel : groups.get(groupId).values()) {
-                    Vertex child = graphProvider.getOpposite(parent, rel);
+                    // Vertex child = graphProvider.getOpposite(parent, rel);
+                    Vertex child = rel.getOtherEnd(parent);
                     String id = "" + child.getId();
                     String label = getLabel(child, false);
                     members.put(id, label);
@@ -204,7 +206,7 @@ public class DefaultGraphLoader implements GraphLoader {
         if (!graph.addVertex(v)) {
             v = graph.getVertex(id);
         }
-        v.setLabel(label);
+        v.setContent(label);
         if (label.isEmpty()) {
             v.setKind(ClientVertex.EMPTY);
         }
@@ -225,7 +227,7 @@ public class DefaultGraphLoader implements GraphLoader {
         }
         ClientVertex group = graph.getVertex(groupId);
         if (rels.size() > 0) {
-            group.setLabel(rels.size() + GROUP_LABEL);
+            group.setContent(rels.size() + GROUP_LABEL);
         } else {
             graph.removeVertex(group);
             groups.remove(groupId);
@@ -258,7 +260,7 @@ public class DefaultGraphLoader implements GraphLoader {
                         groupNode = graph.getVertex(groupId);
                     }
                     groupNode.setKind(ClientVertex.GROUP);
-                    groupNode.setLabel(nrRels + GROUP_LABEL);
+                    groupNode.setContent(nrRels + GROUP_LABEL);
                     switch (dir) {
                     case INCOMING:
                         addGroupRel(graph, groupId, label, groupId, nodeId);
@@ -275,7 +277,9 @@ public class DefaultGraphLoader implements GraphLoader {
                     for (Edge rel : rels.values()) {
                         String id = "" + rel.getId();
                         if (!graph.containsEdge(id)) {
-                            Vertex other = graphProvider.getOpposite(node, rel);
+                            // Vertex other = graphProvider.getOpposite(node,
+                            // rel);
+                            Vertex other = rel.getOtherEnd(node);
                             ClientVertex vOther = load(graph, other);
                             addRel(graph, rel);
                             neighbors.add(vOther);

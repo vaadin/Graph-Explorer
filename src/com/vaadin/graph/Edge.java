@@ -23,4 +23,6 @@ public interface Edge {
     String getLabel();
 
     Map<?, ?> getProperties();
+
+    Vertex getOtherEnd(Vertex parent);
 }

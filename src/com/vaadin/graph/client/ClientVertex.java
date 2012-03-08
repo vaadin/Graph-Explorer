@@ -36,7 +36,7 @@ public final class ClientVertex extends IndexedElement {
     public static final String COLLAPSED = "collapsed";
     public static final String EXPANDED = "expanded";
 
-    private String label = "";
+    private String content = "";
     private int x = -1;
     private int y = -1;
     private String kind = NORMAL;
@@ -57,8 +57,8 @@ public final class ClientVertex extends IndexedElement {
         return kind;
     }
 
-    public String getLabel() {
-        return label;
+    public String getContent() {
+        return content;
     }
 
     public String getState() {
@@ -93,8 +93,8 @@ public final class ClientVertex extends IndexedElement {
         this.kind = kind;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public void setState(String state) {
@@ -115,7 +115,7 @@ public final class ClientVertex extends IndexedElement {
 
     @Override
     public String toString() {
-        return '{' + key(ID) + q(id) + ',' + key(LABEL) + q(label) + ','
+        return '{' + key(ID) + q(id) + ',' + key(LABEL) + q(content) + ','
                 + key(X) + x + ',' + key(Y) + y + ',' + key(STATE)
                 + q("" + state) + ',' + key(KIND) + q("" + kind) + '}';
     }

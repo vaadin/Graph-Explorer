@@ -137,7 +137,7 @@ class VertexHandler implements MouseDownHandler, MouseMoveHandler,
     }
 
     public void update() {
-        widget.setHTML("<div class='label'>" + node.getLabel() + "</div>");
+        widget.setHTML("<div class='label'>" + node.getContent() + "</div>");
         reposition();
         updateCSS();
         updateRelationships();

@@ -145,7 +145,7 @@ public class VGraphExplorer extends Composite implements Paintable {
             if (!node.hasHandler()) {
                 new VertexHandler(this, node);
             }
-            node.setLabel(object.get(ClientVertex.LABEL).isString()
+            node.setContent(object.get(ClientVertex.LABEL).isString()
                     .stringValue());
             node.setState(object.get(ClientVertex.STATE).isString()
                     .stringValue());

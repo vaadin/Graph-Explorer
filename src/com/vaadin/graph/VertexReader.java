@@ -4,7 +4,7 @@ import net.sf.json.JSONObject;
 
 import com.vaadin.graph.client.ClientVertex;
 
-public class VertexReader {
+class VertexReader {
     static void readFromJSON(ClientVertex node, Object json) {
         JSONObject object = JSONObject.fromObject(json);
         String state = object.getString(ClientVertex.STATE);

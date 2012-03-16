@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.vaadin.graph.GraphLoader.NodeSelector;
 import com.vaadin.graph.client.ClientEdge;
 import com.vaadin.graph.client.ClientVertex;
 import com.vaadin.graph.client.VGraphExplorer;
@@ -30,8 +29,6 @@ import com.vaadin.terminal.PaintTarget;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ClientWidget;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
@@ -50,11 +47,11 @@ public class GraphExplorer extends AbstractComponent {
     protected String removedId = null;
 
     // FIXME: convert into a wrapper (no longer inherit from Jung.Graph)
-    private final IndexedGraph graph = new IndexedGraph();
+    final GraphModel graph = new GraphModel();
 
-    private int clientHeight = 0;
-    private int clientWidth = 0;
-    private transient final GraphLoader graphLoader;
+    int clientHeight = 0;
+    int clientWidth = 0;
+    transient final GraphLoader graphLoader;
 
     public GraphExplorer(GraphLoader graphLoader) {
         this.graphLoader = graphLoader;
@@ -115,8 +112,7 @@ public class GraphExplorer extends AbstractComponent {
                     }
                 }
             }
-            LayoutEngine.layout(graph, clientWidth, clientHeight,
-                    lockedVertices);
+            graph.layout(clientWidth, clientHeight, lockedVertices);
         }
         requestRepaint();
     }
@@ -210,56 +206,5 @@ public class GraphExplorer extends AbstractComponent {
     /** Quotes the given string in double quotes. */
     private static String q(String s) {
         return '"' + s + '"';
-    }
-
-    private final static class CancelHandler implements ClickListener {
-        private static final long serialVersionUID = 1L;
-
-        private final Window dialog;
-
-        private CancelHandler(Window dialog) {
-            this.dialog = dialog;
-        }
-
-        public void buttonClick(ClickEvent event) {
-            dialog.getParent().removeWindow(dialog);
-        }
-    }
-
-    private static final class ShowHandler implements ClickListener {
-        private static final long serialVersionUID = 1L;
-
-        private final Window dialog;
-        private final String groupId;
-        private final NodeSelector selector;
-        private final GraphExplorer parent;
-
-        private ShowHandler(GraphExplorer parent, NodeSelector selector,
-                String groupId, Window dialog) {
-            this.parent = parent;
-            this.selector = selector;
-            this.groupId = groupId;
-            this.dialog = dialog;
-        }
-
-        public void buttonClick(ClickEvent event) {
-            dialog.getParent().removeWindow(dialog);
-            parent.graphLoader.loadMembers(parent.graph, groupId,
-                    selector.getSelectedNodeIds());
-            Set<ClientVertex> lockedVertices = new HashSet<ClientVertex>();
-            if (!parent.graph.containsVertex(groupId)) {
-                parent.removedId = groupId;
-            } else {
-                lockedVertices.add(parent.graph.getVertex(groupId));
-            }
-            for (ClientVertex v : parent.graph.getVertices()) {
-                if (ClientVertex.EXPANDED.equals(v.getState())) {
-                    lockedVertices.add(v);
-                }
-            }
-            LayoutEngine.layout(parent.graph, parent.clientWidth,
-                    parent.clientHeight, lockedVertices);
-            parent.requestRepaint();
-        }
     }
 }

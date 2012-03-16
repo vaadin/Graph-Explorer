@@ -48,7 +48,7 @@ public class DefaultGraphLoader implements GraphLoader {
         graphProvider = graphDb;
     }
 
-    private void addGroupRel(IndexedGraph graph, String relId, String relType,
+    private void addGroupRel(GraphModel graph, String relId, String relType,
             String fromId, String toId) {
         ClientEdge edge = new ClientEdge(relId, relType);
         edge.setGroup(true);
@@ -56,7 +56,7 @@ public class DefaultGraphLoader implements GraphLoader {
         graph.addEdge(edge, graph.getVertex(fromId), graph.getVertex(toId));
     }
 
-    private void addRel(IndexedGraph graph, Edge rel) {
+    private void addRel(GraphModel graph, Edge rel) {
         ClientEdge edge = new ClientEdge("" + rel.getId(), rel.getLabel());
         edge.setLabel(getLabel(rel));
         graph.addEdge(edge,
@@ -69,10 +69,7 @@ public class DefaultGraphLoader implements GraphLoader {
         for (String key : node.getPropertyKeys()) {
             keys.add(key);
         }
-        // if (keys.size() == 1) {
-        // return "" + node.getProperty(keys.iterator().next(), null);
-        // }
-        StringBuilder builder = new StringBuilder(node.getLabel() + ";");
+        StringBuilder builder = new StringBuilder(node.getLabel() + "; ");
         String delim = ", ";
         String before = "";
         String after = ": ";
@@ -108,7 +105,7 @@ public class DefaultGraphLoader implements GraphLoader {
         return label;
     }
 
-    public NodeSelector getMemberSelector(final IndexedGraph graph,
+    public NodeSelector getMemberSelector(final GraphModel graph,
             final String groupId) {
 
         @SuppressWarnings("serial")
@@ -195,11 +192,11 @@ public class DefaultGraphLoader implements GraphLoader {
         return new SelectorUI();
     }
 
-    public void init(IndexedGraph graph) {
+    public void init(GraphModel graph) {
         load(graph, graphProvider.getHomeVertex());
     }
 
-    private ClientVertex load(IndexedGraph graph, Vertex node) {
+    private ClientVertex load(GraphModel graph, Vertex node) {
         String label = getLabel(node, true);
         String id = "" + node.getId();
         ClientVertex v = new ClientVertex(id);
@@ -213,7 +210,7 @@ public class DefaultGraphLoader implements GraphLoader {
         return v;
     }
 
-    public Collection<ClientVertex> loadMembers(IndexedGraph graph,
+    public Collection<ClientVertex> loadMembers(GraphModel graph,
             String groupId, Collection<String> memberIds) {
         StringTokenizer tokenizer = new StringTokenizer(groupId);
         final String parentId = tokenizer.nextToken();
@@ -235,7 +232,7 @@ public class DefaultGraphLoader implements GraphLoader {
         return loaded;
     }
 
-    public Collection<ClientVertex> loadNeighbors(IndexedGraph graph,
+    public Collection<ClientVertex> loadNeighbors(GraphModel graph,
             String nodeId) {
         ClientVertex v = graph.getVertex(nodeId);
         Set<ClientVertex> neighbors = new HashSet<ClientVertex>();

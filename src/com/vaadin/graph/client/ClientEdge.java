@@ -55,4 +55,9 @@ public final class ClientEdge extends IndexedElement {
     public boolean isGroup() {
         return group;
     }
+
+    public IndexedElement getSource() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

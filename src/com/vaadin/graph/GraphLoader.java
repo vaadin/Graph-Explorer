@@ -21,14 +21,14 @@ import com.vaadin.graph.client.ClientVertex;
 import com.vaadin.ui.Component;
 
 public interface GraphLoader {
-    NodeSelector getMemberSelector(IndexedGraph graph, String groupId);
+    NodeSelector getMemberSelector(GraphModel graph, String groupId);
 
-    void init(IndexedGraph graph);
+    void init(GraphModel graph);
 
-    Collection<ClientVertex> loadMembers(IndexedGraph graph, String groupId,
+    Collection<ClientVertex> loadMembers(GraphModel graph, String groupId,
             Collection<String> memberIds);
 
-    Collection<ClientVertex> loadNeighbors(IndexedGraph graph, String nodeId);
+    Collection<ClientVertex> loadNeighbors(GraphModel graph, String nodeId);
 
     public interface NodeSelector extends Component {
         Collection<String> getSelectedNodeIds();

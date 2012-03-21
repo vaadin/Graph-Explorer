@@ -15,11 +15,11 @@
  */
 package com.vaadin.graph;
 
-import java.util.Collection;
+import java.util.*;
 
-public interface GraphRepository {
+public interface GraphRepository<N extends Node, A extends Arc> {
     /** Gets the vertex that the given edge points to. */
-    Node getDestination(Arc arc);
+    N getDestination(A arc);
 
     /** Returns a list of all possible edge labels in this graph. */
     Iterable<String> getEdgeLabels();
@@ -36,23 +36,23 @@ public interface GraphRepository {
      *            INCOMING for edges pointing towards the given vertex, OUTGOING
      *            for edges pointing away from the given vertex
      */
-    Collection<Arc> getEdges(Node node, String label, ArcDirection dir);
+    Collection<A> getEdges(N node, String label, ArcDirection dir);
 
     /** Gets the "origin" of the graph. */
-    Node getHomeVertex();
+    N getHomeVertex();
 
     /** Gets the vertex at the other end of the given edge. */
-    Node getOpposite(Node node, Arc arc);
+    N getOpposite(N node, A arc);
 
     /** Gets the vertex that the given edge points away from. */
-    Node getSource(Arc arc);
+    N getSource(A arc);
 
     /**
      * Returns the vertex with the given ID.
      * 
      * @return null if there's no such vertex
      */
-    Node getVertexById(String id);
+    N getVertexById(String id);
 
     /** Shuts down the graph provider to free up resources. Optional operation. */
     void shutdown();

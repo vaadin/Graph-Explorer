@@ -51,13 +51,13 @@ public class GraphExplorer extends AbstractComponent {
 
     int clientHeight = 0;
     int clientWidth = 0;
-    transient final GraphLoader graphLoader;
+    transient final GraphController graphController;
 
-    public GraphExplorer(GraphLoader graphLoader) {
-        this.graphLoader = graphLoader;
+    public GraphExplorer(GraphController graphController) {
+        this.graphController = graphController;
         setWidth("100%");
         setHeight("100%");
-        graphLoader.init(graph);
+        graphController.init(graph);
     }
 
     @SuppressWarnings("boxing")
@@ -85,7 +85,7 @@ public class GraphExplorer extends AbstractComponent {
                     openMemberSelector(toggledId);
                 } else {
                     if (NodeProxy.COLLAPSED.equals(toggledNode.getState())) {
-                        graphLoader.loadNeighbors(graph, toggledId);
+                        graphController.loadNeighbors(graph, toggledId);
                         lockExpanded = false;
                         lockedVertices.add(toggledNode);
                         toggledNode.setX(clientWidth / 2);
@@ -147,7 +147,7 @@ public class GraphExplorer extends AbstractComponent {
         layout.setSpacing(true);
         layout.setSizeFull();
 
-        GraphLoader.NodeSelector selector = graphLoader.getMemberSelector(
+        GraphController.NodeSelector selector = graphController.getMemberSelector(
                 graph, groupId);
         layout.addComponent(selector);
         layout.setExpandRatio(selector, 1.0f);

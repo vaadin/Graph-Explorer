@@ -20,7 +20,7 @@ import java.util.Collection;
 import com.vaadin.graph.client.NodeProxy;
 import com.vaadin.ui.Component;
 
-public interface GraphLoader {
+public interface GraphController {
     NodeSelector getMemberSelector(GraphModel graph, String groupId);
 
     void init(GraphModel graph);

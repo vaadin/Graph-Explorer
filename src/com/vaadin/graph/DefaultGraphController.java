@@ -15,36 +15,27 @@
  */
 package com.vaadin.graph;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.graph.client.ArcProxy;
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.client.*;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 
 /**
  * For loading a graph from a graph database.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public class DefaultGraphLoader implements GraphLoader {
+public class DefaultGraphController<N extends Node, A extends Arc> implements
+        GraphController {
     private static final String GROUP_LABEL = "<br/>nodes";
 
-    private final GraphRepository graphRepository;
-    private final Map<String, Map<String, Arc>> groups = new HashMap<String, Map<String, Arc>>();
+    private final GraphRepository<N, A> graphRepository;
+    private final Map<String, Map<String, A>> groups = new HashMap<String, Map<String, A>>();
 
-    public DefaultGraphLoader(GraphRepository graphDb) {
+    public DefaultGraphController(GraphRepository<N, A> graphDb) {
         graphRepository = graphDb;
     }
 
@@ -56,12 +47,14 @@ public class DefaultGraphLoader implements GraphLoader {
         graph.addEdge(edge, graph.getVertex(fromId), graph.getVertex(toId));
     }
 
-    private void addRel(GraphModel graph, Arc rel) {
+    private void addRel(GraphModel graph, A rel) {
         ArcProxy edge = new ArcProxy("" + rel.getId(), rel.getLabel());
         edge.setLabel(getLabel(rel));
-        graph.addEdge(edge,
+        graph.addEdge(
+                edge,
                 graph.getVertex("" + graphRepository.getSource(rel).getId()),
-                graph.getVertex("" + graphRepository.getDestination(rel).getId()));
+                graph.getVertex(""
+                        + graphRepository.getDestination(rel).getId()));
     }
 
     private String getLabel(Node node, boolean html) {
@@ -210,15 +203,15 @@ public class DefaultGraphLoader implements GraphLoader {
         return v;
     }
 
-    public Collection<NodeProxy> loadMembers(GraphModel graph,
-            String groupId, Collection<String> memberIds) {
+    public Collection<NodeProxy> loadMembers(GraphModel graph, String groupId,
+            Collection<String> memberIds) {
         StringTokenizer tokenizer = new StringTokenizer(groupId);
         final String parentId = tokenizer.nextToken();
-        final Node parent = graphRepository.getVertexById(parentId);
-        Map<String, Arc> rels = groups.get(groupId);
+        final N parent = graphRepository.getVertexById(parentId);
+        Map<String, A> rels = groups.get(groupId);
         Collection<NodeProxy> loaded = new HashSet<NodeProxy>();
         for (String id : memberIds) {
-            Arc rel = rels.remove(id);
+            A rel = rels.remove(id);
             loaded.add(load(graph, graphRepository.getOpposite(parent, rel)));
             addRel(graph, rel);
         }
@@ -232,21 +225,21 @@ public class DefaultGraphLoader implements GraphLoader {
         return loaded;
     }
 
-    public Collection<NodeProxy> loadNeighbors(GraphModel graph,
-            String nodeId) {
+    public Collection<NodeProxy> loadNeighbors(GraphModel graph, String nodeId) {
         NodeProxy v = graph.getVertex(nodeId);
         Set<NodeProxy> neighbors = new HashSet<NodeProxy>();
         if (NodeProxy.EXPANDED.equals(v.getState())) {
             return neighbors;
         }
         v.setState(NodeProxy.EXPANDED);
-        Node node = graphRepository.getVertexById(nodeId);
+        N node = graphRepository.getVertexById(nodeId);
         for (ArcDirection dir : new ArcDirection[] { ArcDirection.INCOMING,
                 ArcDirection.OUTGOING }) {
             for (String label : graphRepository.getEdgeLabels()) {
-                Map<String, Arc> rels = new HashMap<String, Arc>();
-                for (Arc rel : graphRepository.getEdges(node, label, dir)) {
-                    rels.put("" + graphRepository.getOpposite(node, rel).getId(),
+                Map<String, A> rels = new HashMap<String, A>();
+                for (A rel : graphRepository.getEdges(node, label, dir)) {
+                    rels.put(""
+                            + graphRepository.getOpposite(node, rel).getId(),
                             rel);
                 }
                 int nrRels = rels.size();
@@ -271,7 +264,7 @@ public class DefaultGraphLoader implements GraphLoader {
                     neighbors.add(groupNode);
                     groups.put(groupId, rels);
                 } else {
-                    for (Arc rel : rels.values()) {
+                    for (A rel : rels.values()) {
                         String id = "" + rel.getId();
                         if (!graph.containsEdge(id)) {
                             // Node other = graphRepository.getOpposite(node,

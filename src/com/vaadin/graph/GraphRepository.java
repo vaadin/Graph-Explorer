@@ -17,9 +17,9 @@ package com.vaadin.graph;
 
 import java.util.Collection;
 
-public interface GraphProvider {
+public interface GraphRepository {
     /** Gets the vertex that the given edge points to. */
-    Vertex getDestination(Edge edge);
+    Node getDestination(Arc arc);
 
     /** Returns a list of all possible edge labels in this graph. */
     Iterable<String> getEdgeLabels();
@@ -28,7 +28,7 @@ public interface GraphProvider {
      * Gets all edges connected to the given node, with the given label, in the
      * given direction.
      * 
-     * @param vertex
+     * @param node
      *            return only edges connected to this vertex
      * @param label
      *            return only edges with this label
@@ -36,23 +36,23 @@ public interface GraphProvider {
      *            INCOMING for edges pointing towards the given vertex, OUTGOING
      *            for edges pointing away from the given vertex
      */
-    Collection<Edge> getEdges(Vertex vertex, String label, EdgeDirection dir);
+    Collection<Arc> getEdges(Node node, String label, ArcDirection dir);
 
     /** Gets the "origin" of the graph. */
-    Vertex getHomeVertex();
+    Node getHomeVertex();
 
     /** Gets the vertex at the other end of the given edge. */
-    Vertex getOpposite(Vertex vertex, Edge edge);
+    Node getOpposite(Node node, Arc arc);
 
     /** Gets the vertex that the given edge points away from. */
-    Vertex getSource(Edge edge);
+    Node getSource(Arc arc);
 
     /**
      * Returns the vertex with the given ID.
      * 
      * @return null if there's no such vertex
      */
-    Vertex getVertexById(String id);
+    Node getVertexById(String id);
 
     /** Shuts down the graph provider to free up resources. Optional operation. */
     void shutdown();

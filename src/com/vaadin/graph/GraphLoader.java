@@ -17,7 +17,7 @@ package com.vaadin.graph;
 
 import java.util.Collection;
 
-import com.vaadin.graph.client.ClientVertex;
+import com.vaadin.graph.client.NodeProxy;
 import com.vaadin.ui.Component;
 
 public interface GraphLoader {
@@ -25,10 +25,10 @@ public interface GraphLoader {
 
     void init(GraphModel graph);
 
-    Collection<ClientVertex> loadMembers(GraphModel graph, String groupId,
+    Collection<NodeProxy> loadMembers(GraphModel graph, String groupId,
             Collection<String> memberIds);
 
-    Collection<ClientVertex> loadNeighbors(GraphModel graph, String nodeId);
+    Collection<NodeProxy> loadNeighbors(GraphModel graph, String nodeId);
 
     public interface NodeSelector extends Component {
         Collection<String> getSelectedNodeIds();

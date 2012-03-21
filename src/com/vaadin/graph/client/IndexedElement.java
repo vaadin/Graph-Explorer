@@ -21,7 +21,7 @@ package com.vaadin.graph.client;
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
 public abstract class IndexedElement {
-    private Handler handler;
+    private Controller controller;
     protected final String id;
 
     IndexedElement(String id) {
@@ -55,7 +55,7 @@ public abstract class IndexedElement {
     }
 
     public boolean hasHandler() {
-        return handler != null;
+        return controller != null;
     }
 
     @Override
@@ -67,19 +67,19 @@ public abstract class IndexedElement {
     }
 
     public void notifyRemove() {
-        if (handler != null) {
-            handler.remove();
+        if (controller != null) {
+            controller.remove();
         }
     }
 
     public void notifyUpdate() {
-        if (handler != null) {
-            handler.update();
+        if (controller != null) {
+            controller.update();
         }
     }
 
-    void setObserver(Handler observer) {
-        handler = observer;
+    void setObserver(Controller observer) {
+        controller = observer;
     }
 
     /** Formats the given string for use as a key in a JSON object. */

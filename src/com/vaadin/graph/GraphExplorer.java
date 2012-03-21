@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.vaadin.graph.client.ClientEdge;
-import com.vaadin.graph.client.ClientVertex;
+import com.vaadin.graph.client.ArcProxy;
+import com.vaadin.graph.client.NodeProxy;
 import com.vaadin.graph.client.VGraphExplorer;
 import com.vaadin.terminal.PaintException;
 import com.vaadin.terminal.PaintTarget;
@@ -65,8 +65,8 @@ public class GraphExplorer extends AbstractComponent {
     public void changeVariables(Object source, Map<String, Object> variables) {
         super.changeVariables(source, variables);
         Set<String> keys = new HashSet<String>(variables.keySet());
-        ClientVertex toggledNode = null;
-        Set<ClientVertex> lockedVertices = new HashSet<ClientVertex>();
+        NodeProxy toggledNode = null;
+        Set<NodeProxy> lockedVertices = new HashSet<NodeProxy>();
         boolean lockExpanded = true;
         if (variables.containsKey(VGraphExplorer.WIDTH)) {
             keys.remove(VGraphExplorer.WIDTH);
@@ -81,10 +81,10 @@ public class GraphExplorer extends AbstractComponent {
             String toggledId = (String) variables.get(VGraphExplorer.TOGGLE);
             toggledNode = graph.getVertex(toggledId);
             if (toggledNode != null) {
-                if (ClientVertex.GROUP.equals(toggledNode.getKind())) {
+                if (NodeProxy.GROUP.equals(toggledNode.getKind())) {
                     openMemberSelector(toggledId);
                 } else {
-                    if (ClientVertex.COLLAPSED.equals(toggledNode.getState())) {
+                    if (NodeProxy.COLLAPSED.equals(toggledNode.getState())) {
                         graphLoader.loadNeighbors(graph, toggledId);
                         lockExpanded = false;
                         lockedVertices.add(toggledNode);
@@ -98,16 +98,16 @@ public class GraphExplorer extends AbstractComponent {
         }
         for (String key : keys) {
             Object variable = variables.get(key);
-            ClientVertex node = graph.getVertex(key);
+            NodeProxy node = graph.getVertex(key);
             if (variable != null) {
-                VertexReader.readFromJSON(node, variable);
+                NodeLoader.loadFromJSON(node, variable);
                 lockedVertices.add(node);
             }
         }
         if (clientWidth > 0 && clientHeight > 0) {
             if (lockExpanded) {
-                for (ClientVertex v : graph.getVertices()) {
-                    if (ClientVertex.EXPANDED.equals(v.getState())) {
+                for (NodeProxy v : graph.getVertices()) {
+                    if (NodeProxy.EXPANDED.equals(v.getState())) {
                         lockedVertices.add(v);
                     }
                 }
@@ -117,10 +117,10 @@ public class GraphExplorer extends AbstractComponent {
         requestRepaint();
     }
 
-    private void collapse(ClientVertex node) {
-        node.setState(ClientVertex.COLLAPSED);
-        for (ClientVertex v : graph.getNeighbors(node)) {
-            if (ClientVertex.COLLAPSED.equals(v.getState())
+    private void collapse(NodeProxy node) {
+        node.setState(NodeProxy.COLLAPSED);
+        for (NodeProxy v : graph.getNeighbors(node)) {
+            if (NodeProxy.COLLAPSED.equals(v.getState())
                     && graph.degree(v) == 1) {
                 graph.removeVertex(v);
             }
@@ -129,7 +129,7 @@ public class GraphExplorer extends AbstractComponent {
 
     public String[] nodesToJSON() {
         List<String> list = new ArrayList<String>();
-        for (ClientVertex v : graph.getVertices()) {
+        for (NodeProxy v : graph.getVertices()) {
             list.add(v.toString());
         }
         return list.toArray(new String[list.size()]);
@@ -186,13 +186,13 @@ public class GraphExplorer extends AbstractComponent {
 
     public String[] relationshipsToJSON() {
         List<String> list = new ArrayList<String>();
-        for (ClientEdge e : graph.getEdges()) {
-            list.add('{' + key(ClientEdge.ID) + q(e.getId()) + ','
-                    + key(ClientEdge.TYPE) + q(e.getType()) + ','
-                    + key(ClientEdge.LABEL) + q(e.getLabel()) + ','
-                    + key(ClientEdge.GROUP) + e.isGroup() + ','
-                    + key(ClientEdge.FROM_ID) + q(graph.getSource(e).getId())
-                    + ',' + key(ClientEdge.TO_ID) + q(graph.getDest(e).getId())
+        for (ArcProxy e : graph.getEdges()) {
+            list.add('{' + key(ArcProxy.ID) + q(e.getId()) + ','
+                    + key(ArcProxy.TYPE) + q(e.getType()) + ','
+                    + key(ArcProxy.LABEL) + q(e.getLabel()) + ','
+                    + key(ArcProxy.GROUP) + e.isGroup() + ','
+                    + key(ArcProxy.FROM_ID) + q(graph.getSource(e).getId())
+                    + ',' + key(ArcProxy.TO_ID) + q(graph.getDest(e).getId())
                     + '}');
         }
         return list.toArray(new String[list.size()]);

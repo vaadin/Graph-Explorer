@@ -35,16 +35,16 @@ import com.google.gwt.user.client.ui.HTML;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-class VertexHandler implements MouseDownHandler, MouseMoveHandler,
-        MouseUpHandler, Handler {
+class NodeController implements MouseDownHandler, MouseMoveHandler,
+        MouseUpHandler, Controller {
     final VGraphExplorer parent;
     final HTML widget;
     int dragStartX;
     int dragStartY;
     protected boolean mouseDown;
-    private final ClientVertex node;
+    private final NodeProxy node;
 
-    VertexHandler(VGraphExplorer parent, ClientVertex node) {
+    NodeController(VGraphExplorer parent, NodeProxy node) {
         this.parent = parent;
         this.node = node;
         widget = new HTML();
@@ -93,7 +93,7 @@ class VertexHandler implements MouseDownHandler, MouseMoveHandler,
         if (!node.isDragging()) {
             updateCSS();
             reposition();
-            if (ClientVertex.EXPANDED.equals(node.getState())) {
+            if (NodeProxy.EXPANDED.equals(node.getState())) {
                 parent.collapse(node);
             }
             parent.toggle(node);
@@ -109,7 +109,7 @@ class VertexHandler implements MouseDownHandler, MouseMoveHandler,
     public void remove() {
         node.setObserver(null);
         widget.removeFromParent();
-        VIndexedGraph graph = parent.getGraph();
+        GraphProxy graph = parent.getGraph();
         remove(graph.getInEdges(node));
         remove(graph.getOutEdges(node));
         graph.removeVertex(node.getId());
@@ -150,7 +150,7 @@ class VertexHandler implements MouseDownHandler, MouseMoveHandler,
     }
 
     void updateRelationships() {
-        VIndexedGraph graph = parent.getGraph();
+        GraphProxy graph = parent.getGraph();
         update(graph.getInEdges(node));
         update(graph.getOutEdges(node));
     }
@@ -160,17 +160,17 @@ class VertexHandler implements MouseDownHandler, MouseMoveHandler,
         return Math.min(Math.max(min, value), max);
     }
 
-    private static void remove(Collection<ClientEdge> edges) {
+    private static void remove(Collection<ArcProxy> edges) {
         if (edges != null) {
-            for (ClientEdge edge : edges) {
+            for (ArcProxy edge : edges) {
                 edge.notifyRemove();
             }
         }
     }
 
-    private static void update(Collection<ClientEdge> edges) {
+    private static void update(Collection<ArcProxy> edges) {
         if (edges != null) {
-            for (ClientEdge edge : edges) {
+            for (ArcProxy edge : edges) {
                 edge.notifyUpdate();
             }
         }

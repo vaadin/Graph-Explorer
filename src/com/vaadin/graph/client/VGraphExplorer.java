@@ -61,10 +61,10 @@ public class VGraphExplorer extends Composite implements Paintable {
 
     private final Panel root = new AbsolutePanel();
     private final DrawingArea canvas = new DrawingArea(0, 0);
-    private final VIndexedGraph graph = new VIndexedGraph();
+    private final GraphProxy graph = new GraphProxy();
     private int oldHeight;
     private int oldWidth;
-    private ClientVertex current;
+    private NodeProxy current;
     private boolean initialized;
 
     /**
@@ -95,22 +95,22 @@ public class VGraphExplorer extends Composite implements Paintable {
         canvas.add(widget);
     }
 
-    public void collapse(ClientVertex node) {
-        node.setState(ClientVertex.COLLAPSED);
-        for (ClientVertex v : graph.getNeighbors(node)) {
-            if (ClientVertex.COLLAPSED.equals(v.getState())
+    public void collapse(NodeProxy node) {
+        node.setState(NodeProxy.COLLAPSED);
+        for (NodeProxy v : graph.getNeighbors(node)) {
+            if (NodeProxy.COLLAPSED.equals(v.getState())
                     && graph.degree(v) == 1) {
                 v.notifyRemove();
             }
         }
     }
 
-    public VIndexedGraph getGraph() {
+    public GraphProxy getGraph() {
         return graph;
     }
 
     private void init() {
-        Collection<ClientVertex> vertices = graph.getVertices();
+        Collection<NodeProxy> vertices = graph.getVertices();
         int newWidth = getOffsetWidth();
         int newHeight = getOffsetHeight();
         if (newWidth > 0 && newHeight > 0) {
@@ -129,8 +129,8 @@ public class VGraphExplorer extends Composite implements Paintable {
         }
         for (String json : nodes) {
             JSONObject object = JSONParser.parseLenient(json).isObject();
-            String id = object.get(ClientVertex.ID).isString().stringValue();
-            ClientVertex node = new ClientVertex(id);
+            String id = object.get(NodeProxy.ID).isString().stringValue();
+            NodeProxy node = new NodeProxy(id);
             if (graph.addVertex(node)) {
                 if (current == null) {
                     node.setX(Random.nextInt(getOffsetWidth()));
@@ -143,15 +143,15 @@ public class VGraphExplorer extends Composite implements Paintable {
                 node = graph.getVertex(id);
             }
             if (!node.hasHandler()) {
-                new VertexHandler(this, node);
+                new NodeController(this, node);
             }
-            node.setContent(object.get(ClientVertex.LABEL).isString()
+            node.setContent(object.get(NodeProxy.LABEL).isString()
                     .stringValue());
-            node.setState(object.get(ClientVertex.STATE).isString()
+            node.setState(object.get(NodeProxy.STATE).isString()
                     .stringValue());
-            node.setKind(object.get(ClientVertex.KIND).isString().stringValue());
-            int x = (int) object.get(ClientVertex.X).isNumber().doubleValue();
-            int y = (int) object.get(ClientVertex.Y).isNumber().doubleValue();
+            node.setKind(object.get(NodeProxy.KIND).isString().stringValue());
+            int x = (int) object.get(NodeProxy.X).isNumber().doubleValue();
+            int y = (int) object.get(NodeProxy.Y).isNumber().doubleValue();
             new NodeAnimation(node, x, y).run(500);
         }
     }
@@ -162,23 +162,23 @@ public class VGraphExplorer extends Composite implements Paintable {
         }
         for (String json : rels) {
             JSONObject object = JSONParser.parseLenient(json).isObject();
-            String id = object.get(ClientEdge.ID).isString().stringValue();
+            String id = object.get(ArcProxy.ID).isString().stringValue();
             if (!graph.containsEdge(id)) {
-                ClientEdge edge = new ClientEdge(id, object
-                        .get(ClientEdge.TYPE).isString().stringValue());
+                ArcProxy edge = new ArcProxy(id, object
+                        .get(ArcProxy.TYPE).isString().stringValue());
                 if (!graph.addEdge(
                         edge,
-                        graph.getVertex(object.get(ClientEdge.FROM_ID)
+                        graph.getVertex(object.get(ArcProxy.FROM_ID)
                                 .isString().stringValue()),
-                        graph.getVertex(object.get(ClientEdge.TO_ID).isString()
+                        graph.getVertex(object.get(ArcProxy.TO_ID).isString()
                                 .stringValue()))) {
                     edge = graph.getEdge(id);
                 }
-                edge.setLabel(object.get(ClientEdge.LABEL).isString()
+                edge.setLabel(object.get(ArcProxy.LABEL).isString()
                         .stringValue());
-                edge.setGroup(object.get(ClientEdge.GROUP).isBoolean()
+                edge.setGroup(object.get(ArcProxy.GROUP).isBoolean()
                         .booleanValue());
-                new EdgeHandler(this, edge);
+                new ArcController(this, edge);
             }
         }
     }
@@ -191,7 +191,7 @@ public class VGraphExplorer extends Composite implements Paintable {
         canvas.remove(widget);
     }
 
-    void save(ClientVertex node, boolean immediate) {
+    void save(NodeProxy node, boolean immediate) {
         connection.updateVariable(paintableId, "" + node.getId(),
                 node.toString(), immediate);
     }
@@ -214,7 +214,7 @@ public class VGraphExplorer extends Composite implements Paintable {
         init();
     }
 
-    void toggle(ClientVertex node) {
+    void toggle(NodeProxy node) {
         current = node;
         if (connection == null) {
             return;
@@ -270,11 +270,11 @@ public class VGraphExplorer extends Composite implements Paintable {
 
     private static class NodeAnimation extends Animation {
 
-        private final ClientVertex v;
+        private final NodeProxy v;
         private final int endX;
         private final int endY;
 
-        public NodeAnimation(ClientVertex v, int endX, int endY) {
+        public NodeAnimation(NodeProxy v, int endX, int endY) {
             this.v = v;
             this.endX = endX;
             this.endY = endY;

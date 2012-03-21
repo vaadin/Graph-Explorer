@@ -13,16 +13,14 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.graph.client;
+package com.vaadin.graph;
 
-/**
- * An event handler and presenter/controller.
- * 
- * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
- */
-interface Handler {
+public interface Node {
+    Iterable<String> getPropertyKeys();
 
-    void update();
+    Object getProperty(String key, Object defaultValue);
 
-    void remove();
+    String getId();
+
+    String getLabel();
 }

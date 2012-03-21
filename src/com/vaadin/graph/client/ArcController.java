@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.HTML;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-class EdgeHandler implements Handler {
+class ArcController implements Controller {
 
     private static final int ARROWHEAD_LENGTH = 10;
     private static final int ARROWHEAD_WIDTH = ARROWHEAD_LENGTH / 2;
@@ -34,12 +34,12 @@ class EdgeHandler implements Handler {
     private HTML label;
     private Line arrowheadLeft;
     private Line arrowheadRight;
-    private final ClientEdge relationship;
+    private final ArcProxy relationship;
     private double terminusX;
     private double terminusY;
     private final VGraphExplorer parent;
 
-    EdgeHandler(VGraphExplorer parent, ClientEdge relationship) {
+    ArcController(VGraphExplorer parent, ArcProxy relationship) {
         this.parent = parent;
         this.relationship = relationship;
         addEdge();
@@ -91,11 +91,11 @@ class EdgeHandler implements Handler {
     }
 
     private void updateArrowhead() {
-        VIndexedGraph graph = parent.getGraph();
-        ClientVertex from = graph.getSource(relationship);
+        GraphProxy graph = parent.getGraph();
+        NodeProxy from = graph.getSource(relationship);
         double fromX = from.getX();
         double fromY = from.getY();
-        ClientVertex to = graph.getDest(relationship);
+        NodeProxy to = graph.getDest(relationship);
         double toX = to.getX();
         double toY = to.getY();
         double dX = toX - fromX;
@@ -143,16 +143,16 @@ class EdgeHandler implements Handler {
     }
 
     private void updateEdge() {
-        VIndexedGraph graph = parent.getGraph();
-        ClientVertex from = graph.getSource(relationship);
-        ClientVertex to = graph.getDest(relationship);
+        GraphProxy graph = parent.getGraph();
+        NodeProxy from = graph.getSource(relationship);
+        NodeProxy to = graph.getDest(relationship);
         updateLine(edge, from.getX(), from.getY(), to.getX(), to.getY());
     }
 
     private Style updateLabel() {
         Style style = label.getElement().getStyle();
-        VIndexedGraph graph = parent.getGraph();
-        ClientVertex from = graph.getSource(relationship);
+        GraphProxy graph = parent.getGraph();
+        NodeProxy from = graph.getSource(relationship);
 
         double x = getLabelCenter(from.getX(), terminusX)
                 - label.getOffsetWidth() / 2.0;

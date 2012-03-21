@@ -13,14 +13,16 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.vaadin.graph;
+package com.vaadin.graph.client;
 
-public interface Vertex {
-    Iterable<String> getPropertyKeys();
+/**
+ * An event handler and presenter/controller.
+ * 
+ * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
+ */
+interface Controller {
 
-    Object getProperty(String key, Object defaultValue);
+    void update();
 
-    String getId();
-
-    String getLabel();
+    void remove();
 }

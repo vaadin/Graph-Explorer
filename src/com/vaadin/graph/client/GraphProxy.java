@@ -29,16 +29,16 @@ import com.vaadin.terminal.gwt.client.VConsole;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public class VIndexedGraph {
+public class GraphProxy {
 
-    private final Map<String, ClientVertex> vertices = new HashMap<String, ClientVertex>();
-    private final Map<String, ClientEdge> edges = new HashMap<String, ClientEdge>();
-    private final Map<ClientVertex, Set<ClientEdge>> inEdgeSets = new HashMap<ClientVertex, Set<ClientEdge>>();
-    private final Map<ClientVertex, Set<ClientEdge>> outEdgeSets = new HashMap<ClientVertex, Set<ClientEdge>>();
-    private final Map<ClientEdge, ClientVertex> sourceVertices = new HashMap<ClientEdge, ClientVertex>();
-    private final Map<ClientEdge, ClientVertex> destVertices = new HashMap<ClientEdge, ClientVertex>();
+    private final Map<String, NodeProxy> vertices = new HashMap<String, NodeProxy>();
+    private final Map<String, ArcProxy> edges = new HashMap<String, ArcProxy>();
+    private final Map<NodeProxy, Set<ArcProxy>> inEdgeSets = new HashMap<NodeProxy, Set<ArcProxy>>();
+    private final Map<NodeProxy, Set<ArcProxy>> outEdgeSets = new HashMap<NodeProxy, Set<ArcProxy>>();
+    private final Map<ArcProxy, NodeProxy> sourceVertices = new HashMap<ArcProxy, NodeProxy>();
+    private final Map<ArcProxy, NodeProxy> destVertices = new HashMap<ArcProxy, NodeProxy>();
 
-    public boolean addEdge(ClientEdge e, ClientVertex source, ClientVertex dest) {
+    public boolean addEdge(ArcProxy e, NodeProxy source, NodeProxy dest) {
         if (edges.containsKey(e.id)) {
             return false;
         }
@@ -50,13 +50,13 @@ public class VIndexedGraph {
         return true;
     }
 
-    public boolean addVertex(ClientVertex v) {
+    public boolean addVertex(NodeProxy v) {
         if (vertices.containsKey(v.id)) {
             return false;
         }
         vertices.put(v.id, v);
-        inEdgeSets.put(v, new HashSet<ClientEdge>());
-        outEdgeSets.put(v, new HashSet<ClientEdge>());
+        inEdgeSets.put(v, new HashSet<ArcProxy>());
+        outEdgeSets.put(v, new HashSet<ArcProxy>());
         return true;
     }
 
@@ -68,7 +68,7 @@ public class VIndexedGraph {
         return vertices.containsKey(id);
     }
 
-    public int degree(ClientVertex v) {
+    public int degree(NodeProxy v) {
         int degree = 0;
         if (inEdgeSets.containsKey(v)) {
             degree += inEdgeSets.get(v).size();
@@ -79,65 +79,65 @@ public class VIndexedGraph {
         return degree;
     }
 
-    public ClientVertex getDest(ClientEdge e) {
+    public NodeProxy getDest(ArcProxy e) {
         return destVertices.get(e);
     }
 
-    public ClientEdge getEdge(String id) {
+    public ArcProxy getEdge(String id) {
         return edges.get(id);
     }
 
-    public Collection<ClientEdge> getInEdges(ClientVertex v) {
-        Set<ClientEdge> set = inEdgeSets.get(v);
+    public Collection<ArcProxy> getInEdges(NodeProxy v) {
+        Set<ArcProxy> set = inEdgeSets.get(v);
         if (set == null) {
-            set = new HashSet<ClientEdge>();
+            set = new HashSet<ArcProxy>();
         }
         return Collections.unmodifiableCollection(set);
     }
 
-    public Collection<ClientVertex> getNeighbors(ClientVertex node) {
-        Set<ClientVertex> neighbors = new HashSet<ClientVertex>();
+    public Collection<NodeProxy> getNeighbors(NodeProxy node) {
+        Set<NodeProxy> neighbors = new HashSet<NodeProxy>();
         if (inEdgeSets.containsKey(node)) {
-            for (ClientEdge e : inEdgeSets.get(node)) {
+            for (ArcProxy e : inEdgeSets.get(node)) {
                 neighbors.add(getSource(e));
             }
         }
         if (outEdgeSets.containsKey(node)) {
-            for (ClientEdge e : outEdgeSets.get(node)) {
+            for (ArcProxy e : outEdgeSets.get(node)) {
                 neighbors.add(getDest(e));
             }
         }
         return neighbors;
     }
 
-    public Collection<ClientEdge> getOutEdges(ClientVertex v) {
-        Set<ClientEdge> set = outEdgeSets.get(v);
+    public Collection<ArcProxy> getOutEdges(NodeProxy v) {
+        Set<ArcProxy> set = outEdgeSets.get(v);
         if (set == null) {
-            set = new HashSet<ClientEdge>();
+            set = new HashSet<ArcProxy>();
         }
         return Collections.unmodifiableCollection(set);
     }
 
-    public ClientVertex getSource(ClientEdge e) {
+    public NodeProxy getSource(ArcProxy e) {
         return sourceVertices.get(e);
     }
 
-    public ClientVertex getVertex(String id) {
+    public NodeProxy getVertex(String id) {
         return vertices.get(id);
     }
 
-    public Collection<ClientVertex> getVertices() {
+    public Collection<NodeProxy> getVertices() {
         return Collections.unmodifiableCollection(vertices.values());
     }
 
-    public void removeEdge(ClientEdge e) {
+    public void removeEdge(ArcProxy e) {
         removeEdge(e.getId());
     }
 
     public boolean removeEdge(String id) {
         boolean success = edges.containsKey(id);
         if (success) {
-            ClientEdge e = edges.remove(id);
+            ArcProxy e = edges.remove(id);
 
             VConsole.log("remove " + getSource(e).id + " " + e.getType() + " "
                     + getDest(e).id);
@@ -154,18 +154,18 @@ public class VIndexedGraph {
 
         boolean success = vertices.containsKey(id);
         if (success) {
-            ClientVertex v = vertices.remove(id);
-            for (ClientEdge e : inEdgeSets.remove(v)) {
+            NodeProxy v = vertices.remove(id);
+            for (ArcProxy e : inEdgeSets.remove(v)) {
                 removeEdge(e);
             }
-            for (ClientEdge e : outEdgeSets.remove(v)) {
+            for (ArcProxy e : outEdgeSets.remove(v)) {
                 removeEdge(e);
             }
         }
         return success;
     }
 
-    public boolean removeVertex(ClientVertex v) {
+    public boolean removeVertex(NodeProxy v) {
         return removeVertex(v.getId());
     }
 }

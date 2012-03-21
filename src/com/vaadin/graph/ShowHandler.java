@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.vaadin.graph.GraphLoader.NodeSelector;
-import com.vaadin.graph.client.ClientVertex;
+import com.vaadin.graph.client.NodeProxy;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Window;
@@ -29,14 +29,14 @@ final class ShowHandler implements ClickListener {
         dialog.getParent().removeWindow(dialog);
         parent.graphLoader.loadMembers(parent.graph, groupId,
                 selector.getSelectedNodeIds());
-        Set<ClientVertex> lockedVertices = new HashSet<ClientVertex>();
+        Set<NodeProxy> lockedVertices = new HashSet<NodeProxy>();
         if (!parent.graph.containsVertex(groupId)) {
             parent.removedId = groupId;
         } else {
             lockedVertices.add(parent.graph.getVertex(groupId));
         }
-        for (ClientVertex v : parent.graph.getVertices()) {
-            if (ClientVertex.EXPANDED.equals(v.getState())) {
+        for (NodeProxy v : parent.graph.getVertices()) {
+            if (NodeProxy.EXPANDED.equals(v.getState())) {
                 lockedVertices.add(v);
             }
         }

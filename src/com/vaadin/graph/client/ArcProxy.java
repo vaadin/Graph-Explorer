@@ -20,7 +20,7 @@ package com.vaadin.graph.client;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public final class ClientEdge extends IndexedElement {
+public final class ArcProxy extends IndexedElement {
     public static final String ID = "id";
     public static final String TYPE = "type";
     public static final String FROM_ID = "fromId";
@@ -31,7 +31,7 @@ public final class ClientEdge extends IndexedElement {
     private String label;
     private boolean group = false;
 
-    public ClientEdge(String id, String type) {
+    public ArcProxy(String id, String type) {
         super(id);
         this.type = type;
     }

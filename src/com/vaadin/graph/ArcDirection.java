@@ -15,14 +15,6 @@
  */
 package com.vaadin.graph;
 
-import java.util.Map;
-
-public interface Edge {
-    String getId();
-
-    String getLabel();
-
-    Map<?, ?> getProperties();
-
-    Vertex getOtherEnd(Vertex parent);
+public enum ArcDirection {
+    INCOMING, OUTGOING
 }

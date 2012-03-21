@@ -20,7 +20,7 @@ package com.vaadin.graph.client;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public final class ClientVertex extends IndexedElement {
+public final class NodeProxy extends IndexedElement {
 
     public static final String ID = "id";
     public static final String LABEL = "label";
@@ -45,7 +45,7 @@ public final class ClientVertex extends IndexedElement {
     private int height;
     private boolean dragging = false;
 
-    public ClientVertex(String id) {
+    public NodeProxy(String id) {
         super(id);
     }
 

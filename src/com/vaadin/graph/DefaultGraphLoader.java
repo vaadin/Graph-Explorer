@@ -25,8 +25,8 @@ import java.util.StringTokenizer;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.graph.client.ClientEdge;
-import com.vaadin.graph.client.ClientVertex;
+import com.vaadin.graph.client.ArcProxy;
+import com.vaadin.graph.client.NodeProxy;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table;
@@ -41,30 +41,30 @@ import com.vaadin.ui.VerticalLayout;
 public class DefaultGraphLoader implements GraphLoader {
     private static final String GROUP_LABEL = "<br/>nodes";
 
-    private final GraphProvider graphProvider;
-    private final Map<String, Map<String, Edge>> groups = new HashMap<String, Map<String, Edge>>();
+    private final GraphRepository graphRepository;
+    private final Map<String, Map<String, Arc>> groups = new HashMap<String, Map<String, Arc>>();
 
-    public DefaultGraphLoader(GraphProvider graphDb) {
-        graphProvider = graphDb;
+    public DefaultGraphLoader(GraphRepository graphDb) {
+        graphRepository = graphDb;
     }
 
     private void addGroupRel(GraphModel graph, String relId, String relType,
             String fromId, String toId) {
-        ClientEdge edge = new ClientEdge(relId, relType);
+        ArcProxy edge = new ArcProxy(relId, relType);
         edge.setGroup(true);
         edge.setLabel(getGroupLabel(relType));
         graph.addEdge(edge, graph.getVertex(fromId), graph.getVertex(toId));
     }
 
-    private void addRel(GraphModel graph, Edge rel) {
-        ClientEdge edge = new ClientEdge("" + rel.getId(), rel.getLabel());
+    private void addRel(GraphModel graph, Arc rel) {
+        ArcProxy edge = new ArcProxy("" + rel.getId(), rel.getLabel());
         edge.setLabel(getLabel(rel));
         graph.addEdge(edge,
-                graph.getVertex("" + graphProvider.getSource(rel).getId()),
-                graph.getVertex("" + graphProvider.getDestination(rel).getId()));
+                graph.getVertex("" + graphRepository.getSource(rel).getId()),
+                graph.getVertex("" + graphRepository.getDestination(rel).getId()));
     }
 
-    private String getLabel(Vertex node, boolean html) {
+    private String getLabel(Node node, boolean html) {
         Set<String> keys = new LinkedHashSet<String>();
         for (String key : node.getPropertyKeys()) {
             keys.add(key);
@@ -91,7 +91,7 @@ public class DefaultGraphLoader implements GraphLoader {
         return "<b>" + relType.toLowerCase().replace('_', ' ') + "</b>";
     }
 
-    private String getLabel(Edge rel) {
+    private String getLabel(Arc rel) {
         StringBuilder builder = new StringBuilder();
         String delim = "<br>";
         String before = "<i>";
@@ -141,10 +141,10 @@ public class DefaultGraphLoader implements GraphLoader {
 
                 StringTokenizer tokenizer = new StringTokenizer(groupId);
                 String parentId = tokenizer.nextToken();
-                Vertex parent = graphProvider.getVertexById(parentId);
-                for (Edge rel : groups.get(groupId).values()) {
-                    // Vertex child = graphProvider.getOpposite(parent, rel);
-                    Vertex child = rel.getOtherEnd(parent);
+                Node parent = graphRepository.getVertexById(parentId);
+                for (Arc rel : groups.get(groupId).values()) {
+                    // Node child = graphRepository.getOpposite(parent, rel);
+                    Node child = rel.getOtherEnd(parent);
                     String id = "" + child.getId();
                     String label = getLabel(child, false);
                     members.put(id, label);
@@ -193,36 +193,36 @@ public class DefaultGraphLoader implements GraphLoader {
     }
 
     public void init(GraphModel graph) {
-        load(graph, graphProvider.getHomeVertex());
+        load(graph, graphRepository.getHomeVertex());
     }
 
-    private ClientVertex load(GraphModel graph, Vertex node) {
+    private NodeProxy load(GraphModel graph, Node node) {
         String label = getLabel(node, true);
         String id = "" + node.getId();
-        ClientVertex v = new ClientVertex(id);
+        NodeProxy v = new NodeProxy(id);
         if (!graph.addVertex(v)) {
             v = graph.getVertex(id);
         }
         v.setContent(label);
         if (label.isEmpty()) {
-            v.setKind(ClientVertex.EMPTY);
+            v.setKind(NodeProxy.EMPTY);
         }
         return v;
     }
 
-    public Collection<ClientVertex> loadMembers(GraphModel graph,
+    public Collection<NodeProxy> loadMembers(GraphModel graph,
             String groupId, Collection<String> memberIds) {
         StringTokenizer tokenizer = new StringTokenizer(groupId);
         final String parentId = tokenizer.nextToken();
-        final Vertex parent = graphProvider.getVertexById(parentId);
-        Map<String, Edge> rels = groups.get(groupId);
-        Collection<ClientVertex> loaded = new HashSet<ClientVertex>();
+        final Node parent = graphRepository.getVertexById(parentId);
+        Map<String, Arc> rels = groups.get(groupId);
+        Collection<NodeProxy> loaded = new HashSet<NodeProxy>();
         for (String id : memberIds) {
-            Edge rel = rels.remove(id);
-            loaded.add(load(graph, graphProvider.getOpposite(parent, rel)));
+            Arc rel = rels.remove(id);
+            loaded.add(load(graph, graphRepository.getOpposite(parent, rel)));
             addRel(graph, rel);
         }
-        ClientVertex group = graph.getVertex(groupId);
+        NodeProxy group = graph.getVertex(groupId);
         if (rels.size() > 0) {
             group.setContent(rels.size() + GROUP_LABEL);
         } else {
@@ -232,31 +232,31 @@ public class DefaultGraphLoader implements GraphLoader {
         return loaded;
     }
 
-    public Collection<ClientVertex> loadNeighbors(GraphModel graph,
+    public Collection<NodeProxy> loadNeighbors(GraphModel graph,
             String nodeId) {
-        ClientVertex v = graph.getVertex(nodeId);
-        Set<ClientVertex> neighbors = new HashSet<ClientVertex>();
-        if (ClientVertex.EXPANDED.equals(v.getState())) {
+        NodeProxy v = graph.getVertex(nodeId);
+        Set<NodeProxy> neighbors = new HashSet<NodeProxy>();
+        if (NodeProxy.EXPANDED.equals(v.getState())) {
             return neighbors;
         }
-        v.setState(ClientVertex.EXPANDED);
-        Vertex node = graphProvider.getVertexById(nodeId);
-        for (EdgeDirection dir : new EdgeDirection[] { EdgeDirection.INCOMING,
-                EdgeDirection.OUTGOING }) {
-            for (String label : graphProvider.getEdgeLabels()) {
-                Map<String, Edge> rels = new HashMap<String, Edge>();
-                for (Edge rel : graphProvider.getEdges(node, label, dir)) {
-                    rels.put("" + graphProvider.getOpposite(node, rel).getId(),
+        v.setState(NodeProxy.EXPANDED);
+        Node node = graphRepository.getVertexById(nodeId);
+        for (ArcDirection dir : new ArcDirection[] { ArcDirection.INCOMING,
+                ArcDirection.OUTGOING }) {
+            for (String label : graphRepository.getEdgeLabels()) {
+                Map<String, Arc> rels = new HashMap<String, Arc>();
+                for (Arc rel : graphRepository.getEdges(node, label, dir)) {
+                    rels.put("" + graphRepository.getOpposite(node, rel).getId(),
                             rel);
                 }
                 int nrRels = rels.size();
                 if (nrRels > 10) {
                     String groupId = nodeId + ' ' + dir + ' ' + label;
-                    ClientVertex groupNode = new ClientVertex(groupId);
+                    NodeProxy groupNode = new NodeProxy(groupId);
                     if (!graph.addVertex(groupNode)) {
                         groupNode = graph.getVertex(groupId);
                     }
-                    groupNode.setKind(ClientVertex.GROUP);
+                    groupNode.setKind(NodeProxy.GROUP);
                     groupNode.setContent(nrRels + GROUP_LABEL);
                     switch (dir) {
                     case INCOMING:
@@ -271,13 +271,13 @@ public class DefaultGraphLoader implements GraphLoader {
                     neighbors.add(groupNode);
                     groups.put(groupId, rels);
                 } else {
-                    for (Edge rel : rels.values()) {
+                    for (Arc rel : rels.values()) {
                         String id = "" + rel.getId();
                         if (!graph.containsEdge(id)) {
-                            // Vertex other = graphProvider.getOpposite(node,
+                            // Node other = graphRepository.getOpposite(node,
                             // rel);
-                            Vertex other = rel.getOtherEnd(node);
-                            ClientVertex vOther = load(graph, other);
+                            Node other = rel.getOtherEnd(node);
+                            NodeProxy vOther = load(graph, other);
                             addRel(graph, rel);
                             neighbors.add(vOther);
                         }

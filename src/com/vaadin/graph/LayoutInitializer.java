@@ -5,10 +5,10 @@ import java.util.Random;
 
 import org.apache.commons.collections15.Transformer;
 
-import com.vaadin.graph.client.ClientVertex;
+import com.vaadin.graph.client.NodeProxy;
 
 final class LayoutInitializer implements
-        Transformer<ClientVertex, Point2D> {
+        Transformer<NodeProxy, Point2D> {
     private final int height;
     private final int width;
 
@@ -17,7 +17,7 @@ final class LayoutInitializer implements
         this.height = height;
     }
 
-    public Point2D transform(ClientVertex input) {
+    public Point2D transform(NodeProxy input) {
         int x = input.getX();
         int y = input.getY();
         return new Point2D.Double(

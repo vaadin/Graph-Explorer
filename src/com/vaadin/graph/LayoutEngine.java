@@ -7,19 +7,19 @@ import java.util.Random;
 
 import org.apache.commons.collections15.Transformer;
 
-import com.vaadin.graph.client.ClientEdge;
-import com.vaadin.graph.client.ClientVertex;
+import com.vaadin.graph.client.ArcProxy;
+import com.vaadin.graph.client.NodeProxy;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.Graph;
 
 class LayoutEngine {
-    static void layout(Graph<ClientVertex, ClientEdge> graph, int width,
-            int height, Collection<ClientVertex> lockedVertices) {
-        FRLayout<ClientVertex, ClientEdge> layout = new FRLayout<ClientVertex, ClientEdge>(
+    static void layout(Graph<NodeProxy, ArcProxy> graph, int width,
+            int height, Collection<NodeProxy> lockedVertices) {
+        FRLayout<NodeProxy, ArcProxy> layout = new FRLayout<NodeProxy, ArcProxy>(
                 graph, new Dimension(width, height));
         layout.lock(false);
-        for (ClientVertex v : lockedVertices) {
+        for (NodeProxy v : lockedVertices) {
             layout.lock(v, true);
         }
         layout.setInitializer(new LayoutInitializer(width, height));
@@ -27,7 +27,7 @@ class LayoutEngine {
         while (!layout.done()) {
             layout.step();
         }
-        for (ClientVertex v : graph.getVertices()) {
+        for (NodeProxy v : graph.getVertices()) {
             Point2D location = layout.transform(v);
             v.setX((int) location.getX());
             v.setY((int) location.getY());
@@ -35,7 +35,7 @@ class LayoutEngine {
     }
 
     static final class LayoutInitializer implements
-            Transformer<ClientVertex, Point2D> {
+            Transformer<NodeProxy, Point2D> {
         private final int height;
         private final int width;
 
@@ -44,7 +44,7 @@ class LayoutEngine {
             this.height = height;
         }
 
-        public Point2D transform(ClientVertex input) {
+        public Point2D transform(NodeProxy input) {
             int x = input.getX();
             int y = input.getY();
             return new Point2D.Double(

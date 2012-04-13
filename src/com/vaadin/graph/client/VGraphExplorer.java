@@ -15,26 +15,17 @@
  */
 package com.vaadin.graph.client;
 
-import java.util.Collection;
+import java.util.*;
 
-import org.vaadin.gwtgraphics.client.DrawingArea;
-import org.vaadin.gwtgraphics.client.VectorObject;
+import org.vaadin.gwtgraphics.client.*;
 
-import com.google.gwt.animation.client.Animation;
-import com.google.gwt.dom.client.Style;
+import com.google.gwt.animation.client.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.dom.client.Style.Position;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Random;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.vaadin.terminal.gwt.client.ApplicationConnection;
-import com.vaadin.terminal.gwt.client.Paintable;
-import com.vaadin.terminal.gwt.client.UIDL;
-import com.vaadin.terminal.gwt.client.Util;
+import com.google.gwt.user.client.ui.*;
+import com.vaadin.terminal.gwt.client.*;
 
 /**
  * Client-side component for visually exploring a large graph.
@@ -147,8 +138,7 @@ public class VGraphExplorer extends Composite implements Paintable {
             }
             node.setContent(object.get(NodeProxy.LABEL).isString()
                     .stringValue());
-            node.setState(object.get(NodeProxy.STATE).isString()
-                    .stringValue());
+            node.setState(object.get(NodeProxy.STATE).isString().stringValue());
             node.setKind(object.get(NodeProxy.KIND).isString().stringValue());
             int x = (int) object.get(NodeProxy.X).isNumber().doubleValue();
             int y = (int) object.get(NodeProxy.Y).isNumber().doubleValue();
@@ -164,12 +154,12 @@ public class VGraphExplorer extends Composite implements Paintable {
             JSONObject object = JSONParser.parseLenient(json).isObject();
             String id = object.get(ArcProxy.ID).isString().stringValue();
             if (!graph.containsEdge(id)) {
-                ArcProxy edge = new ArcProxy(id, object
-                        .get(ArcProxy.TYPE).isString().stringValue());
+                ArcProxy edge = new ArcProxy(id, object.get(ArcProxy.TYPE)
+                        .isString().stringValue());
                 if (!graph.addEdge(
                         edge,
-                        graph.getVertex(object.get(ArcProxy.FROM_ID)
-                                .isString().stringValue()),
+                        graph.getVertex(object.get(ArcProxy.FROM_ID).isString()
+                                .stringValue()),
                         graph.getVertex(object.get(ArcProxy.TO_ID).isString()
                                 .stringValue()))) {
                     edge = graph.getEdge(id);

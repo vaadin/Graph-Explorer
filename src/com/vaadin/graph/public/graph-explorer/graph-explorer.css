@@ -85,3 +85,8 @@
   -webkit-box-shadow: .75ex 1.5ex 1.5ex rgba(255, 255, 255, 0.8) inset, -.75ex
     -1.5ex 1.5ex rgba(0, 0, 0, 0.2) inset, 2px 4px 4px rgba(0, 0, 0, 0.62);
 }
+
+/* Workaround */
+.black .v-table-row {
+	background-color: transparent;
+}

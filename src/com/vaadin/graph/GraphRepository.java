@@ -53,7 +53,4 @@ public interface GraphRepository<N extends Node, A extends Arc> {
      * @return null if there's no such vertex
      */
     N getVertexById(String id);
-
-    /** Shuts down the graph provider to free up resources. Optional operation. */
-    void shutdown();
 }

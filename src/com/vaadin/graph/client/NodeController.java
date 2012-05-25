@@ -31,7 +31,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 
 /**
- * Presenter/controller for a vertex in a graph.
+ * Presenter/controller for a node in a graph.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
@@ -110,9 +110,9 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
         node.setObserver(null);
         widget.removeFromParent();
         GraphProxy graph = parent.getGraph();
-        remove(graph.getInEdges(node));
-        remove(graph.getOutEdges(node));
-        graph.removeVertex(node.getId());
+        remove(graph.getInArcs(node));
+        remove(graph.getOutArcs(node));
+        graph.removeNode(node.getId());
     }
 
     private void reposition() {
@@ -151,8 +151,8 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
 
     void updateRelationships() {
         GraphProxy graph = parent.getGraph();
-        update(graph.getInEdges(node));
-        update(graph.getOutEdges(node));
+        update(graph.getInArcs(node));
+        update(graph.getOutArcs(node));
     }
 
     /** Limits value to [min, max], so that min <= value <= max. */
@@ -160,18 +160,18 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
         return Math.min(Math.max(min, value), max);
     }
 
-    private static void remove(Collection<ArcProxy> edges) {
-        if (edges != null) {
-            for (ArcProxy edge : edges) {
-                edge.notifyRemove();
+    private static void remove(Collection<ArcProxy> arcs) {
+        if (arcs != null) {
+            for (ArcProxy arc : arcs) {
+                arc.notifyRemove();
             }
         }
     }
 
-    private static void update(Collection<ArcProxy> edges) {
-        if (edges != null) {
-            for (ArcProxy edge : edges) {
-                edge.notifyUpdate();
+    private static void update(Collection<ArcProxy> arcs) {
+        if (arcs != null) {
+            for (ArcProxy arc : arcs) {
+                arc.notifyUpdate();
             }
         }
     }

@@ -18,39 +18,39 @@ package com.vaadin.graph;
 import java.util.*;
 
 public interface GraphRepository<N extends Node, A extends Arc> {
-    /** Gets the vertex that the given edge points to. */
+    /** Gets the node that the given arc points away from. */
+    N getSource(A arc);
+
+    /** Gets the node that the given arc points to. */
     N getDestination(A arc);
 
-    /** Returns a list of all possible edge labels in this graph. */
-    Iterable<String> getEdgeLabels();
+    /** Returns a list of all possible arc labels in this graph. */
+    Iterable<String> getArcLabels();
 
     /**
-     * Gets all edges connected to the given node, with the given label, in the
+     * Gets all arcs connected to the given node, with the given label, in the
      * given direction.
      * 
      * @param node
-     *            return only edges connected to this vertex
+     *            return only arcs connected to this node
      * @param label
-     *            return only edges with this label
+     *            return only arcs with this label
      * @param dir
-     *            INCOMING for edges pointing towards the given vertex, OUTGOING
-     *            for edges pointing away from the given vertex
+     *            INCOMING for arcs pointing towards the given node, OUTGOING
+     *            for arcs pointing away from the given node
      */
-    Collection<A> getEdges(N node, String label, ArcDirection dir);
+    Collection<A> getArcs(N node, String label, ArcDirection dir);
 
     /** Gets the "origin" of the graph. */
-    N getHomeVertex();
+    N getHomeNode();
 
-    /** Gets the vertex at the other end of the given edge. */
+    /** Gets the node at the other end of the given arc. */
     N getOpposite(N node, A arc);
 
-    /** Gets the vertex that the given edge points away from. */
-    N getSource(A arc);
-
     /**
-     * Returns the vertex with the given ID.
+     * Returns the node with the given ID.
      * 
-     * @return null if there's no such vertex
+     * @return null if there's no such node
      */
-    N getVertexById(String id);
+    N getNodeById(String id);
 }

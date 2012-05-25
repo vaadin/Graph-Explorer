@@ -16,6 +16,7 @@
 package com.vaadin.graph;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
@@ -41,27 +42,23 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
 
     private void addGroupRel(GraphModel graph, String relId, String relType,
             String fromId, String toId) {
-        ArcProxy edge = new ArcProxy(relId, relType);
-        edge.setGroup(true);
-        edge.setLabel(getGroupLabel(relType));
-        graph.addEdge(edge, graph.getVertex(fromId), graph.getVertex(toId));
+        ArcProxy arc = new ArcProxy(relId, relType);
+        arc.setGroup(true);
+        arc.setLabel(getGroupLabel(relType));
+        graph.addArc(arc, graph.getNode(fromId), graph.getNode(toId));
     }
 
     private void addRel(GraphModel graph, A rel) {
-        ArcProxy edge = new ArcProxy("" + rel.getId(), rel.getLabel());
-        edge.setLabel(getLabel(rel));
-        graph.addEdge(
-                edge,
-                graph.getVertex("" + graphRepository.getSource(rel).getId()),
-                graph.getVertex(""
+        ArcProxy arc = new ArcProxy("" + rel.getId(), rel.getLabel());
+        arc.setLabel(getLabel(rel));
+        graph.addArc(
+                arc,
+                graph.getNode("" + graphRepository.getSource(rel).getId()),
+                graph.getNode(""
                         + graphRepository.getDestination(rel).getId()));
     }
 
     private String getLabel(Node node, boolean html) {
-        Set<String> keys = new LinkedHashSet<String>();
-        for (String key : node.getPropertyKeys()) {
-            keys.add(key);
-        }
         StringBuilder builder = new StringBuilder(node.getLabel() + "; ");
         String delim = ", ";
         String before = "";
@@ -72,9 +69,9 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
             before = "<i>";
             after = ":</i> ";
         }
-        for (String key : keys) {
-            builder.append(before).append(key).append(after)
-                    .append(node.getProperty(key, null)).append(delim);
+        for (Entry<String, Object> property : node.getProperties().entrySet()) {
+            builder.append(before).append(property.getKey()).append(after)
+                    .append(property.getValue()).append(delim);
         }
         String label = builder.toString();
         return label;
@@ -134,10 +131,9 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
 
                 StringTokenizer tokenizer = new StringTokenizer(groupId);
                 String parentId = tokenizer.nextToken();
-                Node parent = graphRepository.getVertexById(parentId);
-                for (Arc rel : groups.get(groupId).values()) {
-                    // Node child = graphRepository.getOpposite(parent, rel);
-                    Node child = rel.getOtherEnd(parent);
+                N parent = graphRepository.getNodeById(parentId);
+                for (A rel : groups.get(groupId).values()) {
+                    N child = graphRepository.getOpposite(parent, rel);
                     String id = "" + child.getId();
                     String label = getLabel(child, false);
                     members.put(id, label);
@@ -186,15 +182,15 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
     }
 
     public void init(GraphModel graph) {
-        load(graph, graphRepository.getHomeVertex());
+        load(graph, graphRepository.getHomeNode());
     }
 
     private NodeProxy load(GraphModel graph, Node node) {
         String label = getLabel(node, true);
         String id = "" + node.getId();
         NodeProxy v = new NodeProxy(id);
-        if (!graph.addVertex(v)) {
-            v = graph.getVertex(id);
+        if (!graph.addNode(v)) {
+            v = graph.getNode(id);
         }
         v.setContent(label);
         if (label.isEmpty()) {
@@ -207,7 +203,7 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
             Collection<String> memberIds) {
         StringTokenizer tokenizer = new StringTokenizer(groupId);
         final String parentId = tokenizer.nextToken();
-        final N parent = graphRepository.getVertexById(parentId);
+        final N parent = graphRepository.getNodeById(parentId);
         Map<String, A> rels = groups.get(groupId);
         Collection<NodeProxy> loaded = new HashSet<NodeProxy>();
         for (String id : memberIds) {
@@ -215,29 +211,29 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
             loaded.add(load(graph, graphRepository.getOpposite(parent, rel)));
             addRel(graph, rel);
         }
-        NodeProxy group = graph.getVertex(groupId);
+        NodeProxy group = graph.getNode(groupId);
         if (rels.size() > 0) {
             group.setContent(rels.size() + GROUP_LABEL);
         } else {
-            graph.removeVertex(group);
+            graph.removeNode(group);
             groups.remove(groupId);
         }
         return loaded;
     }
 
     public Collection<NodeProxy> loadNeighbors(GraphModel graph, String nodeId) {
-        NodeProxy v = graph.getVertex(nodeId);
+        NodeProxy v = graph.getNode(nodeId);
         Set<NodeProxy> neighbors = new HashSet<NodeProxy>();
         if (NodeProxy.EXPANDED.equals(v.getState())) {
             return neighbors;
         }
         v.setState(NodeProxy.EXPANDED);
-        N node = graphRepository.getVertexById(nodeId);
+        N node = graphRepository.getNodeById(nodeId);
         for (ArcDirection dir : new ArcDirection[] { ArcDirection.INCOMING,
                 ArcDirection.OUTGOING }) {
-            for (String label : graphRepository.getEdgeLabels()) {
+            for (String label : graphRepository.getArcLabels()) {
                 Map<String, A> rels = new HashMap<String, A>();
-                for (A rel : graphRepository.getEdges(node, label, dir)) {
+                for (A rel : graphRepository.getArcs(node, label, dir)) {
                     rels.put(""
                             + graphRepository.getOpposite(node, rel).getId(),
                             rel);
@@ -246,8 +242,8 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
                 if (nrRels > 10) {
                     String groupId = nodeId + ' ' + dir + ' ' + label;
                     NodeProxy groupNode = new NodeProxy(groupId);
-                    if (!graph.addVertex(groupNode)) {
-                        groupNode = graph.getVertex(groupId);
+                    if (!graph.addNode(groupNode)) {
+                        groupNode = graph.getNode(groupId);
                     }
                     groupNode.setKind(NodeProxy.GROUP);
                     groupNode.setContent(nrRels + GROUP_LABEL);
@@ -266,10 +262,8 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
                 } else {
                     for (A rel : rels.values()) {
                         String id = "" + rel.getId();
-                        if (!graph.containsEdge(id)) {
-                            // Node other = graphRepository.getOpposite(node,
-                            // rel);
-                            Node other = rel.getOtherEnd(node);
+                        if (!graph.containsArc(id)) {
+                            Node other = graphRepository.getOpposite(node, rel);
                             NodeProxy vOther = load(graph, other);
                             addRel(graph, rel);
                             neighbors.add(vOther);

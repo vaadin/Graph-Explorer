@@ -22,7 +22,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.HTML;
 
 /**
- * Presenter/controller for an edge in a graph.
+ * Presenter/controller for an arc in a graph.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
@@ -30,7 +30,7 @@ class ArcController implements Controller {
 
     private static final int ARROWHEAD_LENGTH = 10;
     private static final int ARROWHEAD_WIDTH = ARROWHEAD_LENGTH / 2;
-    private Line edge;
+    private Line arc;
     private HTML label;
     private Line arrowheadLeft;
     private Line arrowheadRight;
@@ -42,7 +42,7 @@ class ArcController implements Controller {
     ArcController(VGraphExplorer parent, ArcProxy relationship) {
         this.parent = parent;
         this.relationship = relationship;
-        addEdge();
+        addArc();
         addArrowhead();
         addLabel();
         relationship.setObserver(this);
@@ -56,9 +56,9 @@ class ArcController implements Controller {
         parent.add(arrowheadRight);
     }
 
-    private void addEdge() {
-        edge = new Line(0, 0, 0, 0);
-        parent.add(edge);
+    private void addArc() {
+        arc = new Line(0, 0, 0, 0);
+        parent.add(arc);
     }
 
     private void addLabel() {
@@ -76,16 +76,16 @@ class ArcController implements Controller {
 
     public void remove() {
         relationship.setObserver(null);
-        parent.remove(edge);
-        parent.remove(edge);
+        parent.remove(arc);
+        parent.remove(arc);
         parent.remove(label);
         parent.remove(arrowheadLeft);
         parent.remove(arrowheadRight);
-        parent.getGraph().removeEdge(relationship.getId());
+        parent.getGraph().removeArc(relationship.getId());
     }
 
     public void update() {
-        updateEdge();
+        updateArc();
         updateLabel();
         updateArrowhead();
     }
@@ -142,11 +142,11 @@ class ArcController implements Controller {
         updateLine(arrowheadRight, terminusX, terminusY, rightX, rightY);
     }
 
-    private void updateEdge() {
+    private void updateArc() {
         GraphProxy graph = parent.getGraph();
         NodeProxy from = graph.getSource(relationship);
         NodeProxy to = graph.getDest(relationship);
-        updateLine(edge, from.getX(), from.getY(), to.getX(), to.getY());
+        updateLine(arc, from.getX(), from.getY(), to.getX(), to.getY());
     }
 
     private Style updateLabel() {

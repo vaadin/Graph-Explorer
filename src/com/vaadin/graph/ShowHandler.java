@@ -30,10 +30,10 @@ final class ShowHandler implements ClickListener {
         parent.graphController.loadMembers(parent.graph, groupId,
                 selector.getSelectedNodeIds());
         Set<NodeProxy> lockedVertices = new HashSet<NodeProxy>();
-        if (!parent.graph.containsVertex(groupId)) {
+        if (!parent.graph.containsNode(groupId)) {
             parent.removedId = groupId;
         } else {
-            lockedVertices.add(parent.graph.getVertex(groupId));
+            lockedVertices.add(parent.graph.getNode(groupId));
         }
         for (NodeProxy v : parent.graph.getVertices()) {
             if (NodeProxy.EXPANDED.equals(v.getState())) {

@@ -15,17 +15,12 @@
  */
 package com.vaadin.graph;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import com.vaadin.graph.client.ArcProxy;
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.client.*;
 
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.graph.util.Pair;
+import edu.uci.ics.jung.graph.*;
+import edu.uci.ics.jung.graph.util.*;
 
 /**
  * Data structure consisting of nodes with relationships between them.
@@ -34,7 +29,7 @@ import edu.uci.ics.jung.graph.util.Pair;
  */
 public class GraphModel {
     private final Map<String, NodeProxy> vertices = new HashMap<String, NodeProxy>();
-    private final Map<String, ArcProxy> edges = new HashMap<String, ArcProxy>();
+    private final Map<String, ArcProxy> arcs = new HashMap<String, ArcProxy>();
     private DirectedSparseMultigraph<NodeProxy, ArcProxy> graph = new DirectedSparseMultigraph<NodeProxy, ArcProxy>() {
 
         /**
@@ -42,58 +37,56 @@ public class GraphModel {
          * exist.
          */
         @Override
-        public boolean addEdge(ArcProxy edge,
-                Pair<? extends NodeProxy> endpoints, EdgeType edgeType) {
-            boolean success = super.addEdge(edge, endpoints, edgeType);
+        public boolean addEdge(ArcProxy arc,
+                Pair<? extends NodeProxy> endpoints, EdgeType arcType) {
+            boolean success = super.addEdge(arc, endpoints, arcType);
             if (success) {
-                GraphModel.this.edges.put(edge.getId(), edge);
+                arcs.put(arc.getId(), arc);
             }
             return success;
         }
 
         @Override
-        public boolean addVertex(NodeProxy vertex) {
-            boolean success = super.addVertex(vertex);
+        public boolean addVertex(NodeProxy node) {
+            boolean success = super.addVertex(node);
             if (success) {
-                GraphModel.this.vertices.put(vertex.getId(), vertex);
+                GraphModel.this.vertices.put(node.getId(), node);
             }
             return success;
         }
 
         @Override
-        public boolean removeEdge(ArcProxy edge) {
-            boolean success = super.removeEdge(edge);
+        public boolean removeEdge(ArcProxy arc) {
+            boolean success = super.removeEdge(arc);
             if (success) {
-                GraphModel.this.edges.remove(edge.getId());
+                arcs.remove(arc.getId());
             }
             return success;
         }
 
         @Override
-        public boolean removeVertex(NodeProxy vertex) {
-            boolean success = super.removeVertex(vertex);
+        public boolean removeVertex(NodeProxy node) {
+            boolean success = super.removeVertex(node);
             if (success) {
-                GraphModel.this.vertices.remove(vertex.getId());
+                GraphModel.this.vertices.remove(node.getId());
             }
             return success;
         }
     };
 
-    public void addEdge(ArcProxy edge, NodeProxy vertex,
-            NodeProxy vertex2) {
-        graph.addEdge(edge, new Pair<NodeProxy>(vertex, vertex2),
-                EdgeType.DIRECTED);
+    public void addArc(ArcProxy arc, NodeProxy node, NodeProxy node2) {
+        graph.addEdge(arc, new Pair<NodeProxy>(node, node2), EdgeType.DIRECTED);
     }
 
-    public boolean addVertex(NodeProxy v) {
+    public boolean addNode(NodeProxy v) {
         return graph.addVertex(v);
     }
 
-    public boolean containsEdge(String id) {
-        return edges.containsKey(id);
+    public boolean containsArc(String id) {
+        return arcs.containsKey(id);
     }
 
-    public boolean containsVertex(String id) {
+    public boolean containsNode(String id) {
         return vertices.containsKey(id);
     }
 
@@ -105,12 +98,12 @@ public class GraphModel {
         return graph.getDest(e);
     }
 
-    public ArcProxy getEdge(String id) {
-        return edges.get(id);
+    public ArcProxy getArc(String id) {
+        return arcs.get(id);
     }
 
-    public Collection<ArcProxy> getEdges() {
-        return edges.values();
+    public Collection<ArcProxy> getArcs() {
+        return arcs.values();
     }
 
     public Collection<NodeProxy> getNeighbors(NodeProxy node) {
@@ -121,7 +114,7 @@ public class GraphModel {
         return graph.getSource(e);
     }
 
-    public NodeProxy getVertex(String id) {
+    public NodeProxy getNode(String id) {
         return vertices.get(id);
     }
 
@@ -134,7 +127,7 @@ public class GraphModel {
         LayoutEngine.layout(graph, clientWidth, clientHeight, lockedVertices);
     }
 
-    public boolean removeVertex(NodeProxy v) {
+    public boolean removeNode(NodeProxy v) {
         return graph.removeVertex(v);
     }
 }

@@ -15,12 +15,5 @@
  */
 package com.vaadin.graph;
 
-public interface Node {
-    Iterable<String> getPropertyKeys();
-
-    Object getProperty(String key, Object defaultValue);
-
-    String getId();
-
-    String getLabel();
+public interface Node extends GraphElement {
 }

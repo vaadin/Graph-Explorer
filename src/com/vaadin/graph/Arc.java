@@ -15,14 +15,5 @@
  */
 package com.vaadin.graph;
 
-import java.util.Map;
-
-public interface Arc {
-    String getId();
-
-    String getLabel();
-
-    Map<?, ?> getProperties();
-
-    Node getOtherEnd(Node parent);
+public interface Arc extends GraphElement {
 }

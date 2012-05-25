@@ -122,7 +122,7 @@ public class VGraphExplorer extends Composite implements Paintable {
             JSONObject object = JSONParser.parseLenient(json).isObject();
             String id = object.get(NodeProxy.ID).isString().stringValue();
             NodeProxy node = new NodeProxy(id);
-            if (graph.addVertex(node)) {
+            if (graph.addNode(node)) {
                 if (current == null) {
                     node.setX(Random.nextInt(getOffsetWidth()));
                     node.setY(Random.nextInt(getOffsetHeight()));
@@ -131,7 +131,7 @@ public class VGraphExplorer extends Composite implements Paintable {
                     node.setY(current.getY());
                 }
             } else {
-                node = graph.getVertex(id);
+                node = graph.getNode(id);
             }
             if (!node.hasHandler()) {
                 new NodeController(this, node);
@@ -153,22 +153,22 @@ public class VGraphExplorer extends Composite implements Paintable {
         for (String json : rels) {
             JSONObject object = JSONParser.parseLenient(json).isObject();
             String id = object.get(ArcProxy.ID).isString().stringValue();
-            if (!graph.containsEdge(id)) {
-                ArcProxy edge = new ArcProxy(id, object.get(ArcProxy.TYPE)
+            if (!graph.containsArc(id)) {
+                ArcProxy arc = new ArcProxy(id, object.get(ArcProxy.TYPE)
                         .isString().stringValue());
-                if (!graph.addEdge(
-                        edge,
-                        graph.getVertex(object.get(ArcProxy.FROM_ID).isString()
+                if (!graph.addArc(
+                        arc,
+                        graph.getNode(object.get(ArcProxy.FROM_ID).isString()
                                 .stringValue()),
-                        graph.getVertex(object.get(ArcProxy.TO_ID).isString()
+                        graph.getNode(object.get(ArcProxy.TO_ID).isString()
                                 .stringValue()))) {
-                    edge = graph.getEdge(id);
+                    arc = graph.getArc(id);
                 }
-                edge.setLabel(object.get(ArcProxy.LABEL).isString()
+                arc.setLabel(object.get(ArcProxy.LABEL).isString()
                         .stringValue());
-                edge.setGroup(object.get(ArcProxy.GROUP).isBoolean()
+                arc.setGroup(object.get(ArcProxy.GROUP).isBoolean()
                         .booleanValue());
-                new ArcController(this, edge);
+                new ArcController(this, arc);
             }
         }
     }
@@ -253,7 +253,7 @@ public class VGraphExplorer extends Composite implements Paintable {
         parseNodes(uidl.getStringArrayVariable(NODES));
         parseRelationships(uidl.getStringArrayVariable(RELATIONSHIPS));
         if (uidl.hasVariable(HIDE)) {
-            graph.getVertex(uidl.getStringVariable(HIDE)).notifyRemove();
+            graph.getNode(uidl.getStringVariable(HIDE)).notifyRemove();
         }
         update();
     }

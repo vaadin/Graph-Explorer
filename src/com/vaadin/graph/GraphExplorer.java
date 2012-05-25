@@ -79,7 +79,7 @@ public class GraphExplorer extends AbstractComponent {
         if (keys.contains(VGraphExplorer.TOGGLE)) {
             keys.remove(VGraphExplorer.TOGGLE);
             String toggledId = (String) variables.get(VGraphExplorer.TOGGLE);
-            toggledNode = graph.getVertex(toggledId);
+            toggledNode = graph.getNode(toggledId);
             if (toggledNode != null) {
                 if (NodeProxy.GROUP.equals(toggledNode.getKind())) {
                     openMemberSelector(toggledId);
@@ -98,7 +98,7 @@ public class GraphExplorer extends AbstractComponent {
         }
         for (String key : keys) {
             Object variable = variables.get(key);
-            NodeProxy node = graph.getVertex(key);
+            NodeProxy node = graph.getNode(key);
             if (variable != null) {
                 NodeLoader.loadFromJSON(node, variable);
                 lockedVertices.add(node);
@@ -122,7 +122,7 @@ public class GraphExplorer extends AbstractComponent {
         for (NodeProxy v : graph.getNeighbors(node)) {
             if (NodeProxy.COLLAPSED.equals(v.getState())
                     && graph.degree(v) == 1) {
-                graph.removeVertex(v);
+                graph.removeNode(v);
             }
         }
     }
@@ -186,7 +186,7 @@ public class GraphExplorer extends AbstractComponent {
 
     public String[] relationshipsToJSON() {
         List<String> list = new ArrayList<String>();
-        for (ArcProxy e : graph.getEdges()) {
+        for (ArcProxy e : graph.getArcs()) {
             list.add('{' + key(ArcProxy.ID) + q(e.getId()) + ','
                     + key(ArcProxy.TYPE) + q(e.getType()) + ','
                     + key(ArcProxy.LABEL) + q(e.getLabel()) + ','

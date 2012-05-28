@@ -1,8 +1,8 @@
 package com.vaadin.graph;
 
-import net.sf.json.JSONObject;
+import net.sf.json.*;
 
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.client.*;
 
 class NodeLoader {
     static void loadFromJSON(NodeProxy node, Object json) {

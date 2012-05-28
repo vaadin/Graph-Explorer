@@ -30,6 +30,7 @@ import edu.uci.ics.jung.graph.util.*;
 public class GraphModel {
     private final Map<String, NodeProxy> vertices = new HashMap<String, NodeProxy>();
     private final Map<String, ArcProxy> arcs = new HashMap<String, ArcProxy>();
+
     private DirectedSparseMultigraph<NodeProxy, ArcProxy> graph = new DirectedSparseMultigraph<NodeProxy, ArcProxy>() {
 
         /**

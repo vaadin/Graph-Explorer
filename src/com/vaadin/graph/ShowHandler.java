@@ -1,13 +1,12 @@
 package com.vaadin.graph;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import com.vaadin.graph.GraphController.NodeSelector;
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.client.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.*;
 
 final class ShowHandler implements ClickListener {
     private static final long serialVersionUID = 1L;

@@ -15,10 +15,10 @@
  */
 package com.vaadin.graph;
 
-import java.util.Collection;
+import java.util.*;
 
-import com.vaadin.graph.client.NodeProxy;
-import com.vaadin.ui.Component;
+import com.vaadin.graph.client.*;
+import com.vaadin.ui.*;
 
 public interface GraphController {
     NodeSelector getMemberSelector(GraphModel graph, String groupId);

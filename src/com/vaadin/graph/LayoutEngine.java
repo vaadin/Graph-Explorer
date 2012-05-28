@@ -1,21 +1,19 @@
 package com.vaadin.graph;
 
-import java.awt.Dimension;
-import java.awt.geom.Point2D;
-import java.util.Collection;
-import java.util.Random;
+import java.awt.*;
+import java.awt.geom.*;
+import java.util.*;
 
-import org.apache.commons.collections15.Transformer;
+import org.apache.commons.collections15.*;
 
-import com.vaadin.graph.client.ArcProxy;
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.client.*;
 
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.algorithms.layout.*;
+import edu.uci.ics.jung.graph.*;
 
 class LayoutEngine {
-    static void layout(Graph<NodeProxy, ArcProxy> graph, int width,
-            int height, Collection<NodeProxy> lockedVertices) {
+    static void layout(Graph<NodeProxy, ArcProxy> graph, int width, int height,
+            Collection<NodeProxy> lockedVertices) {
         FRLayout<NodeProxy, ArcProxy> layout = new FRLayout<NodeProxy, ArcProxy>(
                 graph, new Dimension(width, height));
         layout.lock(false);

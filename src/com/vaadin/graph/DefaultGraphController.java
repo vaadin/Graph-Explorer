@@ -51,11 +51,9 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
     private void addRel(GraphModel graph, A rel) {
         ArcProxy arc = new ArcProxy("" + rel.getId(), rel.getLabel());
         arc.setLabel(getLabel(rel));
-        graph.addArc(
-                arc,
+        graph.addArc(arc,
                 graph.getNode("" + graphRepository.getSource(rel).getId()),
-                graph.getNode(""
-                        + graphRepository.getDestination(rel).getId()));
+                graph.getNode("" + graphRepository.getDestination(rel).getId()));
     }
 
     private String getLabel(Node node, boolean html) {

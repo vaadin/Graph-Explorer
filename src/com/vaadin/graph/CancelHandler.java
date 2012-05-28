@@ -1,8 +1,8 @@
 package com.vaadin.graph;
 
-import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.*;
 
 final class CancelHandler implements ClickListener {
     private static final long serialVersionUID = 1L;

@@ -15,14 +15,9 @@
  */
 package com.vaadin.graph.client;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import com.vaadin.terminal.gwt.client.VConsole;
+import com.vaadin.terminal.gwt.client.*;
 
 /**
  * Data structure consisting of nodes with relationships between them.

@@ -15,25 +15,12 @@
  */
 package com.vaadin.graph;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import com.vaadin.graph.client.ArcProxy;
-import com.vaadin.graph.client.NodeProxy;
-import com.vaadin.graph.client.VGraphExplorer;
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
-import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.ClientWidget;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.graph.client.*;
+import com.vaadin.terminal.*;
+import com.vaadin.ui.*;
+import com.vaadin.ui.themes.*;
 
 /**
  * Server side component for the VGraphExplorer widget.
@@ -147,8 +134,8 @@ public class GraphExplorer extends AbstractComponent {
         layout.setSpacing(true);
         layout.setSizeFull();
 
-        GraphController.NodeSelector selector = graphController.getMemberSelector(
-                graph, groupId);
+        GraphController.NodeSelector selector = graphController
+                .getMemberSelector(graph, groupId);
         layout.addComponent(selector);
         layout.setExpandRatio(selector, 1.0f);
 

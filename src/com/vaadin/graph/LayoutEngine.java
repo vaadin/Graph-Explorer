@@ -13,11 +13,11 @@ import edu.uci.ics.jung.graph.*;
 
 class LayoutEngine {
     static void layout(Graph<NodeProxy, ArcProxy> graph, int width, int height,
-            Collection<NodeProxy> lockedVertices) {
+            Collection<NodeProxy> lockedNodes) {
         FRLayout<NodeProxy, ArcProxy> layout = new FRLayout<NodeProxy, ArcProxy>(
                 graph, new Dimension(width, height));
         layout.lock(false);
-        for (NodeProxy v : lockedVertices) {
+        for (NodeProxy v : lockedNodes) {
             layout.lock(v, true);
         }
         layout.setInitializer(new LayoutInitializer(width, height));

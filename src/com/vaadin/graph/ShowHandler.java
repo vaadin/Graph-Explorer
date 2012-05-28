@@ -28,19 +28,19 @@ final class ShowHandler implements ClickListener {
         dialog.getParent().removeWindow(dialog);
         parent.graphController.loadMembers(parent.graph, groupId,
                 selector.getSelectedNodeIds());
-        Set<NodeProxy> lockedVertices = new HashSet<NodeProxy>();
+        Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
         if (!parent.graph.containsNode(groupId)) {
             parent.removedId = groupId;
         } else {
-            lockedVertices.add(parent.graph.getNode(groupId));
+            lockedNodes.add(parent.graph.getNode(groupId));
         }
-        for (NodeProxy v : parent.graph.getVertices()) {
+        for (NodeProxy v : parent.graph.getNodes()) {
             if (NodeProxy.EXPANDED.equals(v.getState())) {
-                lockedVertices.add(v);
+                lockedNodes.add(v);
             }
         }
         parent.graph.layout(parent.clientWidth, parent.clientHeight,
-                lockedVertices);
+                lockedNodes);
         parent.requestRepaint();
     }
 }

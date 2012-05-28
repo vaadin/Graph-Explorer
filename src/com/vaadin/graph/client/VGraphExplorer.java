@@ -101,12 +101,12 @@ public class VGraphExplorer extends Composite implements Paintable {
     }
 
     private void init() {
-        Collection<NodeProxy> vertices = graph.getVertices();
+        Collection<NodeProxy> nodes = graph.getNodes();
         int newWidth = getOffsetWidth();
         int newHeight = getOffsetHeight();
         if (newWidth > 0 && newHeight > 0) {
-            if (!initialized && vertices.size() == 1) {
-                toggle(vertices.iterator().next());
+            if (!initialized && nodes.size() == 1) {
+                toggle(nodes.iterator().next());
                 initialized = true;
             } else if (newWidth != oldWidth || newHeight != oldHeight) {
                 toggle(null);
@@ -220,7 +220,7 @@ public class VGraphExplorer extends Composite implements Paintable {
     }
 
     public void update() {
-        for (IndexedElement node : graph.getVertices()) {
+        for (IndexedElement node : graph.getNodes()) {
             node.notifyUpdate();
         }
     }

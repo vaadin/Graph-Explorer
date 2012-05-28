@@ -16,7 +16,7 @@
 package com.vaadin.graph.client;
 
 /**
- * A relationship between vertices in a graph.
+ * A relationship between nodes in a graph.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */

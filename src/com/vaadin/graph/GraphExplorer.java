@@ -53,7 +53,7 @@ public class GraphExplorer extends AbstractComponent {
         super.changeVariables(source, variables);
         Set<String> keys = new HashSet<String>(variables.keySet());
         NodeProxy toggledNode = null;
-        Set<NodeProxy> lockedVertices = new HashSet<NodeProxy>();
+        Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
         boolean lockExpanded = true;
         if (variables.containsKey(VGraphExplorer.WIDTH)) {
             keys.remove(VGraphExplorer.WIDTH);
@@ -74,7 +74,7 @@ public class GraphExplorer extends AbstractComponent {
                     if (NodeProxy.COLLAPSED.equals(toggledNode.getState())) {
                         graphController.loadNeighbors(graph, toggledId);
                         lockExpanded = false;
-                        lockedVertices.add(toggledNode);
+                        lockedNodes.add(toggledNode);
                         toggledNode.setX(clientWidth / 2);
                         toggledNode.setY(clientHeight / 2);
                     } else {
@@ -88,18 +88,18 @@ public class GraphExplorer extends AbstractComponent {
             NodeProxy node = graph.getNode(key);
             if (variable != null) {
                 NodeLoader.loadFromJSON(node, variable);
-                lockedVertices.add(node);
+                lockedNodes.add(node);
             }
         }
         if (clientWidth > 0 && clientHeight > 0) {
             if (lockExpanded) {
-                for (NodeProxy v : graph.getVertices()) {
+                for (NodeProxy v : graph.getNodes()) {
                     if (NodeProxy.EXPANDED.equals(v.getState())) {
-                        lockedVertices.add(v);
+                        lockedNodes.add(v);
                     }
                 }
             }
-            graph.layout(clientWidth, clientHeight, lockedVertices);
+            graph.layout(clientWidth, clientHeight, lockedNodes);
         }
         requestRepaint();
     }
@@ -116,7 +116,7 @@ public class GraphExplorer extends AbstractComponent {
 
     public String[] nodesToJSON() {
         List<String> list = new ArrayList<String>();
-        for (NodeProxy v : graph.getVertices()) {
+        for (NodeProxy v : graph.getNodes()) {
             list.add(v.toString());
         }
         return list.toArray(new String[list.size()]);

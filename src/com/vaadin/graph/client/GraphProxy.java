@@ -26,12 +26,12 @@ import com.vaadin.terminal.gwt.client.*;
  */
 public class GraphProxy {
 
-    private final Map<String, NodeProxy> vertices = new HashMap<String, NodeProxy>();
+    private final Map<String, NodeProxy> nodes = new HashMap<String, NodeProxy>();
     private final Map<String, ArcProxy> arcs = new HashMap<String, ArcProxy>();
     private final Map<NodeProxy, Set<ArcProxy>> inArcSets = new HashMap<NodeProxy, Set<ArcProxy>>();
     private final Map<NodeProxy, Set<ArcProxy>> outArcSets = new HashMap<NodeProxy, Set<ArcProxy>>();
-    private final Map<ArcProxy, NodeProxy> sourceVertices = new HashMap<ArcProxy, NodeProxy>();
-    private final Map<ArcProxy, NodeProxy> destVertices = new HashMap<ArcProxy, NodeProxy>();
+    private final Map<ArcProxy, NodeProxy> sourceNodes = new HashMap<ArcProxy, NodeProxy>();
+    private final Map<ArcProxy, NodeProxy> destNodes = new HashMap<ArcProxy, NodeProxy>();
 
     public boolean addArc(ArcProxy e, NodeProxy source, NodeProxy dest) {
         if (arcs.containsKey(e.id)) {
@@ -40,16 +40,16 @@ public class GraphProxy {
         arcs.put(e.id, e);
         inArcSets.get(dest).add(e);
         outArcSets.get(source).add(e);
-        sourceVertices.put(e, source);
-        destVertices.put(e, dest);
+        sourceNodes.put(e, source);
+        destNodes.put(e, dest);
         return true;
     }
 
     public boolean addNode(NodeProxy v) {
-        if (vertices.containsKey(v.id)) {
+        if (nodes.containsKey(v.id)) {
             return false;
         }
-        vertices.put(v.id, v);
+        nodes.put(v.id, v);
         inArcSets.put(v, new HashSet<ArcProxy>());
         outArcSets.put(v, new HashSet<ArcProxy>());
         return true;
@@ -60,7 +60,7 @@ public class GraphProxy {
     }
 
     public boolean containsNode(String id) {
-        return vertices.containsKey(id);
+        return nodes.containsKey(id);
     }
 
     public int degree(NodeProxy v) {
@@ -75,7 +75,7 @@ public class GraphProxy {
     }
 
     public NodeProxy getDest(ArcProxy e) {
-        return destVertices.get(e);
+        return destNodes.get(e);
     }
 
     public ArcProxy getArc(String id) {
@@ -114,15 +114,15 @@ public class GraphProxy {
     }
 
     public NodeProxy getSource(ArcProxy e) {
-        return sourceVertices.get(e);
+        return sourceNodes.get(e);
     }
 
     public NodeProxy getNode(String id) {
-        return vertices.get(id);
+        return nodes.get(id);
     }
 
-    public Collection<NodeProxy> getVertices() {
-        return Collections.unmodifiableCollection(vertices.values());
+    public Collection<NodeProxy> getNodes() {
+        return Collections.unmodifiableCollection(nodes.values());
     }
 
     public void removeArc(ArcProxy e) {
@@ -137,8 +137,8 @@ public class GraphProxy {
             VConsole.log("remove " + getSource(e).id + " " + e.getType() + " "
                     + getDest(e).id);
 
-            outArcSets.get(sourceVertices.remove(e)).remove(e);
-            inArcSets.get(destVertices.remove(e)).remove(e);
+            outArcSets.get(sourceNodes.remove(e)).remove(e);
+            inArcSets.get(destNodes.remove(e)).remove(e);
         }
         return success;
     }
@@ -147,9 +147,9 @@ public class GraphProxy {
 
         VConsole.log("removeNode(" + id + ")");
 
-        boolean success = vertices.containsKey(id);
+        boolean success = nodes.containsKey(id);
         if (success) {
-            NodeProxy v = vertices.remove(id);
+            NodeProxy v = nodes.remove(id);
             for (ArcProxy e : inArcSets.remove(v)) {
                 removeArc(e);
             }

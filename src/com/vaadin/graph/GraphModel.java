@@ -28,7 +28,7 @@ import edu.uci.ics.jung.graph.util.*;
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
 public class GraphModel {
-    private final Map<String, NodeProxy> vertices = new HashMap<String, NodeProxy>();
+    private final Map<String, NodeProxy> nodes = new HashMap<String, NodeProxy>();
     private final Map<String, ArcProxy> arcs = new HashMap<String, ArcProxy>();
 
     private DirectedSparseMultigraph<NodeProxy, ArcProxy> graph = new DirectedSparseMultigraph<NodeProxy, ArcProxy>() {
@@ -51,7 +51,7 @@ public class GraphModel {
         public boolean addVertex(NodeProxy node) {
             boolean success = super.addVertex(node);
             if (success) {
-                GraphModel.this.vertices.put(node.getId(), node);
+                GraphModel.this.nodes.put(node.getId(), node);
             }
             return success;
         }
@@ -69,7 +69,7 @@ public class GraphModel {
         public boolean removeVertex(NodeProxy node) {
             boolean success = super.removeVertex(node);
             if (success) {
-                GraphModel.this.vertices.remove(node.getId());
+                GraphModel.this.nodes.remove(node.getId());
             }
             return success;
         }
@@ -88,7 +88,7 @@ public class GraphModel {
     }
 
     public boolean containsNode(String id) {
-        return vertices.containsKey(id);
+        return nodes.containsKey(id);
     }
 
     public int degree(NodeProxy v) {
@@ -116,16 +116,16 @@ public class GraphModel {
     }
 
     public NodeProxy getNode(String id) {
-        return vertices.get(id);
+        return nodes.get(id);
     }
 
-    public Collection<NodeProxy> getVertices() {
-        return vertices.values();
+    public Collection<NodeProxy> getNodes() {
+        return nodes.values();
     }
 
     public void layout(int clientWidth, int clientHeight,
-            Set<NodeProxy> lockedVertices) {
-        LayoutEngine.layout(graph, clientWidth, clientHeight, lockedVertices);
+            Set<NodeProxy> lockedNodes) {
+        LayoutEngine.layout(graph, clientWidth, clientHeight, lockedNodes);
     }
 
     public boolean removeNode(NodeProxy v) {

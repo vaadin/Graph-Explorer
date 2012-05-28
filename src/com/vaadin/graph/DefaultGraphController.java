@@ -227,8 +227,8 @@ public class DefaultGraphController<N extends Node, A extends Arc> implements
         }
         v.setState(NodeProxy.EXPANDED);
         N node = graphRepository.getNodeById(nodeId);
-        for (ArcDirection dir : new ArcDirection[] { ArcDirection.INCOMING,
-                ArcDirection.OUTGOING }) {
+        for (Arc.Direction dir : new Arc.Direction[] { Arc.Direction.INCOMING,
+                Arc.Direction.OUTGOING }) {
             for (String label : graphRepository.getArcLabels()) {
                 Map<String, A> rels = new HashMap<String, A>();
                 for (A rel : graphRepository.getArcs(node, label, dir)) {

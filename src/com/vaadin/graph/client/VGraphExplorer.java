@@ -15,11 +15,11 @@
  */
 package com.vaadin.graph.client;
 
-import java.util.*;
+import java.util.Collection;
 
 import org.vaadin.gwtgraphics.client.*;
 
-import com.google.gwt.animation.client.*;
+import com.google.gwt.animation.client.Animation;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.json.client.*;

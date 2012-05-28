@@ -3,7 +3,7 @@ package com.vaadin.graph;
 import java.util.*;
 
 import com.vaadin.graph.GraphController.NodeSelector;
-import com.vaadin.graph.client.*;
+import com.vaadin.graph.client.NodeProxy;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.*;

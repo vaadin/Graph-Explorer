@@ -1,11 +1,11 @@
 package com.vaadin.graph;
 
-import java.awt.geom.*;
-import java.util.*;
+import java.awt.geom.Point2D;
+import java.util.Random;
 
-import org.apache.commons.collections15.*;
+import org.apache.commons.collections15.Transformer;
 
-import com.vaadin.graph.client.*;
+import com.vaadin.graph.client.NodeProxy;
 
 final class LayoutInitializer implements Transformer<NodeProxy, Point2D> {
     private final int height;

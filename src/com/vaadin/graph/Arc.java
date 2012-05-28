@@ -16,4 +16,7 @@
 package com.vaadin.graph;
 
 public interface Arc extends GraphElement {
+    public static enum Direction {
+        INCOMING, OUTGOING;
+    }
 }

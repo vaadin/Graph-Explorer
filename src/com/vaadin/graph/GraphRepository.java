@@ -15,7 +15,7 @@
  */
 package com.vaadin.graph;
 
-import java.util.*;
+import java.util.Collection;
 
 public interface GraphRepository<N extends Node, A extends Arc> {
     /** Gets the node that the given arc points away from. */
@@ -39,7 +39,7 @@ public interface GraphRepository<N extends Node, A extends Arc> {
      *            INCOMING for arcs pointing towards the given node, OUTGOING
      *            for arcs pointing away from the given node
      */
-    Collection<A> getArcs(N node, String label, ArcDirection dir);
+    Collection<A> getArcs(N node, String label, Arc.Direction dir);
 
     /** Gets the "origin" of the graph. */
     N getHomeNode();

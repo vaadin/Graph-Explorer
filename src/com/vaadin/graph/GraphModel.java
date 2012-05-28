@@ -19,7 +19,7 @@ import java.util.*;
 
 import com.vaadin.graph.client.*;
 
-import edu.uci.ics.jung.graph.*;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.*;
 
 /**

@@ -1,15 +1,15 @@
 package com.vaadin.graph;
 
-import java.awt.*;
-import java.awt.geom.*;
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
 import java.util.*;
 
-import org.apache.commons.collections15.*;
+import org.apache.commons.collections15.Transformer;
 
 import com.vaadin.graph.client.*;
 
-import edu.uci.ics.jung.algorithms.layout.*;
-import edu.uci.ics.jung.graph.*;
+import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.graph.Graph;
 
 class LayoutEngine {
     static void layout(Graph<NodeProxy, ArcProxy> graph, int width, int height,

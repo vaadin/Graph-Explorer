@@ -17,7 +17,7 @@ package com.vaadin.graph.client;
 
 import java.util.*;
 
-import com.vaadin.terminal.gwt.client.*;
+import com.vaadin.terminal.gwt.client.VConsole;
 
 /**
  * Data structure consisting of nodes with relationships between them.

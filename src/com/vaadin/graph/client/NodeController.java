@@ -15,14 +15,14 @@
  */
 package com.vaadin.graph.client;
 
-import java.util.*;
+import java.util.Collection;
 
 import com.google.gwt.dom.client.*;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.HTML;
 
 /**
  * Presenter/controller for a node in a graph.

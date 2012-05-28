@@ -20,7 +20,9 @@ import java.util.*;
 import com.vaadin.graph.client.*;
 import com.vaadin.terminal.*;
 import com.vaadin.ui.*;
-import com.vaadin.ui.themes.*;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.themes.Reindeer;
 
 /**
  * Server side component for the VGraphExplorer widget.
@@ -33,7 +35,6 @@ public class GraphExplorer extends AbstractComponent {
 
     protected String removedId = null;
 
-    // FIXME: convert into a wrapper (no longer inherit from Jung.Graph)
     final GraphModel graph = new GraphModel();
 
     int clientHeight = 0;
@@ -124,7 +125,7 @@ public class GraphExplorer extends AbstractComponent {
 
     private void openMemberSelector(String groupId) {
         VerticalLayout layout = new VerticalLayout();
-        Window dialog = new Window("Select nodes to show", layout);
+        final Window dialog = new Window("Select nodes to show", layout);
         dialog.setModal(true);
         dialog.setStyleName(Reindeer.WINDOW_BLACK);
         dialog.setWidth("300px");
@@ -153,7 +154,11 @@ public class GraphExplorer extends AbstractComponent {
         }
         browserWindow.addWindow(dialog);
 
-        cancelButton.addListener(new CancelHandler(dialog));
+        cancelButton.addListener(new ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                dialog.getParent().removeWindow(dialog);
+            }
+        });
 
         showButton
                 .addListener(new ShowHandler(this, selector, groupId, dialog));

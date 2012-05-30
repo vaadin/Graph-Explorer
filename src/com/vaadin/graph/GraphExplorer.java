@@ -24,11 +24,6 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
-/**
- * Server side component for the VGraphExplorer widget.
- * 
- * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
- */
 @ClientWidget(VGraphExplorer.class)
 public class GraphExplorer extends AbstractComponent {
     private static final long serialVersionUID = 1L;

@@ -68,18 +68,18 @@ public abstract class IndexedElement {
 
     public void notifyRemove() {
         if (controller != null) {
-            controller.remove();
+            controller.onRemoveFromModel();
         }
     }
 
     public void notifyUpdate() {
         if (controller != null) {
-            controller.update();
+            controller.onUpdateInModel();
         }
     }
 
-    void setObserver(Controller observer) {
-        controller = observer;
+    void setController(Controller controller) {
+        this.controller = controller;
     }
 
     /** Formats the given string for use as a key in a JSON object. */

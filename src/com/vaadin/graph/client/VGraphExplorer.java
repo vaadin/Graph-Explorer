@@ -27,11 +27,6 @@ import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.*;
 import com.vaadin.terminal.gwt.client.*;
 
-/**
- * Client-side component for visually exploring a large graph.
- * 
- * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
- */
 public class VGraphExplorer extends Composite implements Paintable {
 
     public static final String HEIGHT = "height";
@@ -86,16 +81,6 @@ public class VGraphExplorer extends Composite implements Paintable {
         canvas.add(widget);
     }
 
-    public void collapse(NodeProxy node) {
-        node.setState(NodeProxy.COLLAPSED);
-        for (NodeProxy v : graph.getNeighbors(node)) {
-            if (NodeProxy.COLLAPSED.equals(v.getState())
-                    && graph.degree(v) == 1) {
-                v.notifyRemove();
-            }
-        }
-    }
-
     public GraphProxy getGraph() {
         return graph;
     }
@@ -134,7 +119,9 @@ public class VGraphExplorer extends Composite implements Paintable {
                 node = graph.getNode(id);
             }
             if (!node.hasHandler()) {
-                new NodeController(this, node);
+                HTML widget = new HTML();
+                add(widget);
+                new NodeController(this, graph, node, widget);
             }
             node.setContent(object.get(NodeProxy.LABEL).isString()
                     .stringValue());
@@ -247,13 +234,13 @@ public class VGraphExplorer extends Composite implements Paintable {
          */
         connection = client;
 
-        // Save the client side identifier (paintable id) for the widget
+        /* Save the client side identifier (paintable id) for the widget */
         paintableId = uidl.getId();
 
         parseNodes(uidl.getStringArrayVariable(NODES));
         parseRelationships(uidl.getStringArrayVariable(RELATIONSHIPS));
         if (uidl.hasVariable(HIDE)) {
-            graph.getNode(uidl.getStringVariable(HIDE)).notifyRemove();
+            graph.removeNode(uidl.getStringVariable(HIDE));
         }
         update();
     }

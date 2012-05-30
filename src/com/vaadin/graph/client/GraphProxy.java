@@ -17,8 +17,6 @@ package com.vaadin.graph.client;
 
 import java.util.*;
 
-import com.vaadin.terminal.gwt.client.VConsole;
-
 /**
  * Data structure consisting of nodes with relationships between them.
  * 
@@ -30,18 +28,27 @@ public class GraphProxy {
     private final Map<String, ArcProxy> arcs = new HashMap<String, ArcProxy>();
     private final Map<NodeProxy, Set<ArcProxy>> inArcSets = new HashMap<NodeProxy, Set<ArcProxy>>();
     private final Map<NodeProxy, Set<ArcProxy>> outArcSets = new HashMap<NodeProxy, Set<ArcProxy>>();
-    private final Map<ArcProxy, NodeProxy> sourceNodes = new HashMap<ArcProxy, NodeProxy>();
-    private final Map<ArcProxy, NodeProxy> destNodes = new HashMap<ArcProxy, NodeProxy>();
+    private final Map<ArcProxy, NodeProxy> tails = new HashMap<ArcProxy, NodeProxy>();
+    private final Map<ArcProxy, NodeProxy> heads = new HashMap<ArcProxy, NodeProxy>();
 
-    public boolean addArc(ArcProxy e, NodeProxy source, NodeProxy dest) {
-        if (arcs.containsKey(e.id)) {
+    /**
+     * Adds a new arc from the given tail to the given head.
+     * 
+     * @return true, if successful; false, otherwise
+     */
+    public boolean addArc(ArcProxy arc, NodeProxy tail, NodeProxy head) {
+        if (arcs.containsKey(arc.id)) {
             return false;
         }
-        arcs.put(e.id, e);
-        inArcSets.get(dest).add(e);
-        outArcSets.get(source).add(e);
-        sourceNodes.put(e, source);
-        destNodes.put(e, dest);
+
+        arcs.put(arc.id, arc);
+
+        heads.put(arc, head);
+        inArcSets.get(head).add(arc);
+
+        tails.put(arc, tail);
+        outArcSets.get(tail).add(arc);
+
         return true;
     }
 
@@ -53,6 +60,41 @@ public class GraphProxy {
         inArcSets.put(v, new HashSet<ArcProxy>());
         outArcSets.put(v, new HashSet<ArcProxy>());
         return true;
+    }
+
+    public void removeNode(String id) {
+        if (nodes.containsKey(id)) {
+            NodeProxy node = nodes.get(id);
+            for (ArcProxy arc : getIncidentArcs(node)) {
+                removeArc(arc);
+            }
+            nodes.remove(id);
+            node.notifyRemove();
+        }
+    }
+
+    private Set<ArcProxy> getIncidentArcs(NodeProxy node) {
+        Set<ArcProxy> incidentArcs = new HashSet<ArcProxy>(inArcSets.get(node));
+        incidentArcs.addAll(outArcSets.get(node));
+        return incidentArcs;
+    }
+
+    private void removeArc(ArcProxy e) {
+        String id = e.getId();
+        boolean success = arcs.containsKey(id);
+        if (success) {
+
+            ArcProxy arc = arcs.get(id);
+
+            NodeProxy head = heads.remove(arc);
+            inArcSets.get(head).remove(arc);
+
+            NodeProxy tail = tails.remove(arc);
+            outArcSets.get(tail).remove(arc);
+
+            arcs.remove(id);
+            arc.notifyRemove();
+        }
     }
 
     public boolean containsArc(String id) {
@@ -75,7 +117,7 @@ public class GraphProxy {
     }
 
     public NodeProxy getDest(ArcProxy e) {
-        return destNodes.get(e);
+        return heads.get(e);
     }
 
     public ArcProxy getArc(String id) {
@@ -114,7 +156,7 @@ public class GraphProxy {
     }
 
     public NodeProxy getSource(ArcProxy e) {
-        return sourceNodes.get(e);
+        return tails.get(e);
     }
 
     public NodeProxy getNode(String id) {
@@ -125,42 +167,7 @@ public class GraphProxy {
         return Collections.unmodifiableCollection(nodes.values());
     }
 
-    public void removeArc(ArcProxy e) {
-        removeArc(e.getId());
-    }
-
-    public boolean removeArc(String id) {
-        boolean success = arcs.containsKey(id);
-        if (success) {
-            ArcProxy e = arcs.remove(id);
-
-            VConsole.log("remove " + getSource(e).id + " " + e.getType() + " "
-                    + getDest(e).id);
-
-            outArcSets.get(sourceNodes.remove(e)).remove(e);
-            inArcSets.get(destNodes.remove(e)).remove(e);
-        }
-        return success;
-    }
-
-    public boolean removeNode(String id) {
-
-        VConsole.log("removeNode(" + id + ")");
-
-        boolean success = nodes.containsKey(id);
-        if (success) {
-            NodeProxy v = nodes.remove(id);
-            for (ArcProxy e : inArcSets.remove(v)) {
-                removeArc(e);
-            }
-            for (ArcProxy e : outArcSets.remove(v)) {
-                removeArc(e);
-            }
-        }
-        return success;
-    }
-
-    public boolean removeNode(NodeProxy v) {
-        return removeNode(v.getId());
+    public void removeNode(NodeProxy node) {
+        removeNode(node.getId());
     }
 }

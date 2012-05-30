@@ -30,23 +30,23 @@ class ArcController implements Controller {
 
     private static final int ARROWHEAD_LENGTH = 10;
     private static final int ARROWHEAD_WIDTH = ARROWHEAD_LENGTH / 2;
-    private Line arc;
+    private Line line;
     private HTML label;
     private Line arrowheadLeft;
     private Line arrowheadRight;
-    private final ArcProxy relationship;
+    private final ArcProxy arc;
     private double terminusX;
     private double terminusY;
     private final VGraphExplorer parent;
 
-    ArcController(VGraphExplorer parent, ArcProxy relationship) {
+    ArcController(VGraphExplorer parent, ArcProxy arc) {
         this.parent = parent;
-        this.relationship = relationship;
+        this.arc = arc;
         addArc();
         addArrowhead();
         addLabel();
-        relationship.setObserver(this);
-        update();
+        arc.setController(this);
+        onUpdateInModel();
     }
 
     private void addArrowhead() {
@@ -57,15 +57,15 @@ class ArcController implements Controller {
     }
 
     private void addArc() {
-        arc = new Line(0, 0, 0, 0);
-        parent.add(arc);
+        line = new Line(0, 0, 0, 0);
+        parent.add(line);
     }
 
     private void addLabel() {
-        label = new HTML(relationship.getLabel());
+        label = new HTML(arc.getLabel());
         label.getElement().setClassName("relationship");
-        if (!relationship.isGroup()) {
-            label.setTitle(relationship.getId());
+        if (!arc.isGroup()) {
+            label.setTitle(arc.getId());
         }
         parent.add(label);
     }
@@ -74,17 +74,15 @@ class ArcController implements Controller {
         return Math.abs(toX - fromX) + Math.abs(toY - fromY);
     }
 
-    public void remove() {
-        relationship.setObserver(null);
-        parent.remove(arc);
-        parent.remove(arc);
+    public void onRemoveFromModel() {
+        arc.setController(null);
+        parent.remove(line);
         parent.remove(label);
         parent.remove(arrowheadLeft);
         parent.remove(arrowheadRight);
-        parent.getGraph().removeArc(relationship.getId());
     }
 
-    public void update() {
+    public void onUpdateInModel() {
         updateArc();
         updateLabel();
         updateArrowhead();
@@ -92,10 +90,10 @@ class ArcController implements Controller {
 
     private void updateArrowhead() {
         GraphProxy graph = parent.getGraph();
-        NodeProxy from = graph.getSource(relationship);
+        NodeProxy from = graph.getSource(arc);
         double fromX = from.getX();
         double fromY = from.getY();
-        NodeProxy to = graph.getDest(relationship);
+        NodeProxy to = graph.getDest(arc);
         double toX = to.getX();
         double toY = to.getY();
         double dX = toX - fromX;
@@ -144,15 +142,15 @@ class ArcController implements Controller {
 
     private void updateArc() {
         GraphProxy graph = parent.getGraph();
-        NodeProxy from = graph.getSource(relationship);
-        NodeProxy to = graph.getDest(relationship);
-        updateLine(arc, from.getX(), from.getY(), to.getX(), to.getY());
+        NodeProxy from = graph.getSource(arc);
+        NodeProxy to = graph.getDest(arc);
+        updateLine(line, from.getX(), from.getY(), to.getX(), to.getY());
     }
 
     private Style updateLabel() {
         Style style = label.getElement().getStyle();
         GraphProxy graph = parent.getGraph();
-        NodeProxy from = graph.getSource(relationship);
+        NodeProxy from = graph.getSource(arc);
 
         double x = getLabelCenter(from.getX(), terminusX)
                 - label.getOffsetWidth() / 2.0;

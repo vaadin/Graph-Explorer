@@ -23,6 +23,7 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
+import com.vaadin.terminal.gwt.client.VConsole;
 
 /**
  * Presenter/controller for a node in a graph.
@@ -37,19 +38,21 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
     int dragStartY;
     protected boolean mouseDown;
     private final NodeProxy node;
+    private GraphProxy graph;
 
-    NodeController(VGraphExplorer parent, NodeProxy node) {
+    NodeController(VGraphExplorer parent, GraphProxy graph, NodeProxy node,
+            HTML widget) {
         this.parent = parent;
         this.node = node;
-        widget = new HTML();
-        widget.setTitle(node.getId());
-        parent.add(widget);
+        this.widget = widget;
+        this.graph = graph;
 
+        node.setController(this);
+
+        widget.setTitle(node.getId());
         Style style = widget.getElement().getStyle();
         style.setLeft(node.getX(), Unit.PX);
         style.setTop(node.getY(), Unit.PX);
-
-        node.setObserver(this);
         widget.addDomHandler(this, MouseDownEvent.getType());
         widget.addDomHandler(this, MouseMoveEvent.getType());
         widget.addDomHandler(this, MouseUpEvent.getType());
@@ -70,7 +73,7 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
             updateCSS();
             node.setX(event.getX() + node.getX() - dragStartX);
             node.setY(event.getY() + node.getY() - dragStartY);
-            update();
+            onUpdateInModel();
             int clientX = event.getClientX();
             int clientY = event.getClientY();
             if (clientX < 0 || clientY < 0 || clientX > Window.getClientWidth()
@@ -88,7 +91,13 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
             updateCSS();
             reposition();
             if (NodeProxy.EXPANDED.equals(node.getState())) {
-                parent.collapse(node);
+                node.setState(NodeProxy.COLLAPSED);
+                for (NodeProxy neighbor : graph.getNeighbors(node)) {
+                    if (NodeProxy.COLLAPSED.equals(neighbor.getState())
+                            && graph.degree(neighbor) == 1) {
+                        graph.removeNode(neighbor);
+                    }
+                }
             }
             parent.toggle(node);
         } else {
@@ -100,13 +109,12 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
         event.preventDefault();
     }
 
-    public void remove() {
-        node.setObserver(null);
+    public void onRemoveFromModel() {
+
+        VConsole.log("NodeController.onRemoveFromModel()");
+
+        node.setController(null);
         widget.removeFromParent();
-        GraphProxy graph = parent.getGraph();
-        remove(graph.getInArcs(node));
-        remove(graph.getOutArcs(node));
-        graph.removeNode(node.getId());
     }
 
     private void reposition() {
@@ -130,7 +138,7 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
         style.setTop(top, Unit.PX);
     }
 
-    public void update() {
+    public void onUpdateInModel() {
         widget.setHTML("<div class='label'>" + node.getContent() + "</div>");
         reposition();
         updateCSS();
@@ -144,7 +152,6 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
     }
 
     void updateRelationships() {
-        GraphProxy graph = parent.getGraph();
         update(graph.getInArcs(node));
         update(graph.getOutArcs(node));
     }
@@ -152,14 +159,6 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
     /** Limits value to [min, max], so that min <= value <= max. */
     private static int limit(int min, int value, int max) {
         return Math.min(Math.max(min, value), max);
-    }
-
-    private static void remove(Collection<ArcProxy> arcs) {
-        if (arcs != null) {
-            for (ArcProxy arc : arcs) {
-                arc.notifyRemove();
-            }
-        }
     }
 
     private static void update(Collection<ArcProxy> arcs) {

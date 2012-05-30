@@ -22,7 +22,7 @@ package com.vaadin.graph.client;
  */
 interface Controller {
 
-    void update();
+    void onUpdateInModel();
 
-    void remove();
+    void onRemoveFromModel();
 }

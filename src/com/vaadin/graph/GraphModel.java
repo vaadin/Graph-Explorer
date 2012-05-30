@@ -27,15 +27,17 @@ import edu.uci.ics.jung.graph.util.*;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public class GraphModel {
+class GraphModel {
     private final Map<String, NodeProxy> nodes = new HashMap<String, NodeProxy>();
     private final Map<String, ArcProxy> arcs = new HashMap<String, ArcProxy>();
 
     private DirectedSparseMultigraph<NodeProxy, ArcProxy> graph = new DirectedSparseMultigraph<NodeProxy, ArcProxy>() {
+        private static final long serialVersionUID = 1L;
 
         @Override
         public boolean addEdge(ArcProxy arc,
-                Pair<? extends NodeProxy> endpoints, EdgeType arcType) {
+                               Pair<? extends NodeProxy> endpoints,
+                               EdgeType arcType) {
             boolean success = super.addEdge(arc, endpoints, arcType);
             if (success) {
                 arcs.put(arc.getId(), arc);
@@ -120,7 +122,7 @@ public class GraphModel {
     }
 
     public void layout(int clientWidth, int clientHeight,
-            Set<NodeProxy> lockedNodes) {
+                       Set<NodeProxy> lockedNodes) {
         LayoutEngine.layout(graph, clientWidth, clientHeight, lockedNodes);
     }
 

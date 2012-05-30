@@ -19,10 +19,10 @@ import java.util.Collection;
 
 public interface GraphRepository<N extends Node, A extends Arc> {
     /** Gets the node that the given arc points away from. */
-    N getSource(A arc);
+    N getTail(A arc);
 
     /** Gets the node that the given arc points to. */
-    N getDestination(A arc);
+    N getHead(A arc);
 
     /** Returns a list of all possible arc labels in this graph. */
     Iterable<String> getArcLabels();

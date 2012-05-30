@@ -9,5 +9,4 @@ public interface GraphElement {
     String getLabel();
 
     Map<String, Object> getProperties();
-
 }

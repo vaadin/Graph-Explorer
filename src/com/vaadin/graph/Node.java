@@ -15,5 +15,4 @@
  */
 package com.vaadin.graph;
 
-public interface Node extends GraphElement {
-}
+public interface Node extends GraphElement {}

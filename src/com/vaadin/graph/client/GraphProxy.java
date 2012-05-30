@@ -23,7 +23,6 @@ import java.util.*;
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
 public class GraphProxy {
-
     private final Map<String, NodeProxy> nodes = new HashMap<String, NodeProxy>();
     private final Map<String, ArcProxy> arcs = new HashMap<String, ArcProxy>();
     private final Map<NodeProxy, Set<ArcProxy>> inArcSets = new HashMap<NodeProxy, Set<ArcProxy>>();

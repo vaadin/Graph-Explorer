@@ -30,7 +30,7 @@ class ArcController implements Controller {
 
     private static final int ARROWHEAD_LENGTH = 10;
     private static final int ARROWHEAD_WIDTH = ARROWHEAD_LENGTH / 2;
-    private Line line;
+    private Line body;
     private HTML label;
     private Line arrowheadLeft;
     private Line arrowheadRight;
@@ -42,7 +42,7 @@ class ArcController implements Controller {
     ArcController(VGraphExplorer parent, ArcProxy arc) {
         this.parent = parent;
         this.arc = arc;
-        addArc();
+        addBody();
         addArrowhead();
         addLabel();
         arc.setController(this);
@@ -56,9 +56,9 @@ class ArcController implements Controller {
         parent.add(arrowheadRight);
     }
 
-    private void addArc() {
-        line = new Line(0, 0, 0, 0);
-        parent.add(line);
+    private void addBody() {
+        body = new Line(0, 0, 0, 0);
+        parent.add(body);
     }
 
     private void addLabel() {
@@ -70,13 +70,14 @@ class ArcController implements Controller {
         parent.add(label);
     }
 
-    private double distance(double fromX, double fromY, double toX, double toY) {
+    private static double distance(double fromX, double fromY, double toX,
+                                   double toY) {
         return Math.abs(toX - fromX) + Math.abs(toY - fromY);
     }
 
     public void onRemoveFromModel() {
         arc.setController(null);
-        parent.remove(line);
+        parent.remove(body);
         parent.remove(label);
         parent.remove(arrowheadLeft);
         parent.remove(arrowheadRight);
@@ -128,15 +129,15 @@ class ArcController implements Controller {
 
         double angle = Math.atan2(dY, dX);
         double leftX = terminusX
-                + rotateX(-ARROWHEAD_LENGTH, -ARROWHEAD_WIDTH, angle);
+                       + rotateX(-ARROWHEAD_LENGTH, -ARROWHEAD_WIDTH, angle);
         double leftY = terminusY
-                + rotateY(-ARROWHEAD_LENGTH, -ARROWHEAD_WIDTH, angle);
+                       + rotateY(-ARROWHEAD_LENGTH, -ARROWHEAD_WIDTH, angle);
         updateLine(arrowheadLeft, terminusX, terminusY, leftX, leftY);
 
         double rightX = terminusX
-                + rotateX(-ARROWHEAD_LENGTH, ARROWHEAD_WIDTH, angle);
+                        + rotateX(-ARROWHEAD_LENGTH, ARROWHEAD_WIDTH, angle);
         double rightY = terminusY
-                + rotateY(-ARROWHEAD_LENGTH, ARROWHEAD_WIDTH, angle);
+                        + rotateY(-ARROWHEAD_LENGTH, ARROWHEAD_WIDTH, angle);
         updateLine(arrowheadRight, terminusX, terminusY, rightX, rightY);
     }
 
@@ -144,7 +145,7 @@ class ArcController implements Controller {
         GraphProxy graph = parent.getGraph();
         NodeProxy from = graph.getSource(arc);
         NodeProxy to = graph.getDest(arc);
-        updateLine(line, from.getX(), from.getY(), to.getX(), to.getY());
+        updateLine(body, from.getX(), from.getY(), to.getX(), to.getY());
     }
 
     private Style updateLabel() {
@@ -153,22 +154,22 @@ class ArcController implements Controller {
         NodeProxy from = graph.getSource(arc);
 
         double x = getLabelCenter(from.getX(), terminusX)
-                - label.getOffsetWidth() / 2.0;
+                   - label.getOffsetWidth() / 2.0;
         style.setLeft(x, Unit.PX);
         double y = getLabelCenter(from.getY(), terminusY)
-                - label.getOffsetHeight() / 2.0;
+                   - label.getOffsetHeight() / 2.0;
         style.setTop(y, Unit.PX);
 
         return style;
     }
 
-    private void updateLine(Line line, double x1, double y1, double x2,
-            double y2) {
+    private static void updateLine(Line line, double x1, double y1, double x2,
+                                   double y2) {
         updateLine(line, (int) Math.round(x1), (int) Math.round(y1),
-                (int) Math.round(x2), (int) Math.round(y2));
+                   (int) Math.round(x2), (int) Math.round(y2));
     }
 
-    private void updateLine(Line line, int x1, int y1, int x2, int y2) {
+    private static void updateLine(Line line, int x1, int y1, int x2, int y2) {
         line.setX1(x1);
         line.setY1(y1);
         line.setX2(x2);

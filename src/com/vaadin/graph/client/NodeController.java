@@ -78,8 +78,10 @@ class NodeController implements Controller, MouseDownHandler, MouseMoveHandler,
             onUpdateInModel();
             int clientX = event.getClientX();
             int clientY = event.getClientY();
-            if (clientX < 0 || clientY < 0 || clientX > Window.getClientWidth()
-                    || clientY > Window.getClientHeight()) {
+            boolean outsideWindow = clientX < 0 || clientY < 0
+                                    || clientX > Window.getClientWidth()
+                                    || clientY > Window.getClientHeight();
+            if (outsideWindow) {
                 parent.save(model, true);
                 setDragging(false);
             }
@@ -91,12 +93,13 @@ class NodeController implements Controller, MouseDownHandler, MouseMoveHandler,
         Element element = view.getElement();
         if (!isDragging()) {
             updateCSS();
-            reposition();
+            limitToBoundingBox();
             if (NodeProxy.EXPANDED.equals(model.getState())) {
                 model.setState(NodeProxy.COLLAPSED);
                 for (NodeProxy neighbor : graph.getNeighbors(model)) {
-                    if (NodeProxy.COLLAPSED.equals(neighbor.getState())
-                            && graph.degree(neighbor) == 1) {
+                    boolean collapsed = NodeProxy.COLLAPSED.equals(neighbor.getState());
+                    boolean leafNode = graph.degree(neighbor) == 1;
+                    if (collapsed && leafNode) {
                         graph.removeNode(neighbor);
                     }
                 }
@@ -119,38 +122,42 @@ class NodeController implements Controller, MouseDownHandler, MouseMoveHandler,
         view.removeFromParent();
     }
 
-    private void reposition() {
+    private void limitToBoundingBox() {
         Element element = view.getElement();
-        Style style = view.getElement().getStyle();
+        Style style = element.getStyle();
 
         int width = element.getOffsetWidth();
         model.setWidth(width);
-        int halfwidth = width / 2;
-        int left = limit(0, model.getX() - halfwidth, parent.getOffsetWidth()
-                - width);
-        model.setX(left + halfwidth);
-        style.setLeft(left, Unit.PX);
+        int xRadius = width / 2;
+        int leftEdge = model.getX() - xRadius;
+        leftEdge = limit(0, leftEdge, parent.getOffsetWidth() - width);
+        model.setX(leftEdge + xRadius);
+        style.setLeft(leftEdge, Unit.PX);
 
         int height = element.getOffsetHeight();
         model.setHeight(height);
-        int halfHeight = height / 2;
-        int top = limit(0, model.getY() - halfHeight, parent.getOffsetHeight()
-                - height);
-        model.setY(top + halfHeight);
-        style.setTop(top, Unit.PX);
+        int yRadius = height / 2;
+        int topEdge = model.getY() - yRadius;
+        topEdge = limit(0, topEdge, parent.getOffsetHeight() - height);
+        model.setY(topEdge + yRadius);
+        style.setTop(topEdge, Unit.PX);
     }
 
     public void onUpdateInModel() {
         view.setHTML("<div class='label'>" + model.getContent() + "</div>");
-        reposition();
+        limitToBoundingBox();
         updateCSS();
         updateArcs();
     }
 
     private void updateCSS() {
-        view.getElement().setClassName(
-                "node " + model.getState() + ' ' + model.getKind()
-                        + (isMouseDown() ? ' ' + "down" : ""));
+        Element element = view.getElement();
+        element.setClassName("node");
+        element.addClassName(model.getState());
+        element.addClassName(model.getKind());
+        if (isMouseDown()) {
+            element.addClassName("down");
+        }
     }
 
     void updateArcs() {
@@ -203,9 +210,9 @@ class NodeController implements Controller, MouseDownHandler, MouseMoveHandler,
                 progress = 1;
             }
             model.setX((int) Math.round(progress * targetX + (1 - progress)
-                    * model.getX()));
+                                        * model.getX()));
             model.setY((int) Math.round(progress * targetY + (1 - progress)
-                    * model.getY()));
+                                        * model.getY()));
             model.notifyUpdate();
         }
 

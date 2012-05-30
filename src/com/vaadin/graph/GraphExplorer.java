@@ -25,22 +25,23 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.Reindeer;
 
 @ClientWidget(VGraphExplorer.class)
-public class GraphExplorer extends AbstractComponent {
+public class GraphExplorer<N extends Node, A extends Arc> extends
+        AbstractComponent {
     private static final long serialVersionUID = 1L;
 
-    protected String removedId = null;
-
-    final GraphModel graph = new GraphModel();
+    private String removedId = null;
 
     int clientHeight = 0;
     int clientWidth = 0;
-    transient final GraphController graphController;
+    transient final GraphController<N, A> controller;
 
-    public GraphExplorer(GraphController graphController) {
-        this.graphController = graphController;
+    private GraphModel model;
+
+    public GraphExplorer(GraphRepository<N, A> repository) {
+        this.controller = new GraphController<N, A>(repository);
         setWidth("100%");
         setHeight("100%");
-        graphController.init(graph);
+        model = controller.getModel();
     }
 
     @SuppressWarnings("boxing")
@@ -62,13 +63,13 @@ public class GraphExplorer extends AbstractComponent {
         if (keys.contains(VGraphExplorer.TOGGLE)) {
             keys.remove(VGraphExplorer.TOGGLE);
             String toggledId = (String) variables.get(VGraphExplorer.TOGGLE);
-            toggledNode = graph.getNode(toggledId);
+            toggledNode = model.getNode(toggledId);
             if (toggledNode != null) {
                 if (NodeProxy.GROUP.equals(toggledNode.getKind())) {
                     openMemberSelector(toggledId);
                 } else {
                     if (NodeProxy.COLLAPSED.equals(toggledNode.getState())) {
-                        graphController.loadNeighbors(graph, toggledId);
+                        controller.loadNeighbors(toggledId);
                         lockExpanded = false;
                         lockedNodes.add(toggledNode);
                         toggledNode.setX(clientWidth / 2);
@@ -81,7 +82,7 @@ public class GraphExplorer extends AbstractComponent {
         }
         for (String key : keys) {
             Object variable = variables.get(key);
-            NodeProxy node = graph.getNode(key);
+            NodeProxy node = model.getNode(key);
             if (variable != null) {
                 NodeLoader.loadFromJSON(node, variable);
                 lockedNodes.add(node);
@@ -89,36 +90,37 @@ public class GraphExplorer extends AbstractComponent {
         }
         if (clientWidth > 0 && clientHeight > 0) {
             if (lockExpanded) {
-                for (NodeProxy v : graph.getNodes()) {
+                for (NodeProxy v : model.getNodes()) {
                     if (NodeProxy.EXPANDED.equals(v.getState())) {
                         lockedNodes.add(v);
                     }
                 }
             }
-            graph.layout(clientWidth, clientHeight, lockedNodes);
+            model.layout(clientWidth, clientHeight, lockedNodes);
         }
         requestRepaint();
     }
 
     private void collapse(NodeProxy node) {
         node.setState(NodeProxy.COLLAPSED);
-        for (NodeProxy v : graph.getNeighbors(node)) {
-            if (NodeProxy.COLLAPSED.equals(v.getState())
-                    && graph.degree(v) == 1) {
-                graph.removeNode(v);
+        for (NodeProxy neighbor : model.getNeighbors(node)) {
+            boolean collapsed = NodeProxy.COLLAPSED.equals(neighbor.getState());
+            boolean leafNode = model.degree(neighbor) == 1;
+            if (collapsed && leafNode) {
+                model.removeNode(neighbor);
             }
         }
     }
 
     public String[] nodesToJSON() {
         List<String> list = new ArrayList<String>();
-        for (NodeProxy v : graph.getNodes()) {
+        for (NodeProxy v : model.getNodes()) {
             list.add(v.toString());
         }
         return list.toArray(new String[list.size()]);
     }
 
-    private void openMemberSelector(String groupId) {
+    private void openMemberSelector(final String groupId) {
         VerticalLayout layout = new VerticalLayout();
         final Window dialog = new Window("Select nodes to show", layout);
         dialog.setModal(true);
@@ -130,8 +132,7 @@ public class GraphExplorer extends AbstractComponent {
         layout.setSpacing(true);
         layout.setSizeFull();
 
-        GraphController.NodeSelector selector = graphController
-                .getMemberSelector(graph, groupId);
+        final NodeSelector selector = controller.getMemberSelector(groupId);
         layout.addComponent(selector);
         layout.setExpandRatio(selector, 1.0f);
 
@@ -155,8 +156,26 @@ public class GraphExplorer extends AbstractComponent {
             }
         });
 
-        showButton
-                .addListener(new ShowHandler(this, selector, groupId, dialog));
+        showButton.addListener(new ClickListener() {
+
+            public void buttonClick(ClickEvent event) {
+                dialog.getParent().removeWindow(dialog);
+                controller.loadMembers(groupId, selector.getSelectedNodeIds());
+                Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
+                if (!model.containsNode(groupId)) {
+                    removedId = groupId;
+                } else {
+                    lockedNodes.add(model.getNode(groupId));
+                }
+                for (NodeProxy v : model.getNodes()) {
+                    if (NodeProxy.EXPANDED.equals(v.getState())) {
+                        lockedNodes.add(v);
+                    }
+                }
+                model.layout(clientWidth, clientHeight, lockedNodes);
+                requestRepaint();
+            }
+        });
     }
 
     @Override
@@ -172,14 +191,14 @@ public class GraphExplorer extends AbstractComponent {
 
     private String[] arcsToJSON() {
         List<String> list = new ArrayList<String>();
-        for (ArcProxy e : graph.getArcs()) {
+        for (ArcProxy e : model.getArcs()) {
             list.add('{' + key(ArcProxy.ID) + q(e.getId()) + ','
-                    + key(ArcProxy.TYPE) + q(e.getType()) + ','
-                    + key(ArcProxy.LABEL) + q(e.getLabel()) + ','
-                    + key(ArcProxy.GROUP) + e.isGroup() + ','
-                    + key(ArcProxy.FROM_ID) + q(graph.getSource(e).getId())
-                    + ',' + key(ArcProxy.TO_ID) + q(graph.getDest(e).getId())
-                    + '}');
+                     + key(ArcProxy.TYPE) + q(e.getType()) + ','
+                     + key(ArcProxy.LABEL) + q(e.getLabel()) + ','
+                     + key(ArcProxy.GROUP) + e.isGroup() + ','
+                     + key(ArcProxy.FROM_ID) + q(model.getSource(e).getId())
+                     + ',' + key(ArcProxy.TO_ID) + q(model.getDest(e).getId())
+                     + '}');
         }
         return list.toArray(new String[list.size()]);
     }

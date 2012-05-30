@@ -104,7 +104,7 @@ public class VGraphExplorer extends Composite implements Paintable {
         }
         for (String json : nodes) {
             JSONObject object = JSONParser.parseLenient(json).isObject();
-            String id = object.get(NodeProxy.ID).isString().stringValue();
+            String id = getString(object, NodeProxy.ID);
             NodeProxy node = new NodeProxy(id);
             if (graph.addNode(node)) {
                 if (current == null) {
@@ -117,46 +117,50 @@ public class VGraphExplorer extends Composite implements Paintable {
             } else {
                 node = graph.getNode(id);
             }
-            node.setContent(object.get(NodeProxy.LABEL).isString()
-                    .stringValue());
-            node.setState(object.get(NodeProxy.STATE).isString().stringValue());
-            node.setKind(object.get(NodeProxy.KIND).isString().stringValue());
+            node.setContent(getString(object, NodeProxy.LABEL));
+            node.setState(getString(object, NodeProxy.STATE));
+            node.setKind(getString(object, NodeProxy.KIND));
             if (!node.hasController()) {
                 HTML view = new HTML();
                 add(view);
                 node.setController(new NodeController(this, node, view));
             }
-            int x = (int) object.get(NodeProxy.X).isNumber().doubleValue();
-            int y = (int) object.get(NodeProxy.Y).isNumber().doubleValue();
+            int x = getInt(object, NodeProxy.X);
+            int y = getInt(object, NodeProxy.Y);
             node.getController().move(x, y);
         }
     }
 
-    private void parseArcs(String[] rels) {
-        if (rels == null || rels.length == 0) {
+    private static int getInt(JSONObject object, String key) {
+        return (int) object.get(key).isNumber().doubleValue();
+    }
+
+    private void parseArcs(String[] arcs) {
+        if (arcs == null || arcs.length == 0) {
             return;
         }
-        for (String json : rels) {
+        for (String json : arcs) {
             JSONObject object = JSONParser.parseLenient(json).isObject();
-            String id = object.get(ArcProxy.ID).isString().stringValue();
+            String id = getString(object, ArcProxy.ID);
             if (!graph.containsArc(id)) {
-                ArcProxy arc = new ArcProxy(id, object.get(ArcProxy.TYPE)
-                        .isString().stringValue());
-                if (!graph.addArc(
-                        arc,
-                        graph.getNode(object.get(ArcProxy.FROM_ID).isString()
-                                .stringValue()),
-                        graph.getNode(object.get(ArcProxy.TO_ID).isString()
-                                .stringValue()))) {
+                ArcProxy arc = new ArcProxy(id,
+                                            getString(object, ArcProxy.TYPE));
+                if (!graph.addArc(arc,
+                                  graph.getNode(getString(object,
+                                                          ArcProxy.FROM_ID)),
+                                  graph.getNode(getString(object,
+                                                          ArcProxy.TO_ID)))) {
                     arc = graph.getArc(id);
                 }
-                arc.setLabel(object.get(ArcProxy.LABEL).isString()
-                        .stringValue());
-                arc.setGroup(object.get(ArcProxy.GROUP).isBoolean()
-                        .booleanValue());
+                arc.setLabel(getString(object, ArcProxy.LABEL));
+                arc.setGroup(object.get(ArcProxy.GROUP).isBoolean().booleanValue());
                 new ArcController(this, arc);
             }
         }
+    }
+
+    private static String getString(JSONObject object, String key) {
+        return object.get(key).isString().stringValue();
     }
 
     public void remove(HTML widget) {
@@ -169,7 +173,7 @@ public class VGraphExplorer extends Composite implements Paintable {
 
     void save(NodeProxy node, boolean immediate) {
         connection.updateVariable(paintableId, "" + node.getId(),
-                node.toString(), immediate);
+                                  node.toString(), immediate);
     }
 
     @Override
@@ -196,8 +200,7 @@ public class VGraphExplorer extends Composite implements Paintable {
             return;
         }
         connection.updateVariable(paintableId, WIDTH, getOffsetWidth(), false);
-        connection
-                .updateVariable(paintableId, HEIGHT, getOffsetHeight(), false);
+        connection.updateVariable(paintableId, HEIGHT, getOffsetHeight(), false);
         if (node == null) {
             connection.updateVariable(paintableId, TOGGLE, "", true);
         } else {

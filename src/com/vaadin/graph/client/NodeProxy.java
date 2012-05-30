@@ -107,7 +107,7 @@ public final class NodeProxy extends IndexedElement<NodeController> {
     @Override
     public String toString() {
         return '{' + key(ID) + q(id) + ',' + key(LABEL) + q(content) + ','
-                + key(X) + x + ',' + key(Y) + y + ',' + key(STATE)
-                + q("" + state) + ',' + key(KIND) + q("" + kind) + '}';
+               + key(X) + x + ',' + key(Y) + y + ',' + key(STATE)
+               + q("" + state) + ',' + key(KIND) + q("" + kind) + '}';
     }
 }

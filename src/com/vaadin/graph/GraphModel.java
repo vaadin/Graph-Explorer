@@ -23,7 +23,7 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.*;
 
 /**
- * Data structure consisting of nodes with relationships between them.
+ * Data structure consisting of nodes with arcs between them.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
@@ -33,10 +33,6 @@ public class GraphModel {
 
     private DirectedSparseMultigraph<NodeProxy, ArcProxy> graph = new DirectedSparseMultigraph<NodeProxy, ArcProxy>() {
 
-        /**
-         * Returns the relationship with the given ID, creating it if it doesn't
-         * exist.
-         */
         @Override
         public boolean addEdge(ArcProxy arc,
                 Pair<? extends NodeProxy> endpoints, EdgeType arcType) {
@@ -51,7 +47,7 @@ public class GraphModel {
         public boolean addVertex(NodeProxy node) {
             boolean success = super.addVertex(node);
             if (success) {
-                GraphModel.this.nodes.put(node.getId(), node);
+                nodes.put(node.getId(), node);
             }
             return success;
         }
@@ -69,7 +65,7 @@ public class GraphModel {
         public boolean removeVertex(NodeProxy node) {
             boolean success = super.removeVertex(node);
             if (success) {
-                GraphModel.this.nodes.remove(node.getId());
+                nodes.remove(node.getId());
             }
             return success;
         }

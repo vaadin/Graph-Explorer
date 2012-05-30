@@ -163,15 +163,14 @@ public class GraphExplorer extends AbstractComponent {
     public void paintContent(PaintTarget target) throws PaintException {
         super.paintContent(target);
         target.addVariable(this, VGraphExplorer.NODES, nodesToJSON());
-        target.addVariable(this, VGraphExplorer.RELATIONSHIPS,
-                relationshipsToJSON());
+        target.addVariable(this, VGraphExplorer.ARCS, arcsToJSON());
         if (removedId != null) {
             target.addVariable(this, VGraphExplorer.HIDE, removedId);
             removedId = null;
         }
     }
 
-    public String[] relationshipsToJSON() {
+    private String[] arcsToJSON() {
         List<String> list = new ArrayList<String>();
         for (ArcProxy e : graph.getArcs()) {
             list.add('{' + key(ArcProxy.ID) + q(e.getId()) + ','

@@ -63,7 +63,7 @@ class ArcController implements Controller {
 
     private void addLabel() {
         label = new HTML(arc.getLabel());
-        label.getElement().setClassName("relationship");
+        label.getElement().setClassName("arc");
         if (!arc.isGroup()) {
             label.setTitle(arc.getId());
         }

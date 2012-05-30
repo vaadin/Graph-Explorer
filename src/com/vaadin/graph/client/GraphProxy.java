@@ -18,7 +18,7 @@ package com.vaadin.graph.client;
 import java.util.*;
 
 /**
- * Data structure consisting of nodes with relationships between them.
+ * Client-side proxy of the server-side graph model.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */

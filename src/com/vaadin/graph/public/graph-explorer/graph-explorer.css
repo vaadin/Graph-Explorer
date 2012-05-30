@@ -35,7 +35,7 @@
   text-align: center;
 }
 
-.relationship {
+.arc {
   position: absolute;
   background-color: white;
   font-size: 80%;
@@ -44,7 +44,7 @@
 }
 
 /* Ordering */
-.relationship {
+.arc {
   z-index: 0;
 }
 

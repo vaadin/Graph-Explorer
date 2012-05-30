@@ -32,7 +32,7 @@ public class VGraphExplorer extends Composite implements Paintable {
     public static final String WIDTH = "width";
     public static final String TOGGLE = "toggle";
     public static final String NODES = "nodes";
-    public static final String RELATIONSHIPS = "relationships";
+    public static final String ARCS = "arcs";
     public static final String HIDE = "hide";
 
     /** Set the CSS class name to allow styling. */
@@ -132,7 +132,7 @@ public class VGraphExplorer extends Composite implements Paintable {
         }
     }
 
-    private void parseRelationships(String[] rels) {
+    private void parseArcs(String[] rels) {
         if (rels == null || rels.length == 0) {
             return;
         }
@@ -237,7 +237,7 @@ public class VGraphExplorer extends Composite implements Paintable {
         paintableId = uidl.getId();
 
         parseNodes(uidl.getStringArrayVariable(NODES));
-        parseRelationships(uidl.getStringArrayVariable(RELATIONSHIPS));
+        parseArcs(uidl.getStringArrayVariable(ARCS));
         if (uidl.hasVariable(HIDE)) {
             graph.removeNode(uidl.getStringVariable(HIDE));
         }

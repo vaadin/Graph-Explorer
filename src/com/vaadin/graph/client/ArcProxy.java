@@ -16,7 +16,7 @@
 package com.vaadin.graph.client;
 
 /**
- * A relationship between nodes in a graph.
+ * Client-side proxy for a server-side graph arc between two nodes.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */

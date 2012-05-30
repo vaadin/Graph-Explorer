@@ -124,7 +124,7 @@ public class VGraphExplorer extends Composite implements Paintable {
             if (!node.hasController()) {
                 HTML view = new HTML();
                 add(view);
-                node.setController(new NodeController(this, graph, node, view));
+                node.setController(new NodeController(this, node, view));
             }
             int x = (int) object.get(NodeProxy.X).isNumber().doubleValue();
             int y = (int) object.get(NodeProxy.Y).isNumber().doubleValue();
@@ -214,12 +214,12 @@ public class VGraphExplorer extends Composite implements Paintable {
     /**
      * Called whenever an update is received from the server
      */
-    public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
+    public void updateFromUIDL(UIDL uidl, ApplicationConnection app) {
         /*
          * This call should be made first. It handles sizes, captions, tooltips,
          * etc. automatically.
          */
-        if (client.updateComponent(this, uidl, true)) {
+        if (app.updateComponent(this, uidl, true)) {
             /*
              * If client.updateComponent returns true there has been no changes
              * and we do not need to update anything.
@@ -231,7 +231,7 @@ public class VGraphExplorer extends Composite implements Paintable {
          * Save reference to server connection object to be able to send user
          * interaction later
          */
-        connection = client;
+        connection = app;
 
         /* Save the client side identifier (paintable id) for the widget */
         paintableId = uidl.getId();

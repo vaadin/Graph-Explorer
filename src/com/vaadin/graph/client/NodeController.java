@@ -31,35 +31,37 @@ import com.vaadin.terminal.gwt.client.VConsole;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-class NodeController implements MouseDownHandler, MouseMoveHandler,
-        MouseUpHandler, Controller {
-    final VGraphExplorer parent;
-    final HTML view;
-    int dragStartX;
-    int dragStartY;
-    protected boolean mouseDown;
-    private final NodeProxy node;
-    private GraphProxy graph;
-    private NodeAnimation animation = new NodeAnimation();
+class NodeController implements Controller, MouseDownHandler, MouseMoveHandler,
+        MouseUpHandler {
+    private final VGraphExplorer parent;
+    private final GraphProxy graph;
+    private final NodeProxy model;
+    private final HTML view;
+    private final NodeAnimation animation = new NodeAnimation();
 
-    NodeController(VGraphExplorer parent, GraphProxy graph, NodeProxy node,
-            HTML view) {
+    private int dragStartX;
+    private int dragStartY;
+    private boolean mouseDown;
+    private boolean dragging;
+
+    NodeController(VGraphExplorer parent, NodeProxy model, HTML view) {
         this.parent = parent;
-        this.node = node;
+        this.model = model;
         this.view = view;
-        this.graph = graph;
+        graph = parent.getGraph();
 
-        view.setTitle(node.getId());
+        view.setTitle(model.getId());
         Style style = view.getElement().getStyle();
-        style.setLeft(node.getX(), Unit.PX);
-        style.setTop(node.getY(), Unit.PX);
+        style.setLeft(model.getX(), Unit.PX);
+        style.setTop(model.getY(), Unit.PX);
+
         view.addDomHandler(this, MouseDownEvent.getType());
         view.addDomHandler(this, MouseMoveEvent.getType());
         view.addDomHandler(this, MouseUpEvent.getType());
     }
 
     public void onMouseDown(MouseDownEvent event) {
-        mouseDown = true;
+        setMouseDown(true);
         updateCSS();
         DOM.setCapture(view.getElement());
         dragStartX = event.getX();
@@ -68,18 +70,18 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
     }
 
     public void onMouseMove(MouseMoveEvent event) {
-        if (mouseDown) {
-            node.setDragging(true);
+        if (isMouseDown()) {
+            setDragging(true);
             updateCSS();
-            node.setX(event.getX() + node.getX() - dragStartX);
-            node.setY(event.getY() + node.getY() - dragStartY);
+            model.setX(event.getX() + model.getX() - dragStartX);
+            model.setY(event.getY() + model.getY() - dragStartY);
             onUpdateInModel();
             int clientX = event.getClientX();
             int clientY = event.getClientY();
             if (clientX < 0 || clientY < 0 || clientX > Window.getClientWidth()
                     || clientY > Window.getClientHeight()) {
-                parent.save(node, true);
-                node.setDragging(false);
+                parent.save(model, true);
+                setDragging(false);
             }
         }
         event.preventDefault();
@@ -87,24 +89,24 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
 
     public void onMouseUp(MouseUpEvent event) {
         Element element = view.getElement();
-        if (!node.isDragging()) {
+        if (!isDragging()) {
             updateCSS();
             reposition();
-            if (NodeProxy.EXPANDED.equals(node.getState())) {
-                node.setState(NodeProxy.COLLAPSED);
-                for (NodeProxy neighbor : graph.getNeighbors(node)) {
+            if (NodeProxy.EXPANDED.equals(model.getState())) {
+                model.setState(NodeProxy.COLLAPSED);
+                for (NodeProxy neighbor : graph.getNeighbors(model)) {
                     if (NodeProxy.COLLAPSED.equals(neighbor.getState())
                             && graph.degree(neighbor) == 1) {
                         graph.removeNode(neighbor);
                     }
                 }
             }
-            parent.toggle(node);
+            parent.toggle(model);
         } else {
-            parent.save(node, true);
-            node.setDragging(false);
+            parent.save(model, true);
+            setDragging(false);
         }
-        mouseDown = false;
+        setMouseDown(false);
         DOM.releaseCapture(element);
         event.preventDefault();
     }
@@ -113,7 +115,7 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
 
         VConsole.log("NodeController.onRemoveFromModel()");
 
-        node.setController(null);
+        model.setController(null);
         view.removeFromParent();
     }
 
@@ -122,24 +124,24 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
         Style style = view.getElement().getStyle();
 
         int width = element.getOffsetWidth();
-        node.setWidth(width);
+        model.setWidth(width);
         int halfwidth = width / 2;
-        int left = limit(0, node.getX() - halfwidth, parent.getOffsetWidth()
+        int left = limit(0, model.getX() - halfwidth, parent.getOffsetWidth()
                 - width);
-        node.setX(left + halfwidth);
+        model.setX(left + halfwidth);
         style.setLeft(left, Unit.PX);
 
         int height = element.getOffsetHeight();
-        node.setHeight(height);
+        model.setHeight(height);
         int halfHeight = height / 2;
-        int top = limit(0, node.getY() - halfHeight, parent.getOffsetHeight()
+        int top = limit(0, model.getY() - halfHeight, parent.getOffsetHeight()
                 - height);
-        node.setY(top + halfHeight);
+        model.setY(top + halfHeight);
         style.setTop(top, Unit.PX);
     }
 
     public void onUpdateInModel() {
-        view.setHTML("<div class='label'>" + node.getContent() + "</div>");
+        view.setHTML("<div class='label'>" + model.getContent() + "</div>");
         reposition();
         updateCSS();
         updateArcs();
@@ -147,13 +149,13 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
 
     private void updateCSS() {
         view.getElement().setClassName(
-                "node " + node.getState() + ' ' + node.getKind()
-                        + (mouseDown ? ' ' + "down" : ""));
+                "node " + model.getState() + ' ' + model.getKind()
+                        + (isMouseDown() ? ' ' + "down" : ""));
     }
 
     void updateArcs() {
-        update(graph.getInArcs(node));
-        update(graph.getOutArcs(node));
+        update(graph.getInArcs(model));
+        update(graph.getOutArcs(model));
     }
 
     /** Limits value to [min, max], so that min <= value <= max. */
@@ -169,10 +171,26 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
         }
     }
 
-    public void move(int x, int y) {
+    void move(int x, int y) {
         animation.targetX = x;
         animation.targetY = y;
         animation.run(500);
+    }
+
+    private boolean isDragging() {
+        return dragging;
+    }
+
+    private void setDragging(boolean dragging) {
+        this.dragging = dragging;
+    }
+
+    private boolean isMouseDown() {
+        return mouseDown;
+    }
+
+    private void setMouseDown(boolean mouseDown) {
+        this.mouseDown = mouseDown;
     }
 
     private class NodeAnimation extends Animation {
@@ -184,11 +202,11 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
             if (progress > 1) {
                 progress = 1;
             }
-            node.setX((int) Math.round(progress * targetX + (1 - progress)
-                    * node.getX()));
-            node.setY((int) Math.round(progress * targetY + (1 - progress)
-                    * node.getY()));
-            node.notifyUpdate();
+            model.setX((int) Math.round(progress * targetX + (1 - progress)
+                    * model.getX()));
+            model.setY((int) Math.round(progress * targetY + (1 - progress)
+                    * model.getY()));
+            model.notifyUpdate();
         }
 
         @Override

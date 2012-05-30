@@ -43,7 +43,6 @@ public final class NodeProxy extends IndexedElement<NodeController> {
     private String state = COLLAPSED;
     private int width;
     private int height;
-    private boolean dragging = false;
 
     public NodeProxy(String id) {
         super(id);
@@ -75,14 +74,6 @@ public final class NodeProxy extends IndexedElement<NodeController> {
 
     public int getY() {
         return y;
-    }
-
-    public boolean isDragging() {
-        return dragging;
-    }
-
-    public void setDragging(boolean dragging) {
-        this.dragging = dragging;
     }
 
     public void setHeight(int height) {

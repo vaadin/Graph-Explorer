@@ -20,66 +20,40 @@ package com.vaadin.graph.client;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public abstract class IndexedElement {
-    private Controller controller;
+abstract class IndexedElement<C extends Controller> {
+    private C controller;
     protected final String id;
 
     IndexedElement(String id) {
         this.id = id;
     }
 
-    @Override
-    public final boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        IndexedElement other = (IndexedElement) obj;
-        if (id == null) {
-            if (other.id != null) {
-                return false;
-            }
-        } else if (!id.equals(other.id)) {
-            return false;
-        }
-        return true;
-    }
-
     public String getId() {
         return id;
     }
 
-    public boolean hasHandler() {
+    public boolean hasController() {
         return controller != null;
     }
 
-    @Override
-    public final int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (id == null ? 0 : id.hashCode());
-        return result;
-    }
-
     public void notifyRemove() {
-        if (controller != null) {
+        if (hasController()) {
             controller.onRemoveFromModel();
         }
     }
 
     public void notifyUpdate() {
-        if (controller != null) {
+        if (hasController()) {
             controller.onUpdateInModel();
         }
     }
 
-    void setController(Controller controller) {
+    void setController(C controller) {
         this.controller = controller;
+    }
+
+    C getController() {
+        return controller;
     }
 
     /** Formats the given string for use as a key in a JSON object. */
@@ -90,5 +64,35 @@ public abstract class IndexedElement {
     /** Quotes the given string in double quotes. */
     static String q(String s) {
         return '"' + s + '"';
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof IndexedElement)) {
+            return false;
+        }
+        IndexedElement<?> other = (IndexedElement<?>) obj;
+        if (id == null) {
+            if (other.id != null) {
+                return false;
+            }
+        } else if (!id.equals(other.id)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public final int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (id == null ? 0 : id.hashCode());
+        return result;
     }
 }

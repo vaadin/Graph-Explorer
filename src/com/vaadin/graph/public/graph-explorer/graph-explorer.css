@@ -40,6 +40,7 @@
   background-color: white;
   font-size: 80%;
   text-align: center;
+  white-space: nowrap;
 }
 
 /* Ordering */

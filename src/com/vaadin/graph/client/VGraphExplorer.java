@@ -19,7 +19,6 @@ import java.util.Collection;
 
 import org.vaadin.gwtgraphics.client.*;
 
-import com.google.gwt.animation.client.Animation;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.json.client.*;
@@ -118,18 +117,18 @@ public class VGraphExplorer extends Composite implements Paintable {
             } else {
                 node = graph.getNode(id);
             }
-            if (!node.hasHandler()) {
-                HTML widget = new HTML();
-                add(widget);
-                new NodeController(this, graph, node, widget);
-            }
             node.setContent(object.get(NodeProxy.LABEL).isString()
                     .stringValue());
             node.setState(object.get(NodeProxy.STATE).isString().stringValue());
             node.setKind(object.get(NodeProxy.KIND).isString().stringValue());
+            if (!node.hasController()) {
+                HTML view = new HTML();
+                add(view);
+                node.setController(new NodeController(this, graph, node, view));
+            }
             int x = (int) object.get(NodeProxy.X).isNumber().doubleValue();
             int y = (int) object.get(NodeProxy.Y).isNumber().doubleValue();
-            new NodeAnimation(node, x, y).run(500);
+            node.getController().move(x, y);
         }
     }
 
@@ -207,7 +206,7 @@ public class VGraphExplorer extends Composite implements Paintable {
     }
 
     public void update() {
-        for (IndexedElement node : graph.getNodes()) {
+        for (NodeProxy node : graph.getNodes()) {
             node.notifyUpdate();
         }
     }
@@ -243,25 +242,5 @@ public class VGraphExplorer extends Composite implements Paintable {
             graph.removeNode(uidl.getStringVariable(HIDE));
         }
         update();
-    }
-
-    private static class NodeAnimation extends Animation {
-
-        private final NodeProxy v;
-        private final int endX;
-        private final int endY;
-
-        public NodeAnimation(NodeProxy v, int endX, int endY) {
-            this.v = v;
-            this.endX = endX;
-            this.endY = endY;
-        }
-
-        @Override
-        protected void onUpdate(double progress) {
-            v.setX((int) Math.round(progress * endX + (1 - progress) * v.getX()));
-            v.setY((int) Math.round(progress * endY + (1 - progress) * v.getY()));
-            v.notifyUpdate();
-        }
     }
 }

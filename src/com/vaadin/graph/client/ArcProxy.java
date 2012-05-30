@@ -20,7 +20,7 @@ package com.vaadin.graph.client;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public final class ArcProxy extends IndexedElement {
+public final class ArcProxy extends IndexedElement<ArcController> {
     public static final String ID = "id";
     public static final String TYPE = "type";
     public static final String FROM_ID = "fromId";

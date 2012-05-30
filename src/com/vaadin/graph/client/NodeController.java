@@ -17,6 +17,7 @@ package com.vaadin.graph.client;
 
 import java.util.Collection;
 
+import com.google.gwt.animation.client.Animation;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.*;
@@ -33,35 +34,34 @@ import com.vaadin.terminal.gwt.client.VConsole;
 class NodeController implements MouseDownHandler, MouseMoveHandler,
         MouseUpHandler, Controller {
     final VGraphExplorer parent;
-    final HTML widget;
+    final HTML view;
     int dragStartX;
     int dragStartY;
     protected boolean mouseDown;
     private final NodeProxy node;
     private GraphProxy graph;
+    private NodeAnimation animation = new NodeAnimation();
 
     NodeController(VGraphExplorer parent, GraphProxy graph, NodeProxy node,
-            HTML widget) {
+            HTML view) {
         this.parent = parent;
         this.node = node;
-        this.widget = widget;
+        this.view = view;
         this.graph = graph;
 
-        node.setController(this);
-
-        widget.setTitle(node.getId());
-        Style style = widget.getElement().getStyle();
+        view.setTitle(node.getId());
+        Style style = view.getElement().getStyle();
         style.setLeft(node.getX(), Unit.PX);
         style.setTop(node.getY(), Unit.PX);
-        widget.addDomHandler(this, MouseDownEvent.getType());
-        widget.addDomHandler(this, MouseMoveEvent.getType());
-        widget.addDomHandler(this, MouseUpEvent.getType());
+        view.addDomHandler(this, MouseDownEvent.getType());
+        view.addDomHandler(this, MouseMoveEvent.getType());
+        view.addDomHandler(this, MouseUpEvent.getType());
     }
 
     public void onMouseDown(MouseDownEvent event) {
         mouseDown = true;
         updateCSS();
-        DOM.setCapture(widget.getElement());
+        DOM.setCapture(view.getElement());
         dragStartX = event.getX();
         dragStartY = event.getY();
         event.preventDefault();
@@ -86,7 +86,7 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
     }
 
     public void onMouseUp(MouseUpEvent event) {
-        Element element = widget.getElement();
+        Element element = view.getElement();
         if (!node.isDragging()) {
             updateCSS();
             reposition();
@@ -114,12 +114,12 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
         VConsole.log("NodeController.onRemoveFromModel()");
 
         node.setController(null);
-        widget.removeFromParent();
+        view.removeFromParent();
     }
 
     private void reposition() {
-        Element element = widget.getElement();
-        Style style = widget.getElement().getStyle();
+        Element element = view.getElement();
+        Style style = view.getElement().getStyle();
 
         int width = element.getOffsetWidth();
         node.setWidth(width);
@@ -139,19 +139,19 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
     }
 
     public void onUpdateInModel() {
-        widget.setHTML("<div class='label'>" + node.getContent() + "</div>");
+        view.setHTML("<div class='label'>" + node.getContent() + "</div>");
         reposition();
         updateCSS();
-        updateRelationships();
+        updateArcs();
     }
 
     private void updateCSS() {
-        widget.getElement().setClassName(
+        view.getElement().setClassName(
                 "node " + node.getState() + ' ' + node.getKind()
                         + (mouseDown ? ' ' + "down" : ""));
     }
 
-    void updateRelationships() {
+    void updateArcs() {
         update(graph.getInArcs(node));
         update(graph.getOutArcs(node));
     }
@@ -166,6 +166,34 @@ class NodeController implements MouseDownHandler, MouseMoveHandler,
             for (ArcProxy arc : arcs) {
                 arc.notifyUpdate();
             }
+        }
+    }
+
+    public void move(int x, int y) {
+        animation.targetX = x;
+        animation.targetY = y;
+        animation.run(500);
+    }
+
+    private class NodeAnimation extends Animation {
+        int targetX = 0;
+        int targetY = 0;
+
+        @Override
+        protected void onUpdate(double progress) {
+            if (progress > 1) {
+                progress = 1;
+            }
+            node.setX((int) Math.round(progress * targetX + (1 - progress)
+                    * node.getX()));
+            node.setY((int) Math.round(progress * targetY + (1 - progress)
+                    * node.getY()));
+            node.notifyUpdate();
+        }
+
+        @Override
+        protected void onCancel() {
+            // do nothing
         }
     }
 }

@@ -56,7 +56,6 @@ class ArcPresenter implements Controller {
         }
         parent.add(viewLabel);
 
-        model.setController(this);
         onUpdateInModel();
     }
 

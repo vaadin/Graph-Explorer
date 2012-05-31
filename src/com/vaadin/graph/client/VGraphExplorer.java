@@ -103,7 +103,7 @@ public class VGraphExplorer extends Composite implements Paintable {
             return;
         }
         for (String json : nodes) {
-            JSONObject object = JSONParser.parseLenient(json).isObject();
+            JSONObject object = parseJSON(json);
             String id = getString(object, NodeProxy.ID);
             NodeProxy node = new NodeProxy(id);
             if (graph.addNode(node)) {
@@ -114,19 +114,20 @@ public class VGraphExplorer extends Composite implements Paintable {
                     node.setX(current.getX());
                     node.setY(current.getY());
                 }
+                node.setController(new NodePresenter(this, node));
             } else {
                 node = graph.getNode(id);
             }
             node.setContent(getString(object, NodeProxy.LABEL));
             node.setState(getString(object, NodeProxy.STATE));
             node.setKind(getString(object, NodeProxy.KIND));
-            if (!node.hasController()) {
-                node.setController(new NodePresenter(this, node));
-            }
-            int x = getInt(object, NodeProxy.X);
-            int y = getInt(object, NodeProxy.Y);
-            node.getController().move(x, y);
+            node.getController().move(getInt(object, NodeProxy.X),
+                                      getInt(object, NodeProxy.Y));
         }
+    }
+
+    private static JSONObject parseJSON(String json) {
+        return JSONParser.parseLenient(json).isObject();
     }
 
     private static int getInt(JSONObject object, String key) {
@@ -138,7 +139,7 @@ public class VGraphExplorer extends Composite implements Paintable {
             return;
         }
         for (String json : arcs) {
-            JSONObject object = JSONParser.parseLenient(json).isObject();
+            JSONObject object = parseJSON(json);
             String id = getString(object, ArcProxy.ID);
             if (!graph.containsArc(id)) {
                 ArcProxy arc = new ArcProxy(id,
@@ -152,7 +153,7 @@ public class VGraphExplorer extends Composite implements Paintable {
                 }
                 arc.setLabel(getString(object, ArcProxy.LABEL));
                 arc.setGroup(object.get(ArcProxy.GROUP).isBoolean().booleanValue());
-                new ArcPresenter(this, arc);
+                arc.setController(new ArcPresenter(this, arc));
             }
         }
     }

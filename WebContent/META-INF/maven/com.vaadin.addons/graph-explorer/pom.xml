@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.vaadin.addons</groupId>
 	<artifactId>graph-explorer</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0-SNAPSHOT</version>
 	<dependencies>
 		<dependency>
 			<groupId>com.vaadin</groupId>

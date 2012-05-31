@@ -26,48 +26,38 @@ import com.google.gwt.user.client.ui.HTML;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-class ArcController implements Controller {
+class ArcPresenter implements Controller {
 
     private static final int ARROWHEAD_LENGTH = 10;
     private static final int ARROWHEAD_WIDTH = ARROWHEAD_LENGTH / 2;
-    private Line body;
-    private HTML label;
-    private Line arrowheadLeft;
-    private Line arrowheadRight;
-    private final ArcProxy arc;
-    private double terminusX;
-    private double terminusY;
+
     private final VGraphExplorer parent;
+    private final ArcProxy model;
+    private final Line viewBody = new Line(0, 0, 0, 0);
+    private final HTML viewLabel;
+    private final Line viewHeadLeft = new Line(0, 0, 0, 0);
+    private final Line viewHeadRight = new Line(0, 0, 0, 0);
 
-    ArcController(VGraphExplorer parent, ArcProxy arc) {
+    private double headX;
+    private double headY;
+
+    ArcPresenter(VGraphExplorer parent, ArcProxy model) {
         this.parent = parent;
-        this.arc = arc;
-        addBody();
-        addArrowhead();
-        addLabel();
-        arc.setController(this);
-        onUpdateInModel();
-    }
+        this.model = model;
 
-    private void addArrowhead() {
-        arrowheadLeft = new Line(0, 0, 0, 0);
-        parent.add(arrowheadLeft);
-        arrowheadRight = new Line(0, 0, 0, 0);
-        parent.add(arrowheadRight);
-    }
+        parent.add(viewBody);
+        parent.add(viewHeadLeft);
+        parent.add(viewHeadRight);
 
-    private void addBody() {
-        body = new Line(0, 0, 0, 0);
-        parent.add(body);
-    }
-
-    private void addLabel() {
-        label = new HTML(arc.getLabel());
-        label.getElement().setClassName("arc");
-        if (!arc.isGroup()) {
-            label.setTitle(arc.getId());
+        viewLabel = new HTML(model.getLabel());
+        viewLabel.getElement().setClassName("arc");
+        if (!model.isGroup()) {
+            viewLabel.setTitle(model.getId());
         }
-        parent.add(label);
+        parent.add(viewLabel);
+
+        model.setController(this);
+        onUpdateInModel();
     }
 
     private static double distance(double fromX, double fromY, double toX,
@@ -76,31 +66,31 @@ class ArcController implements Controller {
     }
 
     public void onRemoveFromModel() {
-        arc.setController(null);
-        parent.remove(body);
-        parent.remove(label);
-        parent.remove(arrowheadLeft);
-        parent.remove(arrowheadRight);
+        model.setController(null);
+        parent.remove(viewBody);
+        parent.remove(viewLabel);
+        parent.remove(viewHeadLeft);
+        parent.remove(viewHeadRight);
     }
 
     public void onUpdateInModel() {
-        updateArc();
+        updateLine();
         updateLabel();
         updateArrowhead();
     }
 
     private void updateArrowhead() {
         GraphProxy graph = parent.getGraph();
-        NodeProxy from = graph.getSource(arc);
+        NodeProxy from = graph.getTail(model);
         double fromX = from.getX();
         double fromY = from.getY();
-        NodeProxy to = graph.getDest(arc);
+        NodeProxy to = graph.getHead(model);
         double toX = to.getX();
         double toY = to.getY();
         double dX = toX - fromX;
         double dY = toY - fromY;
-        terminusX = toX;
-        terminusY = toY;
+        headX = toX;
+        headY = toY;
         double distance = distance(fromX, fromY, toX, toY);
         double newX;
         double newY;
@@ -113,8 +103,8 @@ class ArcController implements Controller {
         double newDistance = distance(newX, newY, toX, toY);
         if (newDistance < distance) {
             distance = newDistance;
-            terminusX = newX;
-            terminusY = newY;
+            headX = newX;
+            headY = newY;
         }
 
         double halfHeight = to.getHeight() / 2.0;
@@ -123,41 +113,41 @@ class ArcController implements Controller {
         newY = fromY < top ? top : fromY > bottom ? bottom : fromY;
         newX = fromX + dX * (newY - fromY) / dY;
         if (distance(newX, newY, toX, toY) < distance) {
-            terminusX = newX;
-            terminusY = newY;
+            headX = newX;
+            headY = newY;
         }
 
         double angle = Math.atan2(dY, dX);
-        double leftX = terminusX
+        double leftX = headX
                        + rotateX(-ARROWHEAD_LENGTH, -ARROWHEAD_WIDTH, angle);
-        double leftY = terminusY
+        double leftY = headY
                        + rotateY(-ARROWHEAD_LENGTH, -ARROWHEAD_WIDTH, angle);
-        updateLine(arrowheadLeft, terminusX, terminusY, leftX, leftY);
+        updateLine(viewHeadLeft, headX, headY, leftX, leftY);
 
-        double rightX = terminusX
+        double rightX = headX
                         + rotateX(-ARROWHEAD_LENGTH, ARROWHEAD_WIDTH, angle);
-        double rightY = terminusY
+        double rightY = headY
                         + rotateY(-ARROWHEAD_LENGTH, ARROWHEAD_WIDTH, angle);
-        updateLine(arrowheadRight, terminusX, terminusY, rightX, rightY);
+        updateLine(viewHeadRight, headX, headY, rightX, rightY);
     }
 
-    private void updateArc() {
+    private void updateLine() {
         GraphProxy graph = parent.getGraph();
-        NodeProxy from = graph.getSource(arc);
-        NodeProxy to = graph.getDest(arc);
-        updateLine(body, from.getX(), from.getY(), to.getX(), to.getY());
+        NodeProxy from = graph.getTail(model);
+        NodeProxy to = graph.getHead(model);
+        updateLine(viewBody, from.getX(), from.getY(), to.getX(), to.getY());
     }
 
     private Style updateLabel() {
-        Style style = label.getElement().getStyle();
+        Style style = viewLabel.getElement().getStyle();
         GraphProxy graph = parent.getGraph();
-        NodeProxy from = graph.getSource(arc);
+        NodeProxy from = graph.getTail(model);
 
-        double x = getLabelCenter(from.getX(), terminusX)
-                   - label.getOffsetWidth() / 2.0;
+        double x = getLabelCenter(from.getX(), headX)
+                   - viewLabel.getOffsetWidth() / 2.0;
         style.setLeft(x, Unit.PX);
-        double y = getLabelCenter(from.getY(), terminusY)
-                   - label.getOffsetHeight() / 2.0;
+        double y = getLabelCenter(from.getY(), headY)
+                   - viewLabel.getOffsetHeight() / 2.0;
         style.setTop(y, Unit.PX);
 
         return style;

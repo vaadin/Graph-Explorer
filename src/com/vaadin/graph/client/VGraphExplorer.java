@@ -121,9 +121,7 @@ public class VGraphExplorer extends Composite implements Paintable {
             node.setState(getString(object, NodeProxy.STATE));
             node.setKind(getString(object, NodeProxy.KIND));
             if (!node.hasController()) {
-                HTML view = new HTML();
-                add(view);
-                node.setController(new NodeController(this, node, view));
+                node.setController(new NodePresenter(this, node));
             }
             int x = getInt(object, NodeProxy.X);
             int y = getInt(object, NodeProxy.Y);
@@ -154,7 +152,7 @@ public class VGraphExplorer extends Composite implements Paintable {
                 }
                 arc.setLabel(getString(object, ArcProxy.LABEL));
                 arc.setGroup(object.get(ArcProxy.GROUP).isBoolean().booleanValue());
-                new ArcController(this, arc);
+                new ArcPresenter(this, arc);
             }
         }
     }
@@ -208,12 +206,6 @@ public class VGraphExplorer extends Composite implements Paintable {
         }
     }
 
-    public void update() {
-        for (NodeProxy node : graph.getNodes()) {
-            node.notifyUpdate();
-        }
-    }
-
     /**
      * Called whenever an update is received from the server
      */
@@ -244,6 +236,9 @@ public class VGraphExplorer extends Composite implements Paintable {
         if (uidl.hasVariable(HIDE)) {
             graph.removeNode(uidl.getStringVariable(HIDE));
         }
-        update();
+
+        for (NodeProxy node : graph.getNodes()) {
+            node.notifyUpdate();
+        }
     }
 }

@@ -20,7 +20,7 @@ package com.vaadin.graph.client;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public final class NodeProxy extends IndexedElement<NodeController> {
+public final class NodeProxy extends IndexedElement<NodePresenter> {
 
     public static final String ID = "id";
     public static final String LABEL = "label";

@@ -115,7 +115,7 @@ public class GraphProxy {
         return degree;
     }
 
-    public NodeProxy getDest(ArcProxy e) {
+    public NodeProxy getHead(ArcProxy e) {
         return heads.get(e);
     }
 
@@ -135,12 +135,12 @@ public class GraphProxy {
         Set<NodeProxy> neighbors = new HashSet<NodeProxy>();
         if (inArcSets.containsKey(node)) {
             for (ArcProxy e : inArcSets.get(node)) {
-                neighbors.add(getSource(e));
+                neighbors.add(getTail(e));
             }
         }
         if (outArcSets.containsKey(node)) {
             for (ArcProxy e : outArcSets.get(node)) {
-                neighbors.add(getDest(e));
+                neighbors.add(getHead(e));
             }
         }
         return neighbors;
@@ -154,7 +154,7 @@ public class GraphProxy {
         return Collections.unmodifiableCollection(set);
     }
 
-    public NodeProxy getSource(ArcProxy e) {
+    public NodeProxy getTail(ArcProxy e) {
         return tails.get(e);
     }
 

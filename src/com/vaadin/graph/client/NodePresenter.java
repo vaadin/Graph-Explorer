@@ -31,12 +31,12 @@ import com.vaadin.terminal.gwt.client.VConsole;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-class NodeController implements Controller, MouseDownHandler, MouseMoveHandler,
+class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
         MouseUpHandler {
     private final VGraphExplorer parent;
     private final GraphProxy graph;
     private final NodeProxy model;
-    private final HTML view;
+    private final HTML view = new HTML();
     private final NodeAnimation animation = new NodeAnimation();
 
     private int dragStartX;
@@ -44,10 +44,9 @@ class NodeController implements Controller, MouseDownHandler, MouseMoveHandler,
     private boolean mouseDown;
     private boolean dragging;
 
-    NodeController(VGraphExplorer parent, NodeProxy model, HTML view) {
+    NodePresenter(VGraphExplorer parent, NodeProxy model) {
         this.parent = parent;
         this.model = model;
-        this.view = view;
         graph = parent.getGraph();
 
         view.setTitle(model.getId());
@@ -58,6 +57,8 @@ class NodeController implements Controller, MouseDownHandler, MouseMoveHandler,
         view.addDomHandler(this, MouseDownEvent.getType());
         view.addDomHandler(this, MouseMoveEvent.getType());
         view.addDomHandler(this, MouseUpEvent.getType());
+
+        parent.add(view);
     }
 
     public void onMouseDown(MouseDownEvent event) {
@@ -116,7 +117,7 @@ class NodeController implements Controller, MouseDownHandler, MouseMoveHandler,
 
     public void onRemoveFromModel() {
 
-        VConsole.log("NodeController.onRemoveFromModel()");
+        VConsole.log("NodePresenter.onRemoveFromModel()");
 
         model.setController(null);
         view.removeFromParent();

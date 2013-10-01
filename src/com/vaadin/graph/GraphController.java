@@ -203,12 +203,12 @@ class GraphController<N extends Node, A extends Arc> {
     }
 
     public Collection<NodeProxy> loadNeighbors(String nodeId) {
-        NodeProxy v = model.getNode(nodeId);
+        NodeProxy n = model.getNode(nodeId);
         Set<NodeProxy> neighbors = new HashSet<NodeProxy>();
-        if (NodeProxy.EXPANDED.equals(v.getState())) {
+        if (NodeProxy.EXPANDED.equals(n.getState())) {
             return neighbors;
         }
-        v.setState(NodeProxy.EXPANDED);
+        n.setState(NodeProxy.EXPANDED);
         N node = repository.getNodeById(nodeId);
         for (Arc.Direction dir : new Arc.Direction[] {Arc.Direction.INCOMING,
                                                       Arc.Direction.OUTGOING}) {
@@ -255,7 +255,7 @@ class GraphController<N extends Node, A extends Arc> {
         return neighbors;
     }
 
-    public GraphModel getModel() {
+    GraphModel getModel() {
         return model;
     }
 }

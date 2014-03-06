@@ -30,7 +30,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.vaadin.client.VConsole;
 
 /**
  * Presenter/controller for a node in a graph.
@@ -39,7 +38,7 @@ import com.vaadin.client.VConsole;
  */
 class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
         MouseUpHandler {
-    private final VGraphExplorer parent;
+    private final GraphExplorerConnector connector;
     private final GraphProxy graph;
     private final NodeProxy model;
     private final HTML view = new HTML();
@@ -50,10 +49,10 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
     private boolean mouseDown;
     private boolean dragging;
 
-    NodePresenter(VGraphExplorer parent, NodeProxy model) {
-        this.parent = parent;
+    NodePresenter(GraphExplorerConnector connector, NodeProxy model) {
+        this.connector = connector;
         this.model = model;
-        graph = parent.getGraph();
+        graph = connector.getWidget().getGraph();
 
         view.setTitle(model.getId());
         Style style = view.getElement().getStyle();
@@ -64,7 +63,7 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
         view.addDomHandler(this, MouseMoveEvent.getType());
         view.addDomHandler(this, MouseUpEvent.getType());
 
-        parent.add(view);
+        connector.getWidget().add(view);
     }
 
     public void onMouseDown(MouseDownEvent event) {
@@ -89,7 +88,7 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
                                     || clientX > Window.getClientWidth()
                                     || clientY > Window.getClientHeight();
             if (outsideWindow) {
-                parent.save(model, true);
+            	connector.updateNode(model);
                 setDragging(false);
             }
         }
@@ -111,9 +110,9 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
                     }
                 }
             }
-            parent.toggle(model);
+            connector.toggle(model);
         } else {
-            parent.save(model, true);
+        	connector.updateNode(model);
             setDragging(false);
         }
         setMouseDown(false);
@@ -122,9 +121,6 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
     }
 
     public void onRemoveFromModel() {
-
-        VConsole.log("NodePresenter.onRemoveFromModel()");
-
         model.setController(null);
         view.removeFromParent();
     }
@@ -137,7 +133,7 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
         model.setWidth(width);
         int xRadius = width / 2;
         int leftEdge = model.getX() - xRadius;
-        leftEdge = limit(0, leftEdge, parent.getOffsetWidth() - width);
+        leftEdge = limit(0, leftEdge, connector.getWidget().getOffsetWidth() - width);
         model.setX(leftEdge + xRadius);
         style.setLeft(leftEdge, Unit.PX);
 
@@ -145,7 +141,7 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
         model.setHeight(height);
         int yRadius = height / 2;
         int topEdge = model.getY() - yRadius;
-        topEdge = limit(0, topEdge, parent.getOffsetHeight() - height);
+        topEdge = limit(0, topEdge, connector.getWidget().getOffsetHeight() - height);
         model.setY(topEdge + yRadius);
         style.setTop(topEdge, Unit.PX);
     }

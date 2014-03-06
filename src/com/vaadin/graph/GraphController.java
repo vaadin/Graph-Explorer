@@ -217,7 +217,7 @@ class GraphController<N extends Node, A extends Arc> {
                              arc);
                 }
                 int nrArcs = arcs.size();
-                if (nrArcs > 10) {
+                if (nrArcs > 2) {
                     String groupId = nodeId + ' ' + dir + ' ' + label;
                     NodeProxy groupNode = new NodeProxy(groupId);
                     if (!model.addNode(groupNode)) {

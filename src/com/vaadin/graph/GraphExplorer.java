@@ -15,18 +15,30 @@
  */
 package com.vaadin.graph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.vaadin.graph.client.*;
-import com.vaadin.terminal.*;
-import com.vaadin.ui.*;
+import com.vaadin.graph.client.ArcProxy;
+import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.client.VGraphExplorer;
+import com.vaadin.server.PaintException;
+import com.vaadin.server.PaintTarget;
+import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.LegacyComponent;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
 
-@ClientWidget(VGraphExplorer.class)
 public class GraphExplorer<N extends Node, A extends Arc> extends
-        AbstractComponent {
+        AbstractComponent implements LegacyComponent {
     private static final long serialVersionUID = 1L;
 
     private String removedId = null;
@@ -39,15 +51,13 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
 
     public GraphExplorer(GraphRepository<N, A> repository) {
         this.controller = new GraphController<N, A>(repository);
-        setWidth("100%");
-        setHeight("100%");
+        setSizeFull();
         model = controller.getModel();
     }
 
     @SuppressWarnings("boxing")
     @Override
     public void changeVariables(Object source, Map<String, Object> variables) {
-        super.changeVariables(source, variables);
         Set<String> keys = new HashSet<String>(variables.keySet());
         NodeProxy toggledNode = null;
         Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
@@ -83,8 +93,8 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
         for (String key : keys) {
             Object variable = variables.get(key);
             NodeProxy node = model.getNode(key);
-            if (variable != null) {
-                NodeLoader.loadFromJSON(node, variable);
+            if (variable instanceof String) {
+                NodeLoader.loadFromJSON(node, (String) variable);
                 lockedNodes.add(node);
             }
         }
@@ -122,11 +132,11 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
 
     private void openMemberSelector(final String groupId) {
         VerticalLayout layout = new VerticalLayout();
-        final Window dialog = new Window("Select nodes to show", layout);
+        final Window dialog = new Window("Select nodes to show");
         dialog.setModal(true);
         dialog.setStyleName(Reindeer.WINDOW_BLACK);
-        dialog.setWidth("300px");
-        dialog.setHeight("400px");
+        dialog.setWidth(300, Unit.PIXELS);
+        dialog.setHeight(400, Unit.PIXELS);
 
         layout.setMargin(true);
         layout.setSpacing(true);
@@ -141,25 +151,23 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
         Button cancelButton = new Button("Cancel");
         buttons.addComponent(cancelButton);
         buttons.addComponent(showButton);
+        buttons.setWidth(100, Unit.PERCENTAGE);
         layout.addComponent(buttons);
         layout.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
 
-        Window browserWindow = getWindow();
-        while (browserWindow.getParent() != null) {
-            browserWindow = browserWindow.getParent();
-        }
-        browserWindow.addWindow(dialog);
+        dialog.setContent(layout);
+        getUI().addWindow(dialog);
 
-        cancelButton.addListener(new ClickListener() {
+        cancelButton.addClickListener(new ClickListener() {
             public void buttonClick(ClickEvent event) {
-                dialog.getParent().removeWindow(dialog);
+            	getUI().removeWindow(dialog);
             }
         });
 
-        showButton.addListener(new ClickListener() {
+        showButton.addClickListener(new ClickListener() {
 
             public void buttonClick(ClickEvent event) {
-                dialog.getParent().removeWindow(dialog);
+            	getUI().removeWindow(dialog);
                 controller.loadMembers(groupId, selector.getSelectedNodeIds());
                 Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
                 if (!model.containsNode(groupId)) {
@@ -180,7 +188,6 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
 
     @Override
     public void paintContent(PaintTarget target) throws PaintException {
-        super.paintContent(target);
         target.addVariable(this, VGraphExplorer.NODES, nodesToJSON());
         target.addVariable(this, VGraphExplorer.ARCS, arcsToJSON());
         if (removedId != null) {

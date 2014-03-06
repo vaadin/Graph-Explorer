@@ -17,14 +17,23 @@ package com.vaadin.graph.client;
 
 import java.util.Collection;
 
-import org.vaadin.gwtgraphics.client.*;
+import org.vaadin.gwtgraphics.client.DrawingArea;
+import org.vaadin.gwtgraphics.client.VectorObject;
 
-import com.google.gwt.dom.client.*;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Position;
-import com.google.gwt.json.client.*;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Random;
-import com.google.gwt.user.client.ui.*;
-import com.vaadin.terminal.gwt.client.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.vaadin.client.ApplicationConnection;
+import com.vaadin.client.Paintable;
+import com.vaadin.client.UIDL;
+import com.vaadin.client.Util;
 
 public class VGraphExplorer extends Composite implements Paintable {
 

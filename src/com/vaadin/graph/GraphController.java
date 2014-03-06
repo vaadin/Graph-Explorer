@@ -21,6 +21,7 @@ import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.graph.client.*;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
+import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.*;
 
 /**
@@ -100,14 +101,9 @@ class GraphController<N extends Node, A extends Arc> {
             public SelectorUI() {
                 VerticalLayout layout = new VerticalLayout();
 
-                layout.setSizeFull();
-
-                setCompositionRoot(layout);
-                setSizeFull();
-
                 TextField stringMatcher = new TextField();
                 layout.addComponent(stringMatcher);
-                stringMatcher.setWidth("100%");
+                stringMatcher.setWidth(100, Unit.PERCENTAGE);
 
                 layout.addComponent(matchList);
                 layout.setExpandRatio(matchList, 1.0f);
@@ -117,7 +113,7 @@ class GraphController<N extends Node, A extends Arc> {
                 matchList.setSelectable(true);
                 matchList.setMultiSelect(true);
                 matchList.addContainerProperty(NODENAME, String.class, "");
-                matchList.setColumnHeaderMode(Table.COLUMN_HEADER_MODE_HIDDEN);
+                matchList.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
 
                 stringMatcher.setTextChangeEventMode(TextChangeEventMode.LAZY);
 
@@ -133,7 +129,7 @@ class GraphController<N extends Node, A extends Arc> {
                     matchList.getContainerProperty(id, NODENAME).setValue(label);
                 }
 
-                stringMatcher.addListener(new TextChangeListener() {
+                stringMatcher.addTextChangeListener(new TextChangeListener() {
                     public void textChange(TextChangeEvent event) {
                         String query = event.getText().toLowerCase().replaceAll("\\s",
                                                                                 "");
@@ -150,7 +146,9 @@ class GraphController<N extends Node, A extends Arc> {
                         }
                     }
                 });
-
+              layout.setSizeFull();
+              setCompositionRoot(layout);
+              setSizeFull();
             }
 
             public Collection<String> getSelectedNodeIds() {

@@ -32,11 +32,12 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.Reindeer;
 
 public class GraphExplorer<N extends Node, A extends Arc> extends
         AbstractComponent implements GraphExplorerServerRpc {
     private static final long serialVersionUID = 1L;
+
+    private static final String STYLE_MEMBER_SELECTOR = "member-selector"; 
 
     private String removedId = null;
 
@@ -136,14 +137,9 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
         return list.toArray(new String[list.size()]);
     }
 
-    private void openMemberSelector(final String groupId) {
-        VerticalLayout layout = new VerticalLayout();
-        final Window dialog = new Window("Select nodes to show");
-        dialog.setModal(true);
-        dialog.setStyleName(Reindeer.WINDOW_BLACK);
-        dialog.setWidth(300, Unit.PIXELS);
-        dialog.setHeight(400, Unit.PIXELS);
+    protected void openMemberSelector(final String groupId) {
 
+        VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         layout.setSpacing(true);
         layout.setSizeFull();
@@ -153,24 +149,28 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
         layout.setExpandRatio(selector, 1.0f);
 
         HorizontalLayout buttons = new HorizontalLayout();
-        Button showButton = new Button("Show");
-        Button cancelButton = new Button("Cancel");
+        Button showButton = new Button(getShowButtonCaption());
+        Button cancelButton = new Button(getCancelButtonCaption());
         buttons.addComponent(cancelButton);
         buttons.addComponent(showButton);
         buttons.setWidth(100, Unit.PERCENTAGE);
         layout.addComponent(buttons);
         layout.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
 
+        final Window dialog = createMemberSelectorWindow();
         dialog.setContent(layout);
         getUI().addWindow(dialog);
 
         cancelButton.addClickListener(new ClickListener() {
+            private static final long serialVersionUID = 1L;
+
             public void buttonClick(ClickEvent event) {
             	getUI().removeWindow(dialog);
             }
         });
 
         showButton.addClickListener(new ClickListener() {
+            private static final long serialVersionUID = 1L;
 
             public void buttonClick(ClickEvent event) {
             	getUI().removeWindow(dialog);
@@ -209,4 +209,26 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
     private static String q(String s) {
         return '"' + s + '"';
     }
+    
+	protected Window createMemberSelectorWindow() {
+		final Window dialog = new Window(getMemberSelectorTitle());
+        dialog.setModal(true);
+        dialog.setStyleName(STYLE_MEMBER_SELECTOR);
+        dialog.setWidth(300, Unit.PIXELS);
+        dialog.setHeight(400, Unit.PIXELS);
+		return dialog;
+	}
+
+    protected String getMemberSelectorTitle() {
+    	return "Select nodes to show";
+    }
+    
+    protected String getShowButtonCaption() {
+    	return "Show";
+    }
+
+    protected String getCancelButtonCaption() {
+    	return "Cancel";
+    }
+
 }

@@ -18,32 +18,29 @@ package com.vaadin.graph.client;
 import org.vaadin.gwtgraphics.client.DrawingArea;
 import org.vaadin.gwtgraphics.client.VectorObject;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RootPanel;
 
 public class VGraphExplorer extends Composite {
 
     /** Set the CSS class name to allow styling. */
-    public static final String CLASSNAME = "v-mycomponent"; //TODO style
-
+    public static final String CSS_CLASSNAME = "v-graph-explorer";
+    private static final String STYLE_CANVAS = "canvas"; 
+    
     private final Panel root = new AbsolutePanel();
     protected final DrawingArea canvas = new DrawingArea(0, 0);
     private final GraphProxy graph = new GraphProxy();
 
     public VGraphExplorer() {
         initWidget(root);
-        RootPanel.getBodyElement().getStyle().setBackgroundColor("green"); //TODO style
-        Style canvasStyle = canvas.getElement().getStyle();
-        canvasStyle.setPosition(Position.ABSOLUTE);
-        canvasStyle.setBackgroundColor("white"); //TODO style
+        canvas.getElement().getStyle().setPosition(Position.ABSOLUTE);
         root.add(canvas);
         root.getElement().getStyle().setPosition(Position.ABSOLUTE);
-        setStyleName(CLASSNAME);
+        canvas.setStyleName(STYLE_CANVAS);
+        setStyleName(CSS_CLASSNAME);
     }
 
     void add(HTML widget) {

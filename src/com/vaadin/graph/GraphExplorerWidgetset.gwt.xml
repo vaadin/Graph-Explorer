@@ -7,10 +7,6 @@
 	<inherits name="com.vaadin.DefaultWidgetSet" /> 
 	<inherits name="org.vaadin.gwtgraphics.GWTGraphics" />
     
-	<!-- Widgetset default theme -->
-	<!-- This is relative to widgetset_directory/public -->
-	<stylesheet src="graph-explorer/graph-explorer.css" />
-
     <!--
      Uncomment the following to compile the widgetset for one browser only.
      This can reduce the GWT compilation time significantly when debugging.

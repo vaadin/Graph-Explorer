@@ -38,6 +38,10 @@ import com.google.gwt.user.client.ui.HTML;
  */
 class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
         MouseUpHandler {
+	
+    /** Set the CSS class name to allow styling. */
+    public static final String CSS_CLASSNAME = "node";
+
     private final GraphExplorerConnector connector;
     private final GraphProxy graph;
     private final NodeProxy model;
@@ -155,7 +159,7 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 
     private void updateCSS() {
         Element element = view.getElement();
-        element.setClassName("node");
+        element.setClassName(CSS_CLASSNAME);
         element.addClassName(model.getState());
         element.addClassName(model.getKind());
         if (isMouseDown()) {

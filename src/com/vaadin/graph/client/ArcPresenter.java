@@ -28,6 +28,9 @@ import com.google.gwt.user.client.ui.HTML;
  */
 class ArcPresenter implements Controller {
 
+    /** Set the CSS class name to allow styling. */
+    public static final String CSS_CLASSNAME = "arc";
+
     private static final int ARROWHEAD_LENGTH = 10;
     private static final int ARROWHEAD_WIDTH = ARROWHEAD_LENGTH / 2;
 
@@ -50,7 +53,7 @@ class ArcPresenter implements Controller {
         connector.getWidget().add(viewHeadRight);
 
         viewLabel = new HTML(model.getLabel());
-        viewLabel.getElement().setClassName("arc");
+        viewLabel.getElement().setClassName(CSS_CLASSNAME);
         if (!model.isGroup()) {
             viewLabel.setTitle(model.getId());
         }

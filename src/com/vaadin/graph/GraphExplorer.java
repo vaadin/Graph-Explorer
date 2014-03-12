@@ -45,16 +45,19 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
     private int clientWidth = 0;
     private transient final GraphController<N, A> controller;
 
-    private final GraphModel model;
+    private final JungGraphModel model;
+    private LayoutEngine<JungGraphModel> layoutEngine;
 
     public GraphExplorer(GraphRepository<N, A> repository) {
-    	this(new GraphController<N, A>(repository));
+    	this(new GraphController<N, A>(repository), new JungFRLayoutEngine());
     }
 
-    public GraphExplorer(GraphController<N, A> controller) {
+    public GraphExplorer(GraphController<N, A> controller, LayoutEngine<JungGraphModel> layoutEngine) {
     	super();
     	registerRpc(this, GraphExplorerServerRpc.class);
+    	
         this.controller = controller;
+        this.layoutEngine = layoutEngine;
         this.model = controller.getModel();
 
         getState().nodes = nodesToJSON();
@@ -63,6 +66,14 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
 
         setSizeFull();
     }
+
+	public LayoutEngine<JungGraphModel> getLayoutEngine() {
+		return layoutEngine;
+	}
+
+	public void setLayoutEngine(LayoutEngine<JungGraphModel> layoutEngine) {
+		this.layoutEngine = layoutEngine;
+	}
 
     protected GraphController<N, A> getController() {
 		return controller;
@@ -86,7 +97,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
                     }
                 }
             }
-            model.layout(clientWidth, clientHeight, lockedNodes);
+            layoutEngine.layout(model, clientWidth, clientHeight, lockedNodes);
             getState().nodes = nodesToJSON();
             getState().arcs = arcsToJSON();
             getState().removedId = removedId;

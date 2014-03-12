@@ -15,15 +15,24 @@
  */
 package com.vaadin.graph;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.graph.client.*;
+import com.vaadin.graph.client.ArcProxy;
+import com.vaadin.graph.client.NodeProxy;
 import com.vaadin.server.ResourceReference;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnHeaderMode;
-import com.vaadin.ui.*;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 /**
  * For loading a graph from a graph database.
@@ -33,7 +42,7 @@ import com.vaadin.ui.*;
 public class GraphController<N extends Node, A extends Arc> {
 
     private final GraphRepository<N, A> repository;
-    private final GraphModel model = new GraphModel();
+    private final JungGraphModel model = new JungGraphModel();
     private final Map<String, Map<String, A>> groups = new HashMap<String, Map<String, A>>();
 
     public GraphController(GraphRepository<N, A> repository) {
@@ -199,7 +208,7 @@ public class GraphController<N extends Node, A extends Arc> {
         return new SelectorUI();
     }
 
-    private NodeProxy load(Node node) {
+    protected NodeProxy load(Node node) {
         String id = "" + node.getId();
         NodeProxy p = new NodeProxy(id);
         if (!model.addNode(p)) {
@@ -288,7 +297,7 @@ public class GraphController<N extends Node, A extends Arc> {
         return neighbors;
     }
 
-    protected GraphModel getModel() {
+    protected JungGraphModel getModel() {
         return model;
     }
     

@@ -48,9 +48,13 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
     private final GraphModel model;
 
     public GraphExplorer(GraphRepository<N, A> repository) {
+    	this(new GraphController<N, A>(repository));
+    }
+
+    public GraphExplorer(GraphController<N, A> controller) {
     	super();
     	registerRpc(this, GraphExplorerServerRpc.class);
-        this.controller = new GraphController<N, A>(repository);
+        this.controller = controller;
         this.model = controller.getModel();
 
         getState().nodes = nodesToJSON();
@@ -60,7 +64,11 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
         setSizeFull();
     }
 
-    @Override
+    public GraphController<N, A> getController() {
+		return controller;
+	}
+
+	@Override
     protected GraphExplorerState getState() {
       return (GraphExplorerState) super.getState();
     }

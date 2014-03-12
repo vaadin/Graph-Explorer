@@ -27,12 +27,12 @@ public final class NodeProxy extends IndexedElement<NodePresenter> {
     public static final String X = "x";
     public static final String Y = "y";
 
-    public static final String STATE = "state";
+    public static final String KIND = "kind";
     public static final String NORMAL = "normal";
     public static final String GROUP = "group";
     public static final String EMPTY = "empty";
 
-    public static final String KIND = "kind";
+    public static final String STATE = "state";
     public static final String COLLAPSED = "collapsed";
     public static final String EXPANDED = "expanded";
 

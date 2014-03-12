@@ -29,8 +29,7 @@ import com.vaadin.ui.*;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-class GraphController<N extends Node, A extends Arc> {
-    private static final String GROUP_LABEL = "<br/>nodes";
+public class GraphController<N extends Node, A extends Arc> {
 
     private final GraphRepository<N, A> repository;
     private final GraphModel model = new GraphModel();
@@ -41,52 +40,66 @@ class GraphController<N extends Node, A extends Arc> {
         load(repository.getHomeNode());
     }
 
-    private void addGroupRel(String arcId, String arcType, String fromId,
-                             String toId) {
+    private void addGroupRel(String arcId, String arcType, String fromId, String toId) {
         ArcProxy arc = new ArcProxy(arcId, arcType);
         arc.setGroup(true);
-        arc.setLabel(getGroupLabel(arcType));
+        arc.setLabel(getGroupArcLabel(arcType));
         model.addArc(arc, model.getNode(fromId), model.getNode(toId));
     }
 
     private void addArc(A arc) {
         ArcProxy p = new ArcProxy("" + arc.getId(), arc.getLabel());
-        p.setLabel(getLabel(arc));
+        p.setLabel(getArcLabel(arc));
         model.addArc(p, model.getNode("" + repository.getTail(arc).getId()),
                      model.getNode("" + repository.getHead(arc).getId()));
     }
 
-    private static String getLabel(Node node, boolean html) {
-        StringBuilder builder = new StringBuilder(node.getLabel() + "; ");
-        String delim = ", ";
-        String open = "";
-        String close = ": ";
-        if (html) {
-            builder = new StringBuilder("<b>" + node.getLabel() + "</b><br>");
-            delim = "<br>";
-            open = "<i>";
-            close = ":</i> ";
-        }
+    /**
+     * @param node
+     * @return content (html snippet) to be displayed in the node 
+     */
+    protected String getNodeContent(Node node) {
+        StringBuilder builder = new StringBuilder("<b>" + node.getLabel() + "</b>");
         for (Map.Entry<String, Object> property : node.getProperties().entrySet()) {
-            builder.append(open).append(property.getKey()).append(close).append(property.getValue()).append(delim);
+            builder.append("<br>").append("<i>").append(property.getKey()).append(":</i> ").append(property.getValue());
         }
-        String label = builder.toString();
-        return label;
+        return builder.toString();
     }
 
-    private static String getGroupLabel(String arcType) {
-        return "<b>" + arcType.toLowerCase().replace('_', ' ') + "</b>";
+    /**
+     * @param node
+     * @return content (html snippet) to be displayed in the "group" node 
+     */
+    protected String getGroupNodeContent(int nrArcs) {    	
+    	return nrArcs + "<br/>nodes";
     }
 
-    private static String getLabel(Arc arc) {
-        StringBuilder builder = new StringBuilder();
-        String delim = "<br>";
-        builder.append(getGroupLabel(arc.getLabel()));
+    /**
+     * @param node
+     * @return label (text) to represent node in node selector
+     */
+    protected String getNodeLabel(Node node) {
+        StringBuilder builder = new StringBuilder(node.getLabel() + "; ");
+        for (Map.Entry<String, Object> property : node.getProperties().entrySet()) {
+            builder.append(property.getKey()).append(": ").append(property.getValue()).append(", ");
+        }
+        return builder.toString();
+    }
+
+    /**
+     * @param arcType
+     * @return label (html snippet) to be displayed in the arc
+     */
+    protected String getArcLabel(Arc arc) {
+        StringBuilder builder = new StringBuilder("<b>" + arc.getLabel() + "</b>");
         for (Map.Entry<?, ?> property : arc.getProperties().entrySet()) {
-            builder.append(delim).append("<i>").append(property.getKey()).append(":</i> ").append(property.getValue());
+            builder.append("<br>").append("<i>").append(property.getKey()).append(":</i> ").append(property.getValue());
         }
-        String label = builder.toString();
-        return label;
+        return builder.toString();
+    }
+
+    protected String getGroupArcLabel(String arcType) {
+        return "<b>" + arcType.toLowerCase().replace('_', ' ') + "</b>";
     }
 
     public NodeSelector getMemberSelector(final String groupId) {
@@ -123,7 +136,7 @@ class GraphController<N extends Node, A extends Arc> {
                 for (A arc : groups.get(groupId).values()) {
                     N child = repository.getOpposite(parent, arc);
                     String id = "" + child.getId();
-                    String label = getLabel(child, false);
+                    String label = getNodeLabel(child);
                     members.put(id, label);
                     matchList.addItem(id);
                     matchList.getContainerProperty(id, NODENAME).setValue(label);
@@ -131,11 +144,8 @@ class GraphController<N extends Node, A extends Arc> {
 
                 stringMatcher.addTextChangeListener(new TextChangeListener() {
                     public void textChange(TextChangeEvent event) {
-                        String query = event.getText().toLowerCase().replaceAll("\\s",
-                                                                                "");
-
+                        String query = event.getText().toLowerCase().replaceAll("\\s", "");
                         matchList.removeAllItems();
-
                         for (Map.Entry<String, String> entry : members.entrySet()) {
                             String nodeId = entry.getKey();
                             String value = entry.getValue();
@@ -165,21 +175,19 @@ class GraphController<N extends Node, A extends Arc> {
     }
 
     private NodeProxy load(Node node) {
-        String label = getLabel(node, true);
         String id = "" + node.getId();
         NodeProxy p = new NodeProxy(id);
         if (!model.addNode(p)) {
             p = model.getNode(id);
         }
-        p.setContent(label);
-        if (label.isEmpty()) {
+        p.setContent(getNodeContent(node));
+        if (p.getContent().isEmpty()) {
             p.setKind(NodeProxy.EMPTY);
         }
         return p;
     }
 
-    public Collection<NodeProxy> loadMembers(String groupId,
-                                             Collection<String> memberIds) {
+    public Collection<NodeProxy> loadMembers(String groupId, Collection<String> memberIds) {
         StringTokenizer tokenizer = new StringTokenizer(groupId);
         final String parentId = tokenizer.nextToken();
         final N parent = repository.getNodeById(parentId);
@@ -192,7 +200,7 @@ class GraphController<N extends Node, A extends Arc> {
         }
         NodeProxy group = model.getNode(groupId);
         if (arcs.size() > 0) {
-            group.setContent(arcs.size() + GROUP_LABEL);
+            group.setContent(getGroupNodeContent(arcs.size()));
         } else {
             model.removeNode(group);
             groups.remove(groupId);
@@ -213,18 +221,17 @@ class GraphController<N extends Node, A extends Arc> {
             for (String label : repository.getArcLabels()) {
                 Map<String, A> arcs = new HashMap<String, A>();
                 for (A arc : repository.getArcs(node, label, dir)) {
-                    arcs.put("" + repository.getOpposite(node, arc).getId(),
-                             arc);
+                    arcs.put("" + repository.getOpposite(node, arc).getId(), arc);
                 }
                 int nrArcs = arcs.size();
-                if (nrArcs > 2) {
+                if (nrArcs > getGroupThreshold()) {
                     String groupId = nodeId + ' ' + dir + ' ' + label;
                     NodeProxy groupNode = new NodeProxy(groupId);
                     if (!model.addNode(groupNode)) {
                         groupNode = model.getNode(groupId);
                     }
                     groupNode.setKind(NodeProxy.GROUP);
-                    groupNode.setContent(nrArcs + GROUP_LABEL);
+                    groupNode.setContent(getGroupNodeContent(nrArcs));
                     switch (dir) {
                     case INCOMING:
                         addGroupRel(groupId, label, groupId, nodeId);
@@ -253,7 +260,14 @@ class GraphController<N extends Node, A extends Arc> {
         return neighbors;
     }
 
-    GraphModel getModel() {
+    protected GraphModel getModel() {
         return model;
     }
+    
+    /**
+     * @return number of arcs after which node will become a "group" node
+     */
+    protected int getGroupThreshold() {
+    	return 10;
+    }    
 }

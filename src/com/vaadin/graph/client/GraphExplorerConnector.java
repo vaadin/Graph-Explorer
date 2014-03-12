@@ -116,6 +116,7 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
                 node = getWidget().getGraph().getNode(id);
             }
             node.setContent(getString(object, NodeProxy.LABEL));
+            node.setIconUrl(getString(object, NodeProxy.ICONURL));
             node.setState(getString(object, NodeProxy.STATE));
             node.setKind(getString(object, NodeProxy.KIND));
             node.getController().move(getInt(object, NodeProxy.X),

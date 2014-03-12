@@ -20,6 +20,7 @@ import java.util.*;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.graph.client.*;
+import com.vaadin.server.ResourceReference;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.*;
@@ -40,7 +41,11 @@ public class GraphController<N extends Node, A extends Arc> {
         load(repository.getHomeNode());
     }
 
-    private void addGroupRel(String arcId, String arcType, String fromId, String toId) {
+    public GraphRepository<N, A> getRepository() {
+		return repository;
+	}
+
+	private void addGroupRel(String arcId, String arcType, String fromId, String toId) {
         ArcProxy arc = new ArcProxy(arcId, arcType);
         arc.setGroup(true);
         arc.setLabel(getGroupArcLabel(arcType));
@@ -68,10 +73,30 @@ public class GraphController<N extends Node, A extends Arc> {
 
     /**
      * @param node
+     * @return image url to be displayed in the node 
+     */
+    protected String getNodeIconUrl(Node node) {
+    	if (node.getIcon() != null) {
+    		return ResourceReference.create(node.getIcon(), null, null).getURL();
+    	} else {
+    		return "";
+    	}
+    }
+
+    /**
+     * @param nrArcs
      * @return content (html snippet) to be displayed in the "group" node 
      */
     protected String getGroupNodeContent(int nrArcs) {    	
     	return nrArcs + "<br/>nodes";
+    }
+
+    /**
+     * @param nrArcs
+     * @return image url to be displayed in the node 
+     */
+    protected String getGroupNodeIconUrl(int nrArcs) {
+  		return "";
     }
 
     /**
@@ -181,6 +206,7 @@ public class GraphController<N extends Node, A extends Arc> {
             p = model.getNode(id);
         }
         p.setContent(getNodeContent(node));
+        p.setIconUrl(getNodeIconUrl(node));
         if (p.getContent().isEmpty()) {
             p.setKind(NodeProxy.EMPTY);
         }
@@ -201,6 +227,7 @@ public class GraphController<N extends Node, A extends Arc> {
         NodeProxy group = model.getNode(groupId);
         if (arcs.size() > 0) {
             group.setContent(getGroupNodeContent(arcs.size()));
+            group.setIconUrl(getGroupNodeIconUrl(arcs.size()));
         } else {
             model.removeNode(group);
             groups.remove(groupId);
@@ -232,6 +259,7 @@ public class GraphController<N extends Node, A extends Arc> {
                     }
                     groupNode.setKind(NodeProxy.GROUP);
                     groupNode.setContent(getGroupNodeContent(nrArcs));
+                    groupNode.setIconUrl(getGroupNodeIconUrl(nrArcs));
                     switch (dir) {
                     case INCOMING:
                         addGroupRel(groupId, label, groupId, nodeId);

@@ -15,4 +15,11 @@
  */
 package com.vaadin.graph;
 
-public interface Node extends GraphElement {}
+import com.vaadin.server.Resource;
+
+
+public interface Node extends GraphElement {
+	
+    Resource getIcon();
+
+}

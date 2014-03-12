@@ -64,8 +64,12 @@ public class GraphExplorer<N extends Node, A extends Arc> extends
         setSizeFull();
     }
 
-    public GraphController<N, A> getController() {
+    protected GraphController<N, A> getController() {
 		return controller;
+	}
+
+    public GraphRepository<N, A> getRepository() {
+		return controller.getRepository();
 	}
 
 	@Override

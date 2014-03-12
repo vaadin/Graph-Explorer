@@ -24,6 +24,7 @@ public final class NodeProxy extends IndexedElement<NodePresenter> {
 
     public static final String ID = "id";
     public static final String LABEL = "label";
+    public static final String ICONURL = "iconUrl";
     public static final String X = "x";
     public static final String Y = "y";
 
@@ -37,6 +38,7 @@ public final class NodeProxy extends IndexedElement<NodePresenter> {
     public static final String EXPANDED = "expanded";
 
     private String content = "";
+    private String iconUrl = "";
     private int x = -1;
     private int y = -1;
     private String kind = NORMAL;
@@ -58,6 +60,10 @@ public final class NodeProxy extends IndexedElement<NodePresenter> {
 
     public String getContent() {
         return content;
+    }
+
+    public String getIconUrl() {
+        return iconUrl;
     }
 
     public String getState() {
@@ -88,7 +94,11 @@ public final class NodeProxy extends IndexedElement<NodePresenter> {
         this.content = content;
     }
 
-    public void setState(String state) {
+    public void setIconUrl(String iconUrl) {
+		this.iconUrl = iconUrl;
+	}
+
+	public void setState(String state) {
         this.state = state;
     }
 
@@ -107,7 +117,8 @@ public final class NodeProxy extends IndexedElement<NodePresenter> {
     @Override
     public String toString() {
         return '{' + key(ID) + q(id) + ',' + key(LABEL) + q(content) + ','
+        	   + key(ICONURL) + q(iconUrl) + ','
                + key(X) + x + ',' + key(Y) + y + ',' + key(STATE)
-               + q("" + state) + ',' + key(KIND) + q("" + kind) + '}';
+               + q(state) + ',' + key(KIND) + q(kind) + '}';
     }
 }

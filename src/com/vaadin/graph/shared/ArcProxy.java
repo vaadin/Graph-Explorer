@@ -13,14 +13,15 @@
  * License for the specific language governing permissions and limitations under 
  * the License. 
  */
-package com.vaadin.graph.client;
+package com.vaadin.graph.shared;
+
 
 /**
  * Client-side proxy for a server-side graph arc between two nodes.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public final class ArcProxy extends IndexedElement<ArcPresenter> {
+public class ArcProxy extends IndexedElement {
     public static final String ID = "id";
     public static final String TYPE = "type";
     public static final String FROM_ID = "fromId";

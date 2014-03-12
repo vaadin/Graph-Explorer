@@ -7,8 +7,8 @@ import java.util.Random;
 
 import org.apache.commons.collections15.Transformer;
 
-import com.vaadin.graph.client.ArcProxy;
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.shared.ArcProxy;
+import com.vaadin.graph.shared.NodeProxy;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 

@@ -20,6 +20,8 @@ import org.vaadin.gwtgraphics.client.Line;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.HTML;
+import com.vaadin.graph.shared.ArcProxy;
+import com.vaadin.graph.shared.NodeProxy;
 
 /**
  * Presenter/controller for an arc in a graph.
@@ -36,6 +38,8 @@ class ArcPresenter implements Controller {
 
     private final GraphExplorerConnector connector;
     private final ArcProxy model;
+    private final String fromNode;
+    private final String toNode;
     private final Line viewBody = new Line(0, 0, 0, 0);
     private final HTML viewLabel;
     private final Line viewHeadLeft = new Line(0, 0, 0, 0);
@@ -44,9 +48,11 @@ class ArcPresenter implements Controller {
     private double headX;
     private double headY;
 
-    ArcPresenter(GraphExplorerConnector connector, ArcProxy model) {
+    ArcPresenter(GraphExplorerConnector connector, ArcProxy model, String fromNode, String toNode) {
         this.connector = connector;
         this.model = model;
+        this.fromNode = fromNode;
+        this.toNode = toNode;
 
         connector.getWidget().add(viewBody);
         connector.getWidget().add(viewHeadLeft);
@@ -68,7 +74,14 @@ class ArcPresenter implements Controller {
     }
 
     public void onRemoveFromModel() {
-        model.setController(null);
+        NodePresenter node = getFromNode();
+        if (node != null) {
+        	node.removeArc(getModel().getId());
+        }
+        node = getToNode();
+        if (node != null) {
+        	node.removeArc(getModel().getId());
+        }
         connector.getWidget().remove(viewBody);
         connector.getWidget().remove(viewLabel);
         connector.getWidget().remove(viewHeadLeft);
@@ -76,17 +89,28 @@ class ArcPresenter implements Controller {
     }
 
     public void onUpdateInModel() {
-        updateLine();
-        updateLabel();
-        updateArrowhead();
+        NodeProxy from = getFromNode().getModel();
+        NodeProxy to = getToNode().getModel();
+        updateLine(from, to);
+        updateLabel(from);
+        updateArrowhead(from, to);
     }
 
-    private void updateArrowhead() {
-        GraphProxy graph = connector.getWidget().getGraph();
-        NodeProxy from = graph.getTail(model);
+    ArcProxy getModel() {
+    	return model;
+    }
+
+    NodePresenter getFromNode() {
+		return connector.getGraph().getNode(fromNode);
+	}
+
+    NodePresenter getToNode() {
+		return connector.getGraph().getNode(toNode);
+	}
+
+	private void updateArrowhead(NodeProxy from, NodeProxy to) {
         double fromX = from.getX();
         double fromY = from.getY();
-        NodeProxy to = graph.getHead(model);
         double toX = to.getX();
         double toY = to.getY();
         double dX = toX - fromX;
@@ -133,18 +157,12 @@ class ArcPresenter implements Controller {
         updateLine(viewHeadRight, headX, headY, rightX, rightY);
     }
 
-    private void updateLine() {
-        GraphProxy graph = connector.getWidget().getGraph();
-        NodeProxy from = graph.getTail(model);
-        NodeProxy to = graph.getHead(model);
+    private void updateLine(NodeProxy from, NodeProxy to) {
         updateLine(viewBody, from.getX(), from.getY(), to.getX(), to.getY());
     }
 
-    private Style updateLabel() {
+    private Style updateLabel(NodeProxy from) {
         Style style = viewLabel.getElement().getStyle();
-        GraphProxy graph = connector.getWidget().getGraph();
-        NodeProxy from = graph.getTail(model);
-
         double x = getLabelCenter(from.getX(), headX)
                    - viewLabel.getOffsetWidth() / 2.0;
         style.setLeft(x, Unit.PX);

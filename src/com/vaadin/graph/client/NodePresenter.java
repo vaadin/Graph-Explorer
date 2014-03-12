@@ -16,6 +16,8 @@
 package com.vaadin.graph.client;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gwt.animation.client.Animation;
 import com.google.gwt.dom.client.Style;
@@ -30,6 +32,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.vaadin.graph.shared.NodeProxy;
 
 /**
  * Presenter/controller for a node in a graph.
@@ -37,204 +40,265 @@ import com.google.gwt.user.client.ui.HTML;
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
 class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
-        MouseUpHandler {
-	
-    /** Set the CSS class name to allow styling. */
-    public static final String CSS_CLASSNAME = "node";
+		MouseUpHandler {
 
-    private final GraphExplorerConnector connector;
-    private final GraphProxy graph;
-    private final NodeProxy model;
-    private final HTML view = new HTML();
-    private final NodeAnimation animation = new NodeAnimation();
+	/** Set the CSS class name to allow styling. */
+	public static final String CSS_CLASSNAME = "node";
 
-    private int dragStartX;
-    private int dragStartY;
-    private boolean mouseDown;
-    private boolean dragging;
+	private final GraphExplorerConnector connector;
+	private final NodeProxy model;
+	private final Set<String> inArcSets = new HashSet<String>();
+	private final Set<String> outArcSets = new HashSet<String>();
 
-    NodePresenter(GraphExplorerConnector connector, NodeProxy model) {
-        this.connector = connector;
-        this.model = model;
-        graph = connector.getWidget().getGraph();
+	private final HTML view = new HTML();
+	private final NodeAnimation animation = new NodeAnimation();
 
-        view.setTitle(model.getId());
-        Style style = view.getElement().getStyle();
-        style.setLeft(model.getX(), Unit.PX);
-        style.setTop(model.getY(), Unit.PX);
+	private int dragStartX;
+	private int dragStartY;
+	private boolean mouseDown;
+	private boolean dragging;
 
-        view.addDomHandler(this, MouseDownEvent.getType());
-        view.addDomHandler(this, MouseMoveEvent.getType());
-        view.addDomHandler(this, MouseUpEvent.getType());
+	NodePresenter(GraphExplorerConnector connector, NodeProxy model) {
+		this.connector = connector;
+		this.model = model;
 
-        connector.getWidget().add(view);
-    }
+		view.setTitle(model.getId());
+		Style style = view.getElement().getStyle();
+		style.setLeft(model.getX(), Unit.PX);
+		style.setTop(model.getY(), Unit.PX);
 
-    public void onMouseDown(MouseDownEvent event) {
-        setMouseDown(true);
-        updateCSS();
-        DOM.setCapture(view.getElement());
-        dragStartX = event.getX();
-        dragStartY = event.getY();
-        event.preventDefault();
-    }
+		view.addDomHandler(this, MouseDownEvent.getType());
+		view.addDomHandler(this, MouseMoveEvent.getType());
+		view.addDomHandler(this, MouseUpEvent.getType());
 
-    public void onMouseMove(MouseMoveEvent event) {
-        if (isMouseDown()) {
-            setDragging(true);
-            updateCSS();
-            model.setX(event.getX() + model.getX() - dragStartX);
-            model.setY(event.getY() + model.getY() - dragStartY);
-            onUpdateInModel();
-            int clientX = event.getClientX();
-            int clientY = event.getClientY();
-            boolean outsideWindow = clientX < 0 || clientY < 0
-                                    || clientX > Window.getClientWidth()
-                                    || clientY > Window.getClientHeight();
-            if (outsideWindow) {
-            	connector.updateNode(model);
-                setDragging(false);
-            }
-        }
-        event.preventDefault();
-    }
+		connector.getWidget().add(view);
+	}
 
-    public void onMouseUp(MouseUpEvent event) {
-        Element element = view.getElement();
-        if (!isDragging()) {
-            updateCSS();
-            limitToBoundingBox();
-            if (NodeProxy.EXPANDED.equals(model.getState())) {
-                model.setState(NodeProxy.COLLAPSED);
-                for (NodeProxy neighbor : graph.getNeighbors(model)) {
-                    boolean collapsed = NodeProxy.COLLAPSED.equals(neighbor.getState());
-                    boolean leafNode = graph.degree(neighbor) == 1;
-                    if (collapsed && leafNode) {
-                        graph.removeNode(neighbor);
-                    }
-                }
-            }
-            connector.toggle(model);
-        } else {
-        	connector.updateNode(model);
-            setDragging(false);
-        }
-        setMouseDown(false);
-        DOM.releaseCapture(element);
-        event.preventDefault();
-    }
+	public void onMouseDown(MouseDownEvent event) {
+		setMouseDown(true);
+		updateCSS();
+		DOM.setCapture(view.getElement());
+		dragStartX = event.getX();
+		dragStartY = event.getY();
+		event.preventDefault();
+	}
 
-    public void onRemoveFromModel() {
-        model.setController(null);
-        view.removeFromParent();
-    }
+	public void onMouseMove(MouseMoveEvent event) {
+		if (isMouseDown()) {
+			setDragging(true);
+			updateCSS();
+			model.setX(event.getX() + model.getX() - dragStartX);
+			model.setY(event.getY() + model.getY() - dragStartY);
+			onUpdateInModel();
+			int clientX = event.getClientX();
+			int clientY = event.getClientY();
+			boolean outsideWindow = clientX < 0 || clientY < 0
+					|| clientX > Window.getClientWidth()
+					|| clientY > Window.getClientHeight();
+			if (outsideWindow) {
+				connector.updateNode(model);
+				setDragging(false);
+			}
+		}
+		event.preventDefault();
+	}
 
-    private void limitToBoundingBox() {
-        Element element = view.getElement();
-        Style style = element.getStyle();
+	public void onMouseUp(MouseUpEvent event) {
+		Element element = view.getElement();
+		if (!isDragging()) {
+			updateCSS();
+			limitToBoundingBox();
+			if (NodeProxy.EXPANDED.equals(model.getState())) {
+				model.setState(NodeProxy.COLLAPSED);
+				for (NodePresenter neighbor : getNeighbors()) {
+					boolean collapsed = NodeProxy.COLLAPSED.equals(neighbor.getModel().getState());
+					boolean leafNode = neighbor.degree() == 1;
+					if (collapsed && leafNode) {
+						connector.getGraph().removeNode(neighbor.getModel().getId());
+					}
+				}
+			}
+			connector.toggle(model);
+		} else {
+			connector.updateNode(model);
+			setDragging(false);
+		}
+		setMouseDown(false);
+		DOM.releaseCapture(element);
+		event.preventDefault();
+	}
 
-        int width = element.getOffsetWidth();
-        model.setWidth(width);
-        int xRadius = width / 2;
-        int leftEdge = model.getX() - xRadius;
-        leftEdge = limit(0, leftEdge, connector.getWidget().getOffsetWidth() - width);
-        model.setX(leftEdge + xRadius);
-        style.setLeft(leftEdge, Unit.PX);
+	public void onRemoveFromModel() {
+		for (String each : inArcSets) {
+			connector.getGraph().removeArc(each);
+		}
+		for (String each : outArcSets) {
+			connector.getGraph().removeArc(each);
+		}
+		view.removeFromParent();
+	}
 
-        int height = element.getOffsetHeight();
-        model.setHeight(height);
-        int yRadius = height / 2;
-        int topEdge = model.getY() - yRadius;
-        topEdge = limit(0, topEdge, connector.getWidget().getOffsetHeight() - height);
-        model.setY(topEdge + yRadius);
-        style.setTop(topEdge, Unit.PX);
-    }
+	private void limitToBoundingBox() {
+		Element element = view.getElement();
+		Style style = element.getStyle();
 
-    public void onUpdateInModel() {
-    	StringBuilder html = new StringBuilder();
-    	if (model.getIconUrl() != null && !model.getIconUrl().isEmpty()) {
-    		html.append("<div class='icon'>");
-    		html.append("<img src='").append(connector.getConnection().translateVaadinUri(model.getIconUrl())).append("'></img>");
-    		html.append("<div class='label'>").append(model.getContent()).append("</div>");
-    		html.append("</div>");
-    	} else {
-    		html.append("<div class='label'>").append(model.getContent()).append("</div>");
-    	}
-		view.setHTML(html.toString());    		
-        limitToBoundingBox();
-        updateCSS();
-        updateArcs();
-    }
+		int width = element.getOffsetWidth();
+		model.setWidth(width);
+		int xRadius = width / 2;
+		int leftEdge = model.getX() - xRadius;
+		leftEdge = limit(0, leftEdge, connector.getWidget().getOffsetWidth() - width);
+		model.setX(leftEdge + xRadius);
+		style.setLeft(leftEdge, Unit.PX);
 
-    private void updateCSS() {
-        Element element = view.getElement();
-        element.setClassName(CSS_CLASSNAME);
-        element.addClassName(model.getState());
-        element.addClassName(model.getKind());
-        if (isMouseDown()) {
-            element.addClassName("down");
-        }
-    }
+		int height = element.getOffsetHeight();
+		model.setHeight(height);
+		int yRadius = height / 2;
+		int topEdge = model.getY() - yRadius;
+		topEdge = limit(0, topEdge, connector.getWidget().getOffsetHeight() - height);
+		model.setY(topEdge + yRadius);
+		style.setTop(topEdge, Unit.PX);
+	}
 
-    void updateArcs() {
-        update(graph.getInArcs(model));
-        update(graph.getOutArcs(model));
-    }
+	public void onUpdateInModel() {
+		StringBuilder html = new StringBuilder();
+		if (model.getIconUrl() != null && !model.getIconUrl().isEmpty()) {
+			html.append("<div class='icon'>");
+			html.append("<img src='")
+					.append(connector.getConnection().translateVaadinUri(
+							model.getIconUrl())).append("'></img>");
+			html.append("<div class='label'>").append(model.getContent())
+					.append("</div>");
+			html.append("</div>");
+		} else {
+			html.append("<div class='label'>").append(model.getContent())
+					.append("</div>");
+		}
+		view.setHTML(html.toString());
+		limitToBoundingBox();
+		updateCSS();
+		updateArcs();
+	}
 
-    /** Limits value to [min, max], so that min <= value <= max. */
-    private static int limit(int min, int value, int max) {
-        return Math.min(Math.max(min, value), max);
-    }
+	NodeProxy getModel() {
+		return model;
+	}
 
-    private static void update(Collection<ArcProxy> arcs) {
-        if (arcs != null) {
-            for (ArcProxy arc : arcs) {
-                arc.notifyUpdate();
-            }
-        }
-    }
+	void addInArc(String arc) {
+		inArcSets.add(arc);
+	}
 
-    void move(int x, int y) {
-        animation.targetX = x;
-        animation.targetY = y;
-        animation.run(500);
-    }
+	void addOutArc(String arc) {
+		outArcSets.add(arc);
+	}
 
-    private boolean isDragging() {
-        return dragging;
-    }
+	private void updateCSS() {
+		Element element = view.getElement();
+		element.setClassName(CSS_CLASSNAME);
+		element.addClassName(model.getState());
+		element.addClassName(model.getKind());
+		if (isMouseDown()) {
+			element.addClassName("down");
+		}
+	}
 
-    private void setDragging(boolean dragging) {
-        this.dragging = dragging;
-    }
+	private void updateArcs() {
+		for (String each : inArcSets) {
+			ArcPresenter arc = connector.getGraph().getArc(each);
+			if (arc != null) {
+				arc.onUpdateInModel();
+			}
+		}
+		for (String each : outArcSets) {
+			ArcPresenter arc = connector.getGraph().getArc(each);
+			if (arc != null) {
+				arc.onUpdateInModel();
+			}
+		}
+	}
 
-    private boolean isMouseDown() {
-        return mouseDown;
-    }
+	private Collection<NodePresenter> getNeighbors() {
+		Set<NodePresenter> neighbors = new HashSet<NodePresenter>();
+		for (String each : inArcSets) {
+			ArcPresenter arc = connector.getGraph().getArc(each);
+			if (arc != null) {
+				NodePresenter node = arc.getFromNode();
+				if (node != null) {
+					neighbors.add(node);
+				}
+			}
+		}
+		for (String each : outArcSets) {
+			ArcPresenter arc = connector.getGraph().getArc(each);
+			if (arc != null) {
+				NodePresenter node = arc.getToNode();
+				if (node != null) {
+					neighbors.add(node);
+				}
+			}
+		}
+		return neighbors;
+	}
 
-    private void setMouseDown(boolean mouseDown) {
-        this.mouseDown = mouseDown;
-    }
+	private int degree() {
+		int degree = 0;
+		degree += inArcSets.size();
+		degree += outArcSets.size();
+		return degree;
+	}
 
-    private class NodeAnimation extends Animation {
-        int targetX = 0;
-        int targetY = 0;
+	void removeArc(String arc) {
+		inArcSets.remove(arc);
+		outArcSets.remove(arc);
+	}
 
-        @Override
-        protected void onUpdate(double progress) {
-            if (progress > 1) {
-                progress = 1;
-            }
-            model.setX((int) Math.round(progress * targetX + (1 - progress)
-                                        * model.getX()));
-            model.setY((int) Math.round(progress * targetY + (1 - progress)
-                                        * model.getY()));
-            model.notifyUpdate();
-        }
+	/** Limits value to [min, max], so that min <= value <= max. */
+	private static int limit(int min, int value, int max) {
+		return Math.min(Math.max(min, value), max);
+	}
 
-        @Override
-        protected void onCancel() {
-            // do nothing
-        }
-    }
+	void move(int x, int y) {
+		animation.targetX = x;
+		animation.targetY = y;
+		animation.run(500);
+	}
+
+	private boolean isDragging() {
+		return dragging;
+	}
+
+	private void setDragging(boolean dragging) {
+		this.dragging = dragging;
+	}
+
+	private boolean isMouseDown() {
+		return mouseDown;
+	}
+
+	private void setMouseDown(boolean mouseDown) {
+		this.mouseDown = mouseDown;
+	}
+
+	private class NodeAnimation extends Animation {
+		private int targetX = 0;
+		private int targetY = 0;
+
+		@Override
+		protected void onUpdate(double progress) {
+			if (progress > 1) {
+				progress = 1;
+			}
+			getModel().setX(
+					(int) Math.round(progress * targetX + (1 - progress)
+							* getModel().getX()));
+			getModel().setY(
+					(int) Math.round(progress * targetY + (1 - progress)
+							* getModel().getY()));
+			onUpdateInModel();
+		}
+
+		@Override
+		protected void onCancel() {
+			// do nothing
+		}
+	}
 }

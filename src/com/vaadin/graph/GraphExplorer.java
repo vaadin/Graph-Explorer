@@ -20,10 +20,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.graph.client.ArcProxy;
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.shared.ArcProxy;
 import com.vaadin.graph.shared.GraphExplorerServerRpc;
 import com.vaadin.graph.shared.GraphExplorerState;
+import com.vaadin.graph.shared.NodeProxy;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -33,8 +33,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class GraphExplorer<N extends Node, A extends Arc> extends
-        AbstractComponent implements GraphExplorerServerRpc {
+public class GraphExplorer<N extends Node, A extends Arc> extends AbstractComponent implements GraphExplorerServerRpc {
     private static final long serialVersionUID = 1L;
 
     private static final String STYLE_MEMBER_SELECTOR = "member-selector"; 

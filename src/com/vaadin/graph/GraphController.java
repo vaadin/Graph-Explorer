@@ -24,8 +24,8 @@ import java.util.StringTokenizer;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
-import com.vaadin.graph.client.ArcProxy;
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.shared.ArcProxy;
+import com.vaadin.graph.shared.NodeProxy;
 import com.vaadin.server.ResourceReference;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.CustomComponent;

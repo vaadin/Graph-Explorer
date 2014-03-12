@@ -13,18 +13,17 @@
  * License for the specific language governing permissions and limitations under 
  * the License. 
  */
-package com.vaadin.graph.client;
+package com.vaadin.graph.shared;
 
 /**
  * A graph element with a unique ID.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-abstract class IndexedElement<C extends Controller> {
-    private C controller;
+public abstract class IndexedElement {
     protected final String id;
 
-    IndexedElement(String id) {
+    protected IndexedElement(String id) {
         this.id = id;
     }
 
@@ -32,37 +31,13 @@ abstract class IndexedElement<C extends Controller> {
         return id;
     }
 
-    public boolean hasController() {
-        return controller != null;
-    }
-
-    public void notifyRemove() {
-        if (hasController()) {
-            controller.onRemoveFromModel();
-        }
-    }
-
-    public void notifyUpdate() {
-        if (hasController()) {
-            controller.onUpdateInModel();
-        }
-    }
-
-    void setController(C controller) {
-        this.controller = controller;
-    }
-
-    C getController() {
-        return controller;
-    }
-
     /** Formats the given string for use as a key in a JSON object. */
-    static String key(String s) {
+    protected static String key(String s) {
         return q(s) + ':';
     }
 
     /** Quotes the given string in double quotes. */
-    static String q(String s) {
+    protected static String q(String s) {
         return '"' + s + '"';
     }
 
@@ -77,7 +52,7 @@ abstract class IndexedElement<C extends Controller> {
         if (!(obj instanceof IndexedElement)) {
             return false;
         }
-        IndexedElement<?> other = (IndexedElement<?>) obj;
+        IndexedElement other = (IndexedElement) obj;
         if (id == null) {
             if (other.id != null) {
                 return false;

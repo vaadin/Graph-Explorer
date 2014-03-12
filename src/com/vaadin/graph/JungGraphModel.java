@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.vaadin.graph.client.ArcProxy;
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.shared.ArcProxy;
+import com.vaadin.graph.shared.NodeProxy;
 
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;

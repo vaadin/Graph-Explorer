@@ -32,7 +32,6 @@ public class VGraphExplorer extends Composite {
     
     private final Panel root = new AbsolutePanel();
     protected final DrawingArea canvas = new DrawingArea(0, 0);
-    private final GraphProxy graph = new GraphProxy();
 
     public VGraphExplorer() {
         initWidget(root);
@@ -49,10 +48,6 @@ public class VGraphExplorer extends Composite {
 
     void add(VectorObject widget) {
         canvas.add(widget);
-    }
-
-    GraphProxy getGraph() {
-        return graph;
     }
 
     public void remove(HTML widget) {

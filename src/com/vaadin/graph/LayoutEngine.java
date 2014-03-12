@@ -3,7 +3,7 @@ package com.vaadin.graph;
 import java.io.Serializable;
 import java.util.Collection;
 
-import com.vaadin.graph.client.NodeProxy;
+import com.vaadin.graph.shared.NodeProxy;
 
 public interface LayoutEngine<T extends GraphModel> extends Serializable {
 

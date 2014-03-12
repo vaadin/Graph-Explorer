@@ -13,14 +13,15 @@
  * License for the specific language governing permissions and limitations under 
  * the License. 
  */
-package com.vaadin.graph.client;
+package com.vaadin.graph.shared;
+
 
 /**
  * A node in a graph.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public final class NodeProxy extends IndexedElement<NodePresenter> {
+public class NodeProxy extends IndexedElement {
 
     public static final String ID = "id";
     public static final String LABEL = "label";

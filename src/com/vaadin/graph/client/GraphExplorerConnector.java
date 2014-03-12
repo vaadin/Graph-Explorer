@@ -11,8 +11,10 @@ import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.ui.AbstractComponentConnector;
 import com.vaadin.client.ui.SimpleManagedLayout;
 import com.vaadin.graph.GraphExplorer;
+import com.vaadin.graph.shared.ArcProxy;
 import com.vaadin.graph.shared.GraphExplorerServerRpc;
 import com.vaadin.graph.shared.GraphExplorerState;
+import com.vaadin.graph.shared.NodeProxy;
 import com.vaadin.shared.ui.Connect;
 
 @Connect(GraphExplorer.class)
@@ -26,6 +28,7 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
     private int oldHeight;
     private int oldWidth;
 
+    private final GraphProxy graph = new GraphProxy();
     private NodeProxy current;
 
     @Override
@@ -64,26 +67,30 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
     	parseArcs(getState().arcs);
     	
     	if (getState().removedId != null) {
-        	getWidget().getGraph().removeNode(getState().removedId);
+    		graph.removeNode(getState().removedId);
     	}
     	
-        for (NodeProxy node : getWidget().getGraph().getNodes()) {
-            node.notifyUpdate();
+        for (NodePresenter node : graph.getNodes()) {
+            node.onUpdateInModel();
         }
     }
 
     private void initWidget() {
-        Collection<NodeProxy> nodes = getWidget().getGraph().getNodes();
+        Collection<NodePresenter> nodes = graph.getNodes();
         int newWidth = getWidget().getOffsetWidth();
         int newHeight = getWidget().getOffsetHeight();
         if (newWidth > 0 && newHeight > 0) {
             if (!initialized && nodes.size() == 1) {
-            	toggle(nodes.iterator().next());
+            	toggle(nodes.iterator().next().getModel());
                 initialized = true;
             } else if (newWidth != oldWidth || newHeight != oldHeight) {
             	toggle(null);
             }
         }
+    }
+
+    GraphProxy getGraph() {
+        return graph;
     }
 
 	void updateNode(NodeProxy node) {
@@ -102,25 +109,25 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
         for (String json : nodes) {
             JSONObject object = parseJSON(json);
             String id = getString(object, NodeProxy.ID);
-            NodeProxy node = new NodeProxy(id);
-            if (getWidget().getGraph().addNode(node)) {
+            NodePresenter node = graph.getNode(id);
+            if (node == null) {
+            	NodeProxy nodeModel = new NodeProxy(id);
                 if (current == null) {
-                    node.setX(Random.nextInt(getWidget().getOffsetWidth()));
-                    node.setY(Random.nextInt(getWidget().getOffsetHeight()));
+                	nodeModel.setX(Random.nextInt(getWidget().getOffsetWidth()));
+                	nodeModel.setY(Random.nextInt(getWidget().getOffsetHeight()));
                 } else {
-                    node.setX(current.getX());
-                    node.setY(current.getY());
+                	nodeModel.setX(current.getX());
+                	nodeModel.setY(current.getY());
                 }
-                node.setController(new NodePresenter(this, node));
-            } else {
-                node = getWidget().getGraph().getNode(id);
+                node = new NodePresenter(this, nodeModel);
+                graph.addNode(node);
             }
-            node.setContent(getString(object, NodeProxy.LABEL));
-            node.setIconUrl(getString(object, NodeProxy.ICONURL));
-            node.setState(getString(object, NodeProxy.STATE));
-            node.setKind(getString(object, NodeProxy.KIND));
-            node.getController().move(getInt(object, NodeProxy.X),
-                                      getInt(object, NodeProxy.Y));
+
+            node.getModel().setContent(getString(object, NodeProxy.LABEL));
+            node.getModel().setIconUrl(getString(object, NodeProxy.ICONURL));
+            node.getModel().setState(getString(object, NodeProxy.STATE));
+            node.getModel().setKind(getString(object, NodeProxy.KIND));
+            node.move(getInt(object, NodeProxy.X), getInt(object, NodeProxy.Y));
         }
     }
 
@@ -131,23 +138,19 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
         for (String json : arcs) {
             JSONObject object = parseJSON(json);
             String id = getString(object, ArcProxy.ID);
-            if (!getWidget().getGraph().containsArc(id)) {
-                ArcProxy arc = new ArcProxy(id,
-                                            getString(object, ArcProxy.TYPE));
-                if (!getWidget().getGraph().addArc(arc,
-                		getWidget().getGraph().getNode(getString(object,
-                                                          ArcProxy.FROM_ID)),
-                                                          getWidget().getGraph().getNode(getString(object,
-                                                          ArcProxy.TO_ID)))) {
-                    arc = getWidget().getGraph().getArc(id);
-                }
-                arc.setLabel(getString(object, ArcProxy.LABEL));
-                arc.setGroup(object.get(ArcProxy.GROUP).isBoolean().booleanValue());
-                arc.setController(new ArcPresenter(this, arc));
+            ArcPresenter arc = graph.getArc(id);
+            if (arc == null) {
+                ArcProxy arcModel = new ArcProxy(id, getString(object, ArcProxy.TYPE));
+				arcModel.setLabel(getString(object, ArcProxy.LABEL));
+				arcModel.setGroup(object.get(ArcProxy.GROUP).isBoolean().booleanValue());
+                String from = getString(object, ArcProxy.FROM_ID);
+				String to = getString(object, ArcProxy.TO_ID);				
+				graph.addArc(new ArcPresenter(this, arcModel, from, to));
+				graph.getNode(from).addOutArc(id);
+				graph.getNode(to).addInArc(id);
             }
         }
     }
-
 
     private static JSONObject parseJSON(String json) {
         return JSONParser.parseLenient(json).isObject();

@@ -42,7 +42,7 @@ import com.vaadin.ui.VerticalLayout;
 public class GraphController<N extends Node, A extends Arc> {
 
     private final GraphRepository<N, A> repository;
-    private final JungGraphModel model = new JungGraphModel();
+    private final LayoutEngineModel model = new JungLayoutEngineModel();
     private final Map<String, Map<String, A>> groups = new HashMap<String, Map<String, A>>();
 
     public GraphController(GraphRepository<N, A> repository) {
@@ -300,7 +300,7 @@ public class GraphController<N extends Node, A extends Arc> {
         return neighbors;
     }
 
-    protected JungGraphModel getModel() {
+    protected LayoutEngineModel getModel() {
         return model;
     }
     

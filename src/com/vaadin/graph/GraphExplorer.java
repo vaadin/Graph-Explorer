@@ -42,19 +42,19 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
     private int clientWidth = 0;
     private transient final GraphController<N, A> controller;
 
-    private final JungGraphModel model;
-    private LayoutEngine<JungGraphModel> layoutEngine;
+    private final LayoutEngineModel model;
+    private LayoutEngine<LayoutEngineModel> layoutEngine;
 
     public GraphExplorer(GraphRepository<N, A> repository) {
     	this(new GraphController<N, A>(repository), new JungFRLayoutEngine());
     }
 
-    public GraphExplorer(GraphController<N, A> controller, LayoutEngine<JungGraphModel> layoutEngine) {
+    public GraphExplorer(GraphController<N, A> controller, LayoutEngine<? extends LayoutEngineModel> layoutEngine) {
     	super();
     	registerRpc(this, GraphExplorerServerRpc.class);
     	
         this.controller = controller;
-        this.layoutEngine = layoutEngine;
+        this.layoutEngine = (LayoutEngine<LayoutEngineModel>) layoutEngine;
         this.model = controller.getModel();
 
         getState().nodes = nodesToJSON();
@@ -63,11 +63,11 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
         setSizeFull();
     }
 
-	public LayoutEngine<JungGraphModel> getLayoutEngine() {
+	public LayoutEngine<LayoutEngineModel> getLayoutEngine() {
 		return layoutEngine;
 	}
 
-	public void setLayoutEngine(LayoutEngine<JungGraphModel> layoutEngine) {
+	public void setLayoutEngine(LayoutEngine<LayoutEngineModel> layoutEngine) {
 		this.layoutEngine = layoutEngine;
 	}
 

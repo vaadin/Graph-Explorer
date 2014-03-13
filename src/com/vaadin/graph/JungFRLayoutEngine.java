@@ -12,11 +12,11 @@ import com.vaadin.graph.shared.NodeProxy;
 
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 
-public class JungFRLayoutEngine implements LayoutEngine<JungGraphModel> {
+public class JungFRLayoutEngine implements LayoutEngine<JungLayoutEngineModel> {
 
 	private static final long serialVersionUID = 1L;
 
-	public void layout(JungGraphModel graphModel, final int width, final int height, Collection<NodeProxy> lockedNodes) {
+	public void layout(JungLayoutEngineModel graphModel, final int width, final int height, Collection<NodeProxy> lockedNodes) {
         Dimension size = new Dimension(width, height);
         FRLayout<NodeProxy, ArcProxy> layout = new FRLayout<NodeProxy, ArcProxy>(graphModel.getGraph(), size);
         layout.lock(false);

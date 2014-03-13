@@ -32,7 +32,7 @@ import edu.uci.ics.jung.graph.util.Pair;
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public class JungGraphModel implements GraphModel {
+public class JungLayoutEngineModel implements LayoutEngineModel {
 	
     private final Map<String, NodeProxy> nodes = new HashMap<String, NodeProxy>();
     private final Map<String, ArcProxy> arcs = new HashMap<String, ArcProxy>();
@@ -79,49 +79,60 @@ public class JungGraphModel implements GraphModel {
         }
     };
 
-    public void addArc(ArcProxy arc) {
+    @Override
+	public void addArc(ArcProxy arc) {
         NodeProxy from = getNode(arc.getFromNode());
 		NodeProxy to = getNode(arc.getToNode());
         graph.addEdge(arc, new Pair<NodeProxy>(from, to), EdgeType.DIRECTED);
     }
 
-    public boolean addNode(NodeProxy v) {
+    @Override
+	public boolean addNode(NodeProxy v) {
         return graph.addVertex(v);
     }
 
-    public boolean containsArc(String id) {
+    @Override
+	public boolean containsArc(String id) {
         return arcs.containsKey(id);
     }
 
-    public boolean containsNode(String id) {
+    @Override
+	public boolean containsNode(String id) {
         return nodes.containsKey(id);
     }
 
-    public int degree(NodeProxy v) {
+    @Override
+	public int degree(NodeProxy v) {
         return graph.degree(v);
     }
 
-    public ArcProxy getArc(String id) {
+    @Override
+	public ArcProxy getArc(String id) {
         return arcs.get(id);
     }
 
-    public Collection<ArcProxy> getArcs() {
+    @Override
+	public Collection<ArcProxy> getArcs() {
         return arcs.values();
     }
 
-    public Collection<NodeProxy> getNeighbors(NodeProxy node) {
+    @Override
+	public Collection<NodeProxy> getNeighbors(NodeProxy node) {
         return graph.getNeighbors(node);
     }
 
-    public NodeProxy getNode(String id) {
+    @Override
+	public NodeProxy getNode(String id) {
         return nodes.get(id);
     }
 
-    public Collection<NodeProxy> getNodes() {
+    @Override
+	public Collection<NodeProxy> getNodes() {
         return nodes.values();
     }
 
-    public boolean removeNode(NodeProxy v) {
+    @Override
+	public boolean removeNode(NodeProxy v) {
         return graph.removeVertex(v);
     }
     

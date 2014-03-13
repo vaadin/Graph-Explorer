@@ -1,7 +1,5 @@
 package com.vaadin.graph.client;
 
-import java.util.Collection;
-
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Random;
@@ -24,9 +22,8 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
 
 	private GraphExplorerServerRpc rpc = RpcProxy.create(GraphExplorerServerRpc.class, this);
 
-    private boolean initialized;
-    private int oldHeight;
-    private int oldWidth;
+    private int oldHeight = 0;
+    private int oldWidth = 0;
 
     private final GraphProxy graph = new GraphProxy();
     private NodeProxy current;
@@ -46,17 +43,21 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
         int height = getLayoutManager().getOuterHeight(getWidget().getElement());
         int width = getLayoutManager().getOuterWidth(getWidget().getElement());
 
-        oldHeight = getWidget().getOffsetHeight();
         Util.setHeightExcludingPaddingAndBorder(getWidget().getElement(), height, 0, true);
         int offsetHeight = getWidget().getOffsetHeight();
         getWidget().canvas.setHeight(offsetHeight);
 
-        oldWidth = getWidget().getOffsetWidth();
         Util.setWidthExcludingPaddingAndBorder(getWidget().getElement(), width, 0, true);
         int offsetWidth = getWidget().getOffsetWidth();
         getWidget().canvas.setWidth(offsetWidth);
         
-        initWidget();
+        int newWidth = getWidget().getOffsetWidth();
+        int newHeight = getWidget().getOffsetHeight();
+        if ((newWidth > 0 && newHeight > 0) && (newWidth != oldWidth || newHeight != oldHeight)) {
+           	rpc.clientResized(newWidth, newHeight);
+        }
+        oldHeight = getWidget().getOffsetHeight();
+        oldWidth = getWidget().getOffsetWidth();
 	}
 
     @Override
@@ -75,20 +76,6 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
         }
     }
 
-    private void initWidget() {
-        Collection<NodePresenter> nodes = graph.getNodes();
-        int newWidth = getWidget().getOffsetWidth();
-        int newHeight = getWidget().getOffsetHeight();
-        if (newWidth > 0 && newHeight > 0) {
-            if (!initialized && nodes.size() == 1) {
-            	toggle(nodes.iterator().next().getModel());
-                initialized = true;
-            } else if (newWidth != oldWidth || newHeight != oldHeight) {
-            	toggle(null);
-            }
-        }
-    }
-
     GraphProxy getGraph() {
         return graph;
     }
@@ -99,7 +86,9 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
 
     void toggle(NodeProxy node) {
     	current = node;
-     	rpc.toggleNode((node != null) ? node.getId() : "", getWidget().getOffsetWidth(), getWidget().getOffsetHeight());
+    	if (node != null) {
+    		rpc.toggleNode(node.getId());
+    	}
     }
 
     private void parseNodes(String[] nodes) {

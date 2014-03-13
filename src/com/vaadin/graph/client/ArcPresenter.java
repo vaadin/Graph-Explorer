@@ -17,11 +17,10 @@ package com.vaadin.graph.client;
 
 import org.vaadin.gwtgraphics.client.Line;
 
-import com.google.gwt.dom.client.*;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.HTML;
 import com.vaadin.graph.shared.ArcProxy;
-import com.vaadin.graph.shared.NodeProxy;
 
 /**
  * Presenter/controller for an arc in a graph.

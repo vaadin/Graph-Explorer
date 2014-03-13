@@ -57,6 +57,9 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
         this.layoutEngine = (LayoutEngine<LayoutEngineModel>) layoutEngine;
         this.model = controller.getModel();
 
+        NodeProxy homeNode = controller.load(controller.getRepository().getHomeNode());
+        expand(homeNode);
+        
         getState().nodes = nodesToJSON();
         getState().arcs = arcsToJSON();
 
@@ -111,10 +114,21 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
         refreshLayout(lockedNodes, true, null);
 	}
 
-    @Override
-    public void toggleNode(String nodeId, int clientWidth, int clientHeight) {
+	@Override
+	public void clientResized(int clientWidth, int clientHeight) {
+		if ((this.clientWidth == 0) && (this.clientHeight == 0)) {
+			//initial layout
+			NodeProxy homeNode = model.getNode(controller.getRepository().getHomeNode().getId());
+			homeNode.setX(clientWidth / 2);
+			homeNode.setY(clientHeight / 2);
+		}
     	this.clientWidth = clientWidth;
     	this.clientHeight = clientHeight;
+        refreshLayout(new HashSet<NodeProxy>(), true, null);
+	}
+	
+    @Override
+    public void toggleNode(String nodeId) {
         Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
         boolean lockExpanded = true;
     	NodeProxy toggledNode = model.getNode(nodeId);
@@ -123,11 +137,9 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
                 openMemberSelector(nodeId);
             } else {
                 if (NodeProxy.COLLAPSED.equals(toggledNode.getState())) {
-                    controller.loadNeighbors(nodeId);
+                    expand(toggledNode);
+            		lockedNodes.add(toggledNode);
                     lockExpanded = false;
-                    lockedNodes.add(toggledNode);
-                    toggledNode.setX(clientWidth / 2);
-                    toggledNode.setY(clientHeight / 2);
                 } else {
                     collapse(toggledNode);
                 }
@@ -135,6 +147,15 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
         }
         refreshLayout(lockedNodes, lockExpanded, null);
     }
+
+    private void expand(NodeProxy node) {
+		controller.loadNeighbors(node.getId());
+        node.setState(NodeProxy.EXPANDED);
+        if ((clientWidth > 0) && (clientHeight >0)) {
+        	node.setX(clientWidth / 2);
+        	node.setY(clientHeight / 2);
+        }
+	}
     
     private void collapse(NodeProxy node) {
         node.setState(NodeProxy.COLLAPSED);

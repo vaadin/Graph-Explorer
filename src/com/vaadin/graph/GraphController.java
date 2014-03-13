@@ -47,7 +47,6 @@ public class GraphController<N extends Node, A extends Arc> {
 
     public GraphController(GraphRepository<N, A> repository) {
         this.repository = repository;
-        load(repository.getHomeNode());
     }
 
     public GraphRepository<N, A> getRepository() {

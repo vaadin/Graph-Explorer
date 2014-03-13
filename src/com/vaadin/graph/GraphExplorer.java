@@ -43,23 +43,21 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
     private transient final GraphController<N, A> controller;
 
     private final GraphRepository<N, A> repository;
-    private final LayoutEngineModel model;
-    private LayoutEngine<LayoutEngineModel> layoutEngine;
+    private LayoutEngine layoutEngine;
 
     public GraphExplorer(GraphRepository<N, A> repository) {
-    	this(repository, new GraphController<N, A>(), new JungFRLayoutEngine(), new JungLayoutEngineModel());
+    	this(repository, new GraphController<N, A>(), new JungFRLayoutEngine());
     }
 
-    public GraphExplorer(GraphRepository<N, A> repository, GraphController<N, A> controller, LayoutEngine<? extends LayoutEngineModel> layoutEngine, LayoutEngineModel model) {
+    public GraphExplorer(GraphRepository<N, A> repository, GraphController<N, A> controller, LayoutEngine layoutEngine) {
     	super();
     	registerRpc(this, GraphExplorerServerRpc.class);
     	
     	this.repository = repository;
         this.controller = controller;
-        this.layoutEngine = (LayoutEngine<LayoutEngineModel>) layoutEngine;
-        this.model = model;
+        this.layoutEngine = layoutEngine;
 
-        NodeProxy homeNode = controller.load(repository.getHomeNode(), model);
+        NodeProxy homeNode = controller.load(repository.getHomeNode(), layoutEngine.getModel());
         expand(homeNode);
         
         getState().nodes = nodesToJSON();
@@ -68,11 +66,11 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
         setSizeFull();
     }
 
-	public LayoutEngine<LayoutEngineModel> getLayoutEngine() {
+	public LayoutEngine getLayoutEngine() {
 		return layoutEngine;
 	}
 
-	public void setLayoutEngine(LayoutEngine<LayoutEngineModel> layoutEngine) {
+	public void setLayoutEngine(LayoutEngine layoutEngine) {
 		this.layoutEngine = layoutEngine;
 	}
 
@@ -92,13 +90,13 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 	private void refreshLayout(Set<NodeProxy> lockedNodes, boolean lockExpanded, String removedId) {
 		if (clientWidth > 0 && clientHeight > 0) {
             if (lockExpanded) {
-                for (NodeProxy v : model.getNodes()) {
+                for (NodeProxy v : layoutEngine.getModel().getNodes()) {
                     if (NodeProxy.EXPANDED.equals(v.getState())) {
                         lockedNodes.add(v);
                     }
                 }
             }
-            layoutEngine.layout(model, clientWidth, clientHeight, lockedNodes);
+            layoutEngine.layout(clientWidth, clientHeight, lockedNodes);
             getState().nodes = nodesToJSON();
             getState().arcs = arcsToJSON();
             getState().removedId = removedId;
@@ -107,7 +105,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 
 	@Override
 	public void updateNode(String nodeId, String state, int x, int y) {
-		NodeProxy node = model.getNode(nodeId);
+		NodeProxy node = layoutEngine.getModel().getNode(nodeId);
 		node.setState(state);
 		node.setX(x);
 		node.setY(y);
@@ -120,7 +118,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 	public void clientResized(int clientWidth, int clientHeight) {
 		if ((this.clientWidth == 0) && (this.clientHeight == 0)) {
 			//initial layout
-			NodeProxy homeNode = model.getNode(repository.getHomeNode().getId());
+			NodeProxy homeNode = layoutEngine.getModel().getNode(repository.getHomeNode().getId());
 			homeNode.setX(clientWidth / 2);
 			homeNode.setY(clientHeight / 2);
 		}
@@ -133,7 +131,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
     public void toggleNode(String nodeId) {
         Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
         boolean lockExpanded = true;
-    	NodeProxy toggledNode = model.getNode(nodeId);
+    	NodeProxy toggledNode = layoutEngine.getModel().getNode(nodeId);
         if (toggledNode != null) {
             if (NodeProxy.GROUP.equals(toggledNode.getKind())) {
                 openMemberSelector(nodeId);
@@ -151,7 +149,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
     }
 
     private void expand(NodeProxy node) {
-		controller.loadNeighbors(node, repository, model);
+		controller.loadNeighbors(node, repository, layoutEngine.getModel());
         node.setState(NodeProxy.EXPANDED);
         if ((clientWidth > 0) && (clientHeight >0)) {
         	node.setX(clientWidth / 2);
@@ -161,18 +159,18 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
     
     private void collapse(NodeProxy node) {
         node.setState(NodeProxy.COLLAPSED);
-        for (NodeProxy neighbor : model.getNeighbors(node)) {
+        for (NodeProxy neighbor : layoutEngine.getModel().getNeighbors(node)) {
             boolean collapsed = NodeProxy.COLLAPSED.equals(neighbor.getState());
-            boolean leafNode = model.degree(neighbor) == 1;
+            boolean leafNode = layoutEngine.getModel().degree(neighbor) == 1;
             if (collapsed && leafNode) {
-                model.removeNode(neighbor);
+            	layoutEngine.getModel().removeNode(neighbor);
             }
         }
     }
 
     private String[] nodesToJSON() {
         List<String> list = new ArrayList<String>();
-        for (NodeProxy v : model.getNodes()) {
+        for (NodeProxy v : layoutEngine.getModel().getNodes()) {
             list.add(v.toString());
         }
         return list.toArray(new String[list.size()]);
@@ -215,9 +213,9 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 
             public void buttonClick(ClickEvent event) {
             	getUI().removeWindow(dialog);
-                controller.loadMembers(groupId, selector.getSelectedNodeIds(), repository, model);
+                controller.loadMembers(groupId, selector.getSelectedNodeIds(), repository, layoutEngine.getModel());
                 Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
-                NodeProxy groupNode = model.getNode(groupId);
+                NodeProxy groupNode = layoutEngine.getModel().getNode(groupId);
                 if (groupNode == null) {
                     refreshLayout(lockedNodes, true, groupId);
                 } else {
@@ -230,7 +228,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 
     private String[] arcsToJSON() {
         List<String> list = new ArrayList<String>();
-        for (ArcProxy e : model.getArcs()) {
+        for (ArcProxy e : layoutEngine.getModel().getArcs()) {
             list.add(e.toString());
         }
         return list.toArray(new String[list.size()]);

@@ -5,8 +5,10 @@ import java.util.Collection;
 
 import com.vaadin.graph.shared.NodeProxy;
 
-public interface LayoutEngine<T extends LayoutEngineModel> extends Serializable {
+public interface LayoutEngine extends Serializable {
 
-	public void layout(T graphModel, final int width, final int height, Collection<NodeProxy> lockedNodes);
+	public LayoutEngineModel getModel();
+	
+	public void layout(final int width, final int height, Collection<NodeProxy> lockedNodes);
 
 }

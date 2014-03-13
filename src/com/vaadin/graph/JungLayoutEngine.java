@@ -14,12 +14,23 @@ import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
 
-public abstract class JungLayoutEngine implements LayoutEngine<JungLayoutEngineModel> {
+public abstract class JungLayoutEngine implements LayoutEngine {
 
 	private static final long serialVersionUID = 1L;
 
-	public void layout(JungLayoutEngineModel graphModel, final int width, final int height, Collection<NodeProxy> lockedNodes) {
-        AbstractLayout<NodeProxy, ArcProxy> layout = createLayout(graphModel.getGraph(), new Dimension(width, height));
+	private final JungLayoutEngineModel model;
+		
+	protected JungLayoutEngine(JungLayoutEngineModel model) {
+		super();
+		this.model = model;
+	}
+
+	public JungLayoutEngineModel getModel() {
+		return model;
+	}
+	
+	public void layout(final int width, final int height, Collection<NodeProxy> lockedNodes) {
+        AbstractLayout<NodeProxy, ArcProxy> layout = createLayout(model.getGraph(), new Dimension(width, height));
         layout.lock(false);
         for (NodeProxy v : lockedNodes) {
             layout.lock(v, true);
@@ -40,7 +51,7 @@ public abstract class JungLayoutEngine implements LayoutEngine<JungLayoutEngineM
         		((IterativeContext)layout).step();
         	}
         }
-        for (NodeProxy v : graphModel.getGraph().getVertices()) {
+        for (NodeProxy v : model.getGraph().getVertices()) {
             Point2D location = layout.transform(v);
             v.setX((int) location.getX());
             v.setY((int) location.getY());

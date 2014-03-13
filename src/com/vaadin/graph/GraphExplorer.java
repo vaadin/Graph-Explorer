@@ -38,8 +38,6 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 
     private static final String STYLE_MEMBER_SELECTOR = "member-selector"; 
 
-    private String removedId = null;
-
     private int clientHeight = 0;
     private int clientWidth = 0;
     private transient final GraphController<N, A> controller;
@@ -61,7 +59,6 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 
         getState().nodes = nodesToJSON();
         getState().arcs = arcsToJSON();
-        getState().removedId = removedId;
 
         setSizeFull();
     }
@@ -87,7 +84,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
       return (GraphExplorerState) super.getState();
     }
 
-	private void refreshLayout(Set<NodeProxy> lockedNodes, boolean lockExpanded) {
+	private void refreshLayout(Set<NodeProxy> lockedNodes, boolean lockExpanded, String removedId) {
 		if (clientWidth > 0 && clientHeight > 0) {
             if (lockExpanded) {
                 for (NodeProxy v : model.getNodes()) {
@@ -100,7 +97,6 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
             getState().nodes = nodesToJSON();
             getState().arcs = arcsToJSON();
             getState().removedId = removedId;
-            removedId = null;
         }
 	}
 
@@ -112,7 +108,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 		node.setY(y);
         Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
         lockedNodes.add(node);
-        refreshLayout(lockedNodes, true);
+        refreshLayout(lockedNodes, true, null);
 	}
 
     @Override
@@ -137,7 +133,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
                 }
             }
         }
-        refreshLayout(lockedNodes, lockExpanded);
+        refreshLayout(lockedNodes, lockExpanded, null);
     }
     
     private void collapse(NodeProxy node) {
@@ -199,11 +195,11 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
                 controller.loadMembers(groupId, selector.getSelectedNodeIds());
                 Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
                 if (!model.containsNode(groupId)) {
-                    removedId = groupId;
+                    refreshLayout(lockedNodes, true, groupId);
                 } else {
                     lockedNodes.add(model.getNode(groupId));
+                    refreshLayout(lockedNodes, true, null);
                 }
-                refreshLayout(lockedNodes, true);
             }
         });
     }

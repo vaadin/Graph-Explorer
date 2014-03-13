@@ -6,14 +6,18 @@ import com.vaadin.graph.shared.ArcProxy;
 import com.vaadin.graph.shared.NodeProxy;
 
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.graph.Graph;
 
-public class JungFRLayoutEngine extends JungLayoutEngine {
+public class JungISOMLayoutEngine extends JungLayoutEngine {
 
 	private static final long serialVersionUID = 1L;
 
+	@Override
 	protected AbstractLayout<NodeProxy, ArcProxy> createLayout(Graph<NodeProxy, ArcProxy> graph, Dimension size) {
-		return new FRLayout<NodeProxy, ArcProxy>(graph, size);
+		ISOMLayout<NodeProxy, ArcProxy> layout = new ISOMLayout<NodeProxy, ArcProxy>(graph);
+		layout.setSize(size);
+		return layout;
 	}
+
 }

@@ -53,6 +53,9 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 	private final HTML view = new HTML();
 	private final NodeAnimation animation = new NodeAnimation();
 
+    private int width;
+    private int height;
+
 	private int dragStartX;
 	private int dragStartY;
 	private boolean mouseDown;
@@ -142,16 +145,14 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 		Element element = view.getElement();
 		Style style = element.getStyle();
 
-		int width = element.getOffsetWidth();
-		model.setWidth(width);
+		width = element.getOffsetWidth();
 		int xRadius = width / 2;
 		int leftEdge = model.getX() - xRadius;
 		leftEdge = limit(0, leftEdge, connector.getWidget().getOffsetWidth() - width);
 		model.setX(leftEdge + xRadius);
 		style.setLeft(leftEdge, Unit.PX);
 
-		int height = element.getOffsetHeight();
-		model.setHeight(height);
+		height = element.getOffsetHeight();
 		int yRadius = height / 2;
 		int topEdge = model.getY() - yRadius;
 		topEdge = limit(0, topEdge, connector.getWidget().getOffsetHeight() - height);
@@ -181,6 +182,22 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 
 	NodeProxy getModel() {
 		return model;
+	}
+
+	int getX() {
+		return model.getX();
+	}
+
+	int getY() {
+		return model.getY();
+	}
+
+	int getWidth() {
+		return width;
+	}
+
+	int getHeight() {
+		return height;
 	}
 
 	void addInArc(String arc) {

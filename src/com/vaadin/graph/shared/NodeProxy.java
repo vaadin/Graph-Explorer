@@ -44,15 +44,9 @@ public class NodeProxy extends IndexedElement {
     private int y = -1;
     private String kind = NORMAL;
     private String state = COLLAPSED;
-    private int width;
-    private int height;
 
     public NodeProxy(String id) {
         super(id);
-    }
-
-    public int getHeight() {
-        return height;
     }
 
     public String getKind() {
@@ -71,20 +65,12 @@ public class NodeProxy extends IndexedElement {
         return state;
     }
 
-    public int getWidth() {
-        return width;
-    }
-
     public int getX() {
         return x;
     }
 
     public int getY() {
         return y;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
     }
 
     public void setKind(String kind) {
@@ -101,10 +87,6 @@ public class NodeProxy extends IndexedElement {
 
 	public void setState(String state) {
         this.state = state;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
     }
 
     public void setX(int x) {

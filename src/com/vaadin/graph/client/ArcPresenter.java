@@ -86,8 +86,8 @@ class ArcPresenter implements Controller {
     }
 
     public void onUpdateInModel() {
-        NodeProxy from = getFromNode().getModel();
-        NodeProxy to = getToNode().getModel();
+        NodePresenter from = getFromNode();
+        NodePresenter to = getToNode();
         updateLine(from, to);
         updateLabel(from);
         updateArrowhead(from, to);
@@ -105,7 +105,7 @@ class ArcPresenter implements Controller {
 		return connector.getGraph().getNode(model.getToNode());
 	}
 
-	private void updateArrowhead(NodeProxy from, NodeProxy to) {
+	private void updateArrowhead(NodePresenter from, NodePresenter to) {
         double fromX = from.getX();
         double fromY = from.getY();
         double toX = to.getX();
@@ -154,11 +154,11 @@ class ArcPresenter implements Controller {
         updateLine(viewHeadRight, headX, headY, rightX, rightY);
     }
 
-    private void updateLine(NodeProxy from, NodeProxy to) {
+    private void updateLine(NodePresenter from, NodePresenter to) {
         updateLine(viewBody, from.getX(), from.getY(), to.getX(), to.getY());
     }
 
-    private Style updateLabel(NodeProxy from) {
+    private Style updateLabel(NodePresenter from) {
         Style style = viewLabel.getElement().getStyle();
         double x = getLabelCenter(from.getX(), headX)
                    - viewLabel.getOffsetWidth() / 2.0;

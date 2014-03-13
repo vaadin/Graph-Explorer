@@ -42,22 +42,24 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
     private int clientWidth = 0;
     private transient final GraphController<N, A> controller;
 
+    private final GraphRepository<N, A> repository;
     private final LayoutEngineModel model;
     private LayoutEngine<LayoutEngineModel> layoutEngine;
 
     public GraphExplorer(GraphRepository<N, A> repository) {
-    	this(new GraphController<N, A>(repository), new JungFRLayoutEngine());
+    	this(repository, new GraphController<N, A>(), new JungFRLayoutEngine(), new JungLayoutEngineModel());
     }
 
-    public GraphExplorer(GraphController<N, A> controller, LayoutEngine<? extends LayoutEngineModel> layoutEngine) {
+    public GraphExplorer(GraphRepository<N, A> repository, GraphController<N, A> controller, LayoutEngine<? extends LayoutEngineModel> layoutEngine, LayoutEngineModel model) {
     	super();
     	registerRpc(this, GraphExplorerServerRpc.class);
     	
+    	this.repository = repository;
         this.controller = controller;
         this.layoutEngine = (LayoutEngine<LayoutEngineModel>) layoutEngine;
-        this.model = controller.getModel();
+        this.model = model;
 
-        NodeProxy homeNode = controller.load(controller.getRepository().getHomeNode());
+        NodeProxy homeNode = controller.load(repository.getHomeNode(), model);
         expand(homeNode);
         
         getState().nodes = nodesToJSON();
@@ -79,7 +81,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 	}
 
     public GraphRepository<N, A> getRepository() {
-		return controller.getRepository();
+		return repository;
 	}
 
 	@Override
@@ -118,7 +120,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 	public void clientResized(int clientWidth, int clientHeight) {
 		if ((this.clientWidth == 0) && (this.clientHeight == 0)) {
 			//initial layout
-			NodeProxy homeNode = model.getNode(controller.getRepository().getHomeNode().getId());
+			NodeProxy homeNode = model.getNode(repository.getHomeNode().getId());
 			homeNode.setX(clientWidth / 2);
 			homeNode.setY(clientHeight / 2);
 		}
@@ -149,7 +151,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
     }
 
     private void expand(NodeProxy node) {
-		controller.loadNeighbors(node.getId());
+		controller.loadNeighbors(node, repository, model);
         node.setState(NodeProxy.EXPANDED);
         if ((clientWidth > 0) && (clientHeight >0)) {
         	node.setX(clientWidth / 2);
@@ -183,7 +185,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
         layout.setSpacing(true);
         layout.setSizeFull();
 
-        final NodeSelector selector = controller.getMemberSelector(groupId);
+        final NodeSelector selector = controller.getMemberSelector(groupId, repository);
         layout.addComponent(selector);
         layout.setExpandRatio(selector, 1.0f);
 
@@ -213,12 +215,13 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 
             public void buttonClick(ClickEvent event) {
             	getUI().removeWindow(dialog);
-                controller.loadMembers(groupId, selector.getSelectedNodeIds());
+                controller.loadMembers(groupId, selector.getSelectedNodeIds(), repository, model);
                 Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
-                if (!model.containsNode(groupId)) {
+                NodeProxy groupNode = model.getNode(groupId);
+                if (groupNode == null) {
                     refreshLayout(lockedNodes, true, groupId);
                 } else {
-                    lockedNodes.add(model.getNode(groupId));
+                    lockedNodes.add(groupNode);
                     refreshLayout(lockedNodes, true, null);
                 }
             }

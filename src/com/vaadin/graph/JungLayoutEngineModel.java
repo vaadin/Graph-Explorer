@@ -92,16 +92,6 @@ public class JungLayoutEngineModel implements LayoutEngineModel {
     }
 
     @Override
-	public boolean containsArc(String id) {
-        return arcs.containsKey(id);
-    }
-
-    @Override
-	public boolean containsNode(String id) {
-        return nodes.containsKey(id);
-    }
-
-    @Override
 	public int degree(NodeProxy v) {
         return graph.degree(v);
     }

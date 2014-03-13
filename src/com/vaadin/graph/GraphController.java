@@ -41,33 +41,26 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class GraphController<N extends Node, A extends Arc> {
 
-    private final GraphRepository<N, A> repository;
-    private final LayoutEngineModel model = new JungLayoutEngineModel();
     private final Map<String, Map<String, A>> groups = new HashMap<String, Map<String, A>>();
 
-    public GraphController(GraphRepository<N, A> repository) {
-        this.repository = repository;
+    public GraphController() {
     }
 
-    public GraphRepository<N, A> getRepository() {
-		return repository;
-	}
-
-	private void addGroupRel(String arcId, String arcType, String fromId, String toId) {
+	private ArcProxy createGroupRel(String arcId, String arcType, String fromId, String toId) {
         ArcProxy arc = new ArcProxy(arcId, arcType);
         arc.setGroup(true);
         arc.setLabel(getGroupArcLabel(arcType));
         arc.setFromNode(fromId);
         arc.setToNode(toId);
-        model.addArc(arc);
+        return arc;
     }
 
-    private void addArc(A arc) {
+    private ArcProxy createArc(A arc, N tail, N head) {
         ArcProxy p = new ArcProxy("" + arc.getId(), arc.getLabel());
         p.setLabel(getArcLabel(arc));
-        p.setFromNode("" + repository.getTail(arc).getId());
-        p.setToNode("" + repository.getHead(arc).getId());
-		model.addArc(p);
+        p.setFromNode("" + tail.getId());
+        p.setToNode("" + head.getId());
+        return p;
     }
 
     /**
@@ -138,7 +131,7 @@ public class GraphController<N extends Node, A extends Arc> {
         return "<b>" + arcType.toLowerCase().replace('_', ' ') + "</b>";
     }
 
-    public NodeSelector getMemberSelector(final String groupId) {
+    public NodeSelector getMemberSelector(final String groupId, final GraphRepository<N, A> repository) {
 
         @SuppressWarnings("serial")
         class SelectorUI extends CustomComponent implements NodeSelector {
@@ -210,7 +203,7 @@ public class GraphController<N extends Node, A extends Arc> {
         return new SelectorUI();
     }
 
-    protected NodeProxy load(Node node) {
+    protected NodeProxy load(Node node, LayoutEngineModel model) {
         String id = "" + node.getId();
         NodeProxy p = new NodeProxy(id);
         if (!model.addNode(p)) {
@@ -224,7 +217,7 @@ public class GraphController<N extends Node, A extends Arc> {
         return p;
     }
 
-    public Collection<NodeProxy> loadMembers(String groupId, Collection<String> memberIds) {
+    public Collection<NodeProxy> loadMembers(String groupId, Collection<String> memberIds, GraphRepository<N, A> repository, LayoutEngineModel model) {
         StringTokenizer tokenizer = new StringTokenizer(groupId);
         final String parentId = tokenizer.nextToken();
         final N parent = repository.getNodeById(parentId);
@@ -232,8 +225,8 @@ public class GraphController<N extends Node, A extends Arc> {
         Collection<NodeProxy> loaded = new HashSet<NodeProxy>();
         for (String id : memberIds) {
             A arc = arcs.remove(id);
-            loaded.add(load(repository.getOpposite(parent, arc)));
-            addArc(arc);
+            loaded.add(load(repository.getOpposite(parent, arc), model));
+            model.addArc(createArc(arc, repository.getTail(arc), repository.getHead(arc)));
         }
         NodeProxy group = model.getNode(groupId);
         if (arcs.size() > 0) {
@@ -246,14 +239,13 @@ public class GraphController<N extends Node, A extends Arc> {
         return loaded;
     }
 
-    public Collection<NodeProxy> loadNeighbors(String nodeId) {
-        NodeProxy n = model.getNode(nodeId);
+    public Collection<NodeProxy> loadNeighbors(NodeProxy n, GraphRepository<N, A> repository, LayoutEngineModel model) {
         Set<NodeProxy> neighbors = new HashSet<NodeProxy>();
         if (NodeProxy.EXPANDED.equals(n.getState())) {
             return neighbors;
         }
         n.setState(NodeProxy.EXPANDED);
-        N node = repository.getNodeById(nodeId);
+        N node = repository.getNodeById(n.getId());
         for (Arc.Direction dir : new Arc.Direction[] {Arc.Direction.INCOMING,
                                                       Arc.Direction.OUTGOING}) {
             for (String label : repository.getArcLabels()) {
@@ -263,7 +255,7 @@ public class GraphController<N extends Node, A extends Arc> {
                 }
                 int nrArcs = arcs.size();
                 if (nrArcs > getGroupThreshold()) {
-                    String groupId = nodeId + ' ' + dir + ' ' + label;
+                    String groupId = node.getId() + ' ' + dir + ' ' + label;
                     NodeProxy groupNode = new NodeProxy(groupId);
                     if (!model.addNode(groupNode)) {
                         groupNode = model.getNode(groupId);
@@ -273,10 +265,10 @@ public class GraphController<N extends Node, A extends Arc> {
                     groupNode.setIconUrl(getGroupNodeIconUrl(nrArcs));
                     switch (dir) {
                     case INCOMING:
-                        addGroupRel(groupId, label, groupId, nodeId);
+                    	model.addArc(createGroupRel(groupId, label, groupId, node.getId()));
                         break;
                     case OUTGOING:
-                        addGroupRel(groupId, label, nodeId, groupId);
+                    	model.addArc(createGroupRel(groupId, label, node.getId(), groupId));
                         break;
                     default:
                         throw new AssertionError("unexpected direction " + dir);
@@ -286,10 +278,10 @@ public class GraphController<N extends Node, A extends Arc> {
                 } else {
                     for (A arc : arcs.values()) {
                         String id = "" + arc.getId();
-                        if (!model.containsArc(id)) {
+                        if (model.getArc(id) == null) {
                             Node other = repository.getOpposite(node, arc);
-                            NodeProxy vOther = load(other);
-                            addArc(arc);
+                            NodeProxy vOther = load(other, model);
+                            model.addArc(createArc(arc, repository.getTail(arc), repository.getHead(arc)));
                             neighbors.add(vOther);
                         }
                     }
@@ -299,10 +291,6 @@ public class GraphController<N extends Node, A extends Arc> {
         return neighbors;
     }
 
-    protected LayoutEngineModel getModel() {
-        return model;
-    }
-    
     /**
      * @return number of arcs after which node will become a "group" node
      */

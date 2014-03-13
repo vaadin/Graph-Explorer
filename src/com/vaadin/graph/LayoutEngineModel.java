@@ -21,10 +21,6 @@ public interface LayoutEngineModel {
 
 	public abstract int degree(NodeProxy v);
 
-	public abstract boolean containsNode(String id);
-
-	public abstract boolean containsArc(String id);
-
 	public abstract boolean addNode(NodeProxy v);
 
 	public abstract void addArc(ArcProxy arc);

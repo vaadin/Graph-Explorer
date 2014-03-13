@@ -151,7 +151,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
         }
     }
 
-    public String[] nodesToJSON() {
+    private String[] nodesToJSON() {
         List<String> list = new ArrayList<String>();
         for (NodeProxy v : model.getNodes()) {
             list.add(v.toString());
@@ -211,25 +211,9 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
     private String[] arcsToJSON() {
         List<String> list = new ArrayList<String>();
         for (ArcProxy e : model.getArcs()) {
-            list.add('{' + key(ArcProxy.ID) + q(e.getId()) + ','
-                     + key(ArcProxy.TYPE) + q(e.getType()) + ','
-                     + key(ArcProxy.LABEL) + q(e.getLabel()) + ','
-                     + key(ArcProxy.GROUP) + e.isGroup() + ','
-                     + key(ArcProxy.FROM_ID) + q(model.getSource(e).getId())
-                     + ',' + key(ArcProxy.TO_ID) + q(model.getDest(e).getId())
-                     + '}');
+            list.add(e.toString());
         }
         return list.toArray(new String[list.size()]);
-    }
-
-    /** Formats the given string for use as a key in a JSON object. */
-    private static String key(String s) {
-        return q(s) + ':';
-    }
-
-    /** Quotes the given string in double quotes. */
-    private static String q(String s) {
-        return '"' + s + '"';
     }
     
 	protected Window createMemberSelectorWindow() {

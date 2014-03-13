@@ -79,8 +79,10 @@ public class JungGraphModel implements GraphModel {
         }
     };
 
-    public void addArc(ArcProxy arc, NodeProxy node, NodeProxy node2) {
-        graph.addEdge(arc, new Pair<NodeProxy>(node, node2), EdgeType.DIRECTED);
+    public void addArc(ArcProxy arc) {
+        NodeProxy from = getNode(arc.getFromNode());
+		NodeProxy to = getNode(arc.getToNode());
+        graph.addEdge(arc, new Pair<NodeProxy>(from, to), EdgeType.DIRECTED);
     }
 
     public boolean addNode(NodeProxy v) {
@@ -99,10 +101,6 @@ public class JungGraphModel implements GraphModel {
         return graph.degree(v);
     }
 
-    public NodeProxy getDest(ArcProxy e) {
-        return graph.getDest(e);
-    }
-
     public ArcProxy getArc(String id) {
         return arcs.get(id);
     }
@@ -113,10 +111,6 @@ public class JungGraphModel implements GraphModel {
 
     public Collection<NodeProxy> getNeighbors(NodeProxy node) {
         return graph.getNeighbors(node);
-    }
-
-    public NodeProxy getSource(ArcProxy e) {
-        return graph.getSource(e);
     }
 
     public NodeProxy getNode(String id) {

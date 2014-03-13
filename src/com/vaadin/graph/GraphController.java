@@ -58,14 +58,17 @@ public class GraphController<N extends Node, A extends Arc> {
         ArcProxy arc = new ArcProxy(arcId, arcType);
         arc.setGroup(true);
         arc.setLabel(getGroupArcLabel(arcType));
-        model.addArc(arc, model.getNode(fromId), model.getNode(toId));
+        arc.setFromNode(fromId);
+        arc.setToNode(toId);
+        model.addArc(arc);
     }
 
     private void addArc(A arc) {
         ArcProxy p = new ArcProxy("" + arc.getId(), arc.getLabel());
         p.setLabel(getArcLabel(arc));
-        model.addArc(p, model.getNode("" + repository.getTail(arc).getId()),
-                     model.getNode("" + repository.getHead(arc).getId()));
+        p.setFromNode("" + repository.getTail(arc).getId());
+        p.setToNode("" + repository.getHead(arc).getId());
+		model.addArc(p);
     }
 
     /**

@@ -15,45 +15,74 @@
  */
 package com.vaadin.graph.shared;
 
-
 /**
  * Client-side proxy for a server-side graph arc between two nodes.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
 public class ArcProxy extends IndexedElement {
-    public static final String ID = "id";
-    public static final String TYPE = "type";
-    public static final String FROM_ID = "fromId";
-    public static final String TO_ID = "toId";
-    public static final String LABEL = "label";
-    public static final String GROUP = "group";
-    private final String type;
-    private String label;
-    private boolean group = false;
+	public static final String ID = "id";
+	public static final String TYPE = "type";
+	public static final String FROM_ID = "fromId";
+	public static final String TO_ID = "toId";
+	public static final String LABEL = "label";
+	public static final String GROUP = "group";
 
-    public ArcProxy(String id, String type) {
-        super(id);
-        this.type = type;
-    }
+	private final String type;
+	private String label;
+	private boolean group = false;
+	private String fromNode;
+	private String toNode;
 
-    public String getLabel() {
-        return label;
-    }
+	public ArcProxy(String id, String type) {
+		super(id);
+		this.type = type;
+	}
 
-    public String getType() {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+	public String getLabel() {
+		return label;
+	}
 
-    public void setGroup(boolean group) {
-        this.group = group;
-    }
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
-    public boolean isGroup() {
-        return group;
+	public void setGroup(boolean group) {
+		this.group = group;
+	}
+
+	public boolean isGroup() {
+		return group;
+	}
+
+	public String getFromNode() {
+		return fromNode;
+	}
+
+	public void setFromNode(String fromNode) {
+		this.fromNode = fromNode;
+	}
+
+	public String getToNode() {
+		return toNode;
+	}
+
+	public void setToNode(String toNode) {
+		this.toNode = toNode;
+	}
+
+    @Override
+    public String toString() {
+        return '{' + key(ArcProxy.ID) + q(id) + ','
+                + key(ArcProxy.TYPE) + q(type) + ','
+                + key(ArcProxy.LABEL) + q(label) + ','
+                + key(ArcProxy.GROUP) + group + ','
+                + key(ArcProxy.FROM_ID) + q(fromNode)
+                + ',' + key(ArcProxy.TO_ID) + q(toNode)
+                + '}';
     }
 }

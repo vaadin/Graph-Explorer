@@ -38,8 +38,7 @@ class ArcPresenter implements Controller {
 
     private final GraphExplorerConnector connector;
     private final ArcProxy model;
-    private final String fromNode;
-    private final String toNode;
+    
     private final Line viewBody = new Line(0, 0, 0, 0);
     private final HTML viewLabel;
     private final Line viewHeadLeft = new Line(0, 0, 0, 0);
@@ -48,11 +47,9 @@ class ArcPresenter implements Controller {
     private double headX;
     private double headY;
 
-    ArcPresenter(GraphExplorerConnector connector, ArcProxy model, String fromNode, String toNode) {
+    ArcPresenter(GraphExplorerConnector connector, ArcProxy model) {
         this.connector = connector;
         this.model = model;
-        this.fromNode = fromNode;
-        this.toNode = toNode;
 
         connector.getWidget().add(viewBody);
         connector.getWidget().add(viewHeadLeft);
@@ -101,11 +98,11 @@ class ArcPresenter implements Controller {
     }
 
     NodePresenter getFromNode() {
-		return connector.getGraph().getNode(fromNode);
+		return connector.getGraph().getNode(model.getFromNode());
 	}
 
     NodePresenter getToNode() {
-		return connector.getGraph().getNode(toNode);
+		return connector.getGraph().getNode(model.getToNode());
 	}
 
 	private void updateArrowhead(NodeProxy from, NodeProxy to) {

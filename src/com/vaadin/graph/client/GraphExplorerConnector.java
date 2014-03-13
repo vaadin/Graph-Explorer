@@ -143,11 +143,11 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
                 ArcProxy arcModel = new ArcProxy(id, getString(object, ArcProxy.TYPE));
 				arcModel.setLabel(getString(object, ArcProxy.LABEL));
 				arcModel.setGroup(object.get(ArcProxy.GROUP).isBoolean().booleanValue());
-                String from = getString(object, ArcProxy.FROM_ID);
-				String to = getString(object, ArcProxy.TO_ID);				
-				graph.addArc(new ArcPresenter(this, arcModel, from, to));
-				graph.getNode(from).addOutArc(id);
-				graph.getNode(to).addInArc(id);
+				arcModel.setFromNode(getString(object, ArcProxy.FROM_ID));
+				arcModel.setToNode(getString(object, ArcProxy.TO_ID));				
+				graph.addArc(new ArcPresenter(this, arcModel));
+				graph.getNode(arcModel.getFromNode()).addOutArc(id);
+				graph.getNode(arcModel.getToNode()).addInArc(id);
             }
         }
     }

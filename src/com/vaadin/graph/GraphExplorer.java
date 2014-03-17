@@ -72,6 +72,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 
 	public void setLayoutEngine(LayoutEngine layoutEngine) {
 		this.layoutEngine = layoutEngine;
+        refreshLayout(new HashSet<NodeProxy>(), true, null);
 	}
 
     protected GraphController<N, A> getController() {
@@ -87,7 +88,7 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
       return (GraphExplorerState) super.getState();
     }
 
-	private void refreshLayout(Set<NodeProxy> lockedNodes, boolean lockExpanded, String removedId) {
+	protected void refreshLayout(Set<NodeProxy> lockedNodes, boolean lockExpanded, String removedId) {
 		if (clientWidth > 0 && clientHeight > 0) {
             if (lockExpanded) {
                 for (NodeProxy v : layoutEngine.getModel().getNodes()) {
@@ -119,8 +120,10 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 		if ((this.clientWidth == 0) && (this.clientHeight == 0)) {
 			//initial layout
 			NodeProxy homeNode = layoutEngine.getModel().getNode(repository.getHomeNode().getId());
-			homeNode.setX(clientWidth / 2);
-			homeNode.setY(clientHeight / 2);
+			if (homeNode != null) {
+				homeNode.setX(clientWidth / 2);
+				homeNode.setY(clientHeight / 2);
+			}
 		}
     	this.clientWidth = clientWidth;
     	this.clientHeight = clientHeight;

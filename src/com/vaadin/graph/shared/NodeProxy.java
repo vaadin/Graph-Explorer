@@ -30,6 +30,7 @@ public class NodeProxy extends IndexedElement {
     private int y = -1;
     private NodeKind kind = NodeKind.NORMAL;
     private NodeState state = NodeState.COLLAPSED;
+    private String style = null;
 
     public NodeProxy() {
     	super();
@@ -63,6 +64,10 @@ public class NodeProxy extends IndexedElement {
         return y;
     }
 
+    public String getStyle() {
+		return style;
+	}
+
     public void setKind(NodeKind kind) {
         this.kind = kind;
     }
@@ -86,8 +91,12 @@ public class NodeProxy extends IndexedElement {
     public void setY(int y) {
         this.y = y;
     }
+        
+	public void setStyle(String style) {
+		this.style = style;
+	}
 
-    @Override
+	@Override
     public String toString() {
     	StringBuilder sb = new StringBuilder();
     	sb.append("Node[").append(getId()).append("] ");

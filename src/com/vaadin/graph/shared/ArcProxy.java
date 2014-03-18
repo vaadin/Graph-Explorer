@@ -28,6 +28,7 @@ public class ArcProxy extends IndexedElement {
 	private boolean group = false;
 	private String fromNode;
 	private String toNode;
+    private String style = null;
 
     public ArcProxy() {
     	super();
@@ -72,6 +73,14 @@ public class ArcProxy extends IndexedElement {
 
 	public void setToNode(String toNode) {
 		this.toNode = toNode;
+	}
+
+    public String getStyle() {
+		return style;
+	}
+
+	public void setStyle(String style) {
+		this.style = style;
 	}
 
     @Override

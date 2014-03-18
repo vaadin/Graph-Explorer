@@ -62,6 +62,7 @@ public class GraphController<N extends Node, A extends Arc> {
         p.setLabel(getArcLabel(arc));
         p.setFromNode("" + tail.getId());
         p.setToNode("" + head.getId());
+        p.setStyle(getArcStyle(arc));
         return p;
     }
 
@@ -89,6 +90,18 @@ public class GraphController<N extends Node, A extends Arc> {
     	}
     }
 
+    /**
+     * @param node
+     * @return CSS style of the node 
+     */
+    protected String getNodeStyle(Node node) {
+    	Map<String, Object> props = node.getProperties();
+    	if (props != null) {
+    		return (String) props.get(GraphElement.PROPERTY_NAME_STYLE);
+    	}
+    	return null;
+    }
+    
     /**
      * @param nrArcs
      * @return content (html snippet) to be displayed in the "group" node 
@@ -127,6 +140,18 @@ public class GraphController<N extends Node, A extends Arc> {
             builder.append("<br>").append("<i>").append(property.getKey()).append(":</i> ").append(property.getValue());
         }
         return builder.toString();
+    }
+
+    /**
+     * @param node
+     * @return CSS style of the arc
+     */
+    protected String getArcStyle(Arc arc) {
+    	Map<String, Object> props = arc.getProperties();
+    	if (props != null) {
+    		return (String) props.get(GraphElement.PROPERTY_NAME_STYLE);
+    	}
+    	return null;
     }
 
     protected String getGroupArcLabel(String arcType) {
@@ -213,6 +238,7 @@ public class GraphController<N extends Node, A extends Arc> {
         }
         p.setContent(getNodeContent(node));
         p.setIconUrl(getNodeIconUrl(node));
+        p.setStyle(getNodeStyle(node));
         if (p.getContent().isEmpty()) {
             p.setKind(NodeKind.EMPTY);
         }

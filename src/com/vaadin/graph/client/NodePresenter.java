@@ -229,6 +229,9 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler, M
 		element.setClassName(CSS_CLASSNAME);
 		element.addClassName(model.getState().name().toLowerCase());
 		element.addClassName(model.getKind().name().toLowerCase());
+		if (model.getStyle() != null) {
+			element.addClassName(model.getStyle());
+		}
 		if (isMouseDown()) {
 			element.addClassName("down");
 		}

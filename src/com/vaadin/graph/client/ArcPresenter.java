@@ -90,6 +90,12 @@ class ArcPresenter implements Controller {
         updateLine(from, to);
         updateLabel(from);
         updateArrowhead(from, to);
+        if (model.getStyle() != null) {
+        	viewBody.setStyleName(model.getStyle());
+        	viewHeadLeft.setStyleName(model.getStyle());
+        	viewHeadRight.setStyleName(model.getStyle());
+        	viewLabel.getElement().addClassName(model.getStyle());
+        }
     }
 
     ArcProxy getModel() {

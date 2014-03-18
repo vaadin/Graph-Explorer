@@ -1,7 +1,5 @@
 package com.vaadin.graph.client;
 
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Random;
 import com.vaadin.client.Util;
 import com.vaadin.client.communication.RpcProxy;
@@ -26,7 +24,7 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
     private int oldWidth = 0;
 
     private final GraphProxy graph = new GraphProxy();
-    private NodeProxy current;
+    private NodePresenter current;
 
     @Override
     public GraphExplorerState getState() {
@@ -64,8 +62,8 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
     public void onStateChanged(StateChangeEvent stateChangeEvent) {
         super.onStateChanged(stateChangeEvent);
 
-    	parseNodes(getState().nodes);
-    	parseArcs(getState().arcs);
+    	reloadNodes();
+    	reloadArcs();
     	
     	if (getState().removedId != null) {
     		graph.removeNode(getState().removedId);
@@ -80,77 +78,51 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
         return graph;
     }
 
-	void updateNode(NodeProxy node) {
-		rpc.updateNode(node.getId(), node.getState(), node.getX(), node.getY());
+	void updateNode(NodeProxy node, int x, int y) {
+		rpc.updateNode(node.getId(), node.getState(), x, y);
 	}
 
-    void toggle(NodeProxy node) {
+    void toggle(NodePresenter node) {
     	current = node;
     	if (node != null) {
-    		rpc.toggleNode(node.getId());
+    		rpc.toggleNode(node.getModel().getId());
     	}
     }
 
-    private void parseNodes(String[] nodes) {
-        if (nodes == null || nodes.length == 0) {
+    private void reloadNodes() {
+        if (getState().nodes == null) {
             return;
         }
-        for (String json : nodes) {
-            JSONObject object = parseJSON(json);
-            String id = getString(object, NodeProxy.ID);
-            NodePresenter node = graph.getNode(id);
-            if (node == null) {
-            	NodeProxy nodeModel = new NodeProxy(id);
+        for (NodeProxy node : getState().nodes) {
+            NodePresenter presenter = graph.getNode(node.getId());
+            if (presenter == null) {
+                presenter = new NodePresenter(this, node);
                 if (current == null) {
-                	nodeModel.setX(Random.nextInt(getWidget().getOffsetWidth()));
-                	nodeModel.setY(Random.nextInt(getWidget().getOffsetHeight()));
+                	presenter.setX(Random.nextInt(getWidget().getOffsetWidth()));
+                	presenter.setY(Random.nextInt(getWidget().getOffsetHeight()));
                 } else {
-                	nodeModel.setX(current.getX());
-                	nodeModel.setY(current.getY());
+                	presenter.setX(current.getX());
+                	presenter.setY(current.getY());
                 }
-                node = new NodePresenter(this, nodeModel);
-                graph.addNode(node);
+                graph.addNode(presenter);
+            } else {
+            	presenter.setModel(node);
             }
-
-            node.getModel().setContent(getString(object, NodeProxy.LABEL));
-            node.getModel().setIconUrl(getString(object, NodeProxy.ICONURL));
-            node.getModel().setState(getString(object, NodeProxy.STATE));
-            node.getModel().setKind(getString(object, NodeProxy.KIND));
-            node.move(getInt(object, NodeProxy.X), getInt(object, NodeProxy.Y));
+            presenter.move(node.getX(), node.getY());
         }
     }
 
-    private void parseArcs(String[] arcs) {
-        if (arcs == null || arcs.length == 0) {
+    private void reloadArcs() {
+        if (getState().arcs == null) {
             return;
         }
-        for (String json : arcs) {
-            JSONObject object = parseJSON(json);
-            String id = getString(object, ArcProxy.ID);
-            ArcPresenter arc = graph.getArc(id);
-            if (arc == null) {
-                ArcProxy arcModel = new ArcProxy(id, getString(object, ArcProxy.TYPE));
-				arcModel.setLabel(getString(object, ArcProxy.LABEL));
-				arcModel.setGroup(object.get(ArcProxy.GROUP).isBoolean().booleanValue());
-				arcModel.setFromNode(getString(object, ArcProxy.FROM_ID));
-				arcModel.setToNode(getString(object, ArcProxy.TO_ID));				
-				graph.addArc(new ArcPresenter(this, arcModel));
-				graph.getNode(arcModel.getFromNode()).addOutArc(id);
-				graph.getNode(arcModel.getToNode()).addInArc(id);
+        for (ArcProxy arc : getState().arcs) {
+            ArcPresenter presenter = graph.getArc(arc.getId());
+            if (presenter == null) {
+				graph.addArc(new ArcPresenter(this, arc));
+				graph.getNode(arc.getFromNode()).addOutArc(arc.getId());
+				graph.getNode(arc.getToNode()).addInArc(arc.getId());
             }
         }
     }
-
-    private static JSONObject parseJSON(String json) {
-        return JSONParser.parseLenient(json).isObject();
-    }
-
-    private static String getString(JSONObject object, String key) {
-        return object.get(key).isString().stringValue();
-    }
-
-    private static int getInt(JSONObject object, String key) {
-        return (int) object.get(key).isNumber().doubleValue();
-    }
-
 }

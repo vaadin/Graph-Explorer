@@ -26,6 +26,8 @@ import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.graph.shared.ArcProxy;
 import com.vaadin.graph.shared.NodeProxy;
+import com.vaadin.graph.shared.NodeProxy.NodeKind;
+import com.vaadin.graph.shared.NodeProxy.NodeState;
 import com.vaadin.server.ResourceReference;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.CustomComponent;
@@ -212,7 +214,7 @@ public class GraphController<N extends Node, A extends Arc> {
         p.setContent(getNodeContent(node));
         p.setIconUrl(getNodeIconUrl(node));
         if (p.getContent().isEmpty()) {
-            p.setKind(NodeProxy.EMPTY);
+            p.setKind(NodeKind.EMPTY);
         }
         return p;
     }
@@ -241,10 +243,10 @@ public class GraphController<N extends Node, A extends Arc> {
 
     public Collection<NodeProxy> loadNeighbors(NodeProxy n, GraphRepository<N, A> repository, LayoutEngineModel model) {
         Set<NodeProxy> neighbors = new HashSet<NodeProxy>();
-        if (NodeProxy.EXPANDED.equals(n.getState())) {
+        if (NodeState.EXPANDED.equals(n.getState())) {
             return neighbors;
         }
-        n.setState(NodeProxy.EXPANDED);
+        n.setState(NodeState.EXPANDED);
         N node = repository.getNodeById(n.getId());
         for (Arc.Direction dir : new Arc.Direction[] {Arc.Direction.INCOMING,
                                                       Arc.Direction.OUTGOING}) {
@@ -260,7 +262,7 @@ public class GraphController<N extends Node, A extends Arc> {
                     if (!model.addNode(groupNode)) {
                         groupNode = model.getNode(groupId);
                     }
-                    groupNode.setKind(NodeProxy.GROUP);
+                    groupNode.setKind(NodeKind.GROUP);
                     groupNode.setContent(getGroupNodeContent(nrArcs));
                     groupNode.setIconUrl(getGroupNodeIconUrl(nrArcs));
                     switch (dir) {

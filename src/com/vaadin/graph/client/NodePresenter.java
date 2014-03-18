@@ -33,26 +33,28 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.vaadin.graph.shared.NodeProxy;
+import com.vaadin.graph.shared.NodeProxy.NodeState;
 
 /**
  * Presenter/controller for a node in a graph.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
-		MouseUpHandler {
+class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler, MouseUpHandler {
 
 	/** Set the CSS class name to allow styling. */
 	public static final String CSS_CLASSNAME = "node";
 
 	private final GraphExplorerConnector connector;
-	private final NodeProxy model;
 	private final Set<String> inArcSets = new HashSet<String>();
 	private final Set<String> outArcSets = new HashSet<String>();
 
 	private final HTML view = new HTML();
 	private final NodeAnimation animation = new NodeAnimation();
 
+	private NodeProxy model;
+	protected int x;
+	protected int y;
     private int width;
     private int height;
 
@@ -64,11 +66,13 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 	NodePresenter(GraphExplorerConnector connector, NodeProxy model) {
 		this.connector = connector;
 		this.model = model;
+		this.x = model.getX();
+		this.y = model.getY();
 
 		view.setTitle(model.getId());
 		Style style = view.getElement().getStyle();
-		style.setLeft(model.getX(), Unit.PX);
-		style.setTop(model.getY(), Unit.PX);
+		style.setLeft(x, Unit.PX);
+		style.setTop(y, Unit.PX);
 
 		view.addDomHandler(this, MouseDownEvent.getType());
 		view.addDomHandler(this, MouseMoveEvent.getType());
@@ -90,8 +94,8 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 		if (isMouseDown()) {
 			setDragging(true);
 			updateCSS();
-			model.setX(event.getX() + model.getX() - dragStartX);
-			model.setY(event.getY() + model.getY() - dragStartY);
+			setX(event.getX() + getX() - dragStartX);
+			setY(event.getY() + getY() - dragStartY);
 			onUpdateInModel();
 			int clientX = event.getClientX();
 			int clientY = event.getClientY();
@@ -99,7 +103,7 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 					|| clientX > Window.getClientWidth()
 					|| clientY > Window.getClientHeight();
 			if (outsideWindow) {
-				connector.updateNode(model);
+				connector.updateNode(model, getX(), getY());
 				setDragging(false);
 			}
 		}
@@ -111,19 +115,19 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 		if (!isDragging()) {
 			updateCSS();
 			limitToBoundingBox();
-			if (NodeProxy.EXPANDED.equals(model.getState())) {
-				model.setState(NodeProxy.COLLAPSED);
+			if (NodeState.EXPANDED.equals(model.getState())) {
+				model.setState(NodeState.COLLAPSED);
 				for (NodePresenter neighbor : getNeighbors()) {
-					boolean collapsed = NodeProxy.COLLAPSED.equals(neighbor.getModel().getState());
+					boolean collapsed = NodeState.COLLAPSED.equals(neighbor.getModel().getState());
 					boolean leafNode = neighbor.degree() == 1;
 					if (collapsed && leafNode) {
 						connector.getGraph().removeNode(neighbor.getModel().getId());
 					}
 				}
 			}
-			connector.toggle(model);
+			connector.toggle(this);
 		} else {
-			connector.updateNode(model);
+			connector.updateNode(model, getX(), getY());
 			setDragging(false);
 		}
 		setMouseDown(false);
@@ -147,16 +151,16 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 
 		width = element.getOffsetWidth();
 		int xRadius = width / 2;
-		int leftEdge = model.getX() - xRadius;
+		int leftEdge = getX() - xRadius;
 		leftEdge = limit(0, leftEdge, connector.getWidget().getOffsetWidth() - width);
-		model.setX(leftEdge + xRadius);
+		setX(leftEdge + xRadius);
 		style.setLeft(leftEdge, Unit.PX);
 
 		height = element.getOffsetHeight();
 		int yRadius = height / 2;
-		int topEdge = model.getY() - yRadius;
+		int topEdge = getY() - yRadius;
 		topEdge = limit(0, topEdge, connector.getWidget().getOffsetHeight() - height);
-		model.setY(topEdge + yRadius);
+		setY(topEdge + yRadius);
 		style.setTop(topEdge, Unit.PX);
 	}
 
@@ -184,12 +188,24 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 		return model;
 	}
 
+	void setModel(NodeProxy model) {
+		this.model = model;
+	}
+
 	int getX() {
-		return model.getX();
+		return x;
+	}
+
+	void setX(int x) {
+		this.x = x;
 	}
 
 	int getY() {
-		return model.getY();
+		return y;
+	}
+
+	void setY(int y) {
+		this.y = y;
 	}
 
 	int getWidth() {
@@ -211,8 +227,8 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 	private void updateCSS() {
 		Element element = view.getElement();
 		element.setClassName(CSS_CLASSNAME);
-		element.addClassName(model.getState());
-		element.addClassName(model.getKind());
+		element.addClassName(model.getState().name().toLowerCase());
+		element.addClassName(model.getKind().name().toLowerCase());
 		if (isMouseDown()) {
 			element.addClassName("down");
 		}
@@ -304,12 +320,8 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler,
 			if (progress > 1) {
 				progress = 1;
 			}
-			getModel().setX(
-					(int) Math.round(progress * targetX + (1 - progress)
-							* getModel().getX()));
-			getModel().setY(
-					(int) Math.round(progress * targetY + (1 - progress)
-							* getModel().getY()));
+			setX((int) Math.round(progress * targetX + (1 - progress) * getX()));
+			setY((int) Math.round(progress * targetY + (1 - progress) * getY()));
 			onUpdateInModel();
 		}
 

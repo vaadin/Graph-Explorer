@@ -15,13 +15,21 @@
  */
 package com.vaadin.graph.shared;
 
+import java.io.Serializable;
+
 /**
  * A graph element with a unique ID.
  * 
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
-public abstract class IndexedElement {
-    protected final String id;
+public abstract class IndexedElement implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String id;
+
+    protected IndexedElement() {
+        super();
+    }
 
     protected IndexedElement(String id) {
         this.id = id;
@@ -31,17 +39,11 @@ public abstract class IndexedElement {
         return id;
     }
 
-    /** Formats the given string for use as a key in a JSON object. */
-    protected static String key(String s) {
-        return q(s) + ':';
-    }
+    public void setId(String id) {
+		this.id = id;
+	}
 
-    /** Quotes the given string in double quotes. */
-    protected static String q(String s) {
-        return '"' + s + '"';
-    }
-
-    @Override
+	@Override
     public final boolean equals(Object obj) {
         if (this == obj) {
             return true;

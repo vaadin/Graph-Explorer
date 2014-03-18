@@ -22,34 +22,24 @@ package com.vaadin.graph.shared;
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
 public class NodeProxy extends IndexedElement {
-
-    public static final String ID = "id";
-    public static final String LABEL = "label";
-    public static final String ICONURL = "iconUrl";
-    public static final String X = "x";
-    public static final String Y = "y";
-
-    public static final String KIND = "kind";
-    public static final String NORMAL = "normal";
-    public static final String GROUP = "group";
-    public static final String EMPTY = "empty";
-
-    public static final String STATE = "state";
-    public static final String COLLAPSED = "collapsed";
-    public static final String EXPANDED = "expanded";
+    private static final long serialVersionUID = 1L;
 
     private String content = "";
     private String iconUrl = "";
     private int x = -1;
     private int y = -1;
-    private String kind = NORMAL;
-    private String state = COLLAPSED;
+    private NodeKind kind = NodeKind.NORMAL;
+    private NodeState state = NodeState.COLLAPSED;
+
+    public NodeProxy() {
+    	super();
+    }
 
     public NodeProxy(String id) {
         super(id);
     }
 
-    public String getKind() {
+    public NodeKind getKind() {
         return kind;
     }
 
@@ -61,7 +51,7 @@ public class NodeProxy extends IndexedElement {
         return iconUrl;
     }
 
-    public String getState() {
+    public NodeState getState() {
         return state;
     }
 
@@ -73,7 +63,7 @@ public class NodeProxy extends IndexedElement {
         return y;
     }
 
-    public void setKind(String kind) {
+    public void setKind(NodeKind kind) {
         this.kind = kind;
     }
 
@@ -85,7 +75,7 @@ public class NodeProxy extends IndexedElement {
 		this.iconUrl = iconUrl;
 	}
 
-	public void setState(String state) {
+	public void setState(NodeState state) {
         this.state = state;
     }
 
@@ -99,9 +89,20 @@ public class NodeProxy extends IndexedElement {
 
     @Override
     public String toString() {
-        return '{' + key(ID) + q(id) + ',' + key(LABEL) + q(content) + ','
-        	   + key(ICONURL) + q(iconUrl) + ','
-               + key(X) + x + ',' + key(Y) + y + ',' + key(STATE)
-               + q(state) + ',' + key(KIND) + q(kind) + '}';
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("Node[").append(getId()).append("] ");
+    	sb.append('"').append(getContent()).append('"');
+    	return sb.toString();
+    }
+
+    public enum NodeKind {
+        NORMAL,
+        GROUP,
+        EMPTY;
+    }
+
+    public enum NodeState {
+        COLLAPSED,
+        EXPANDED;    	
     }
 }

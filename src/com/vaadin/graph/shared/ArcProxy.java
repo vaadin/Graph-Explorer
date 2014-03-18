@@ -21,18 +21,17 @@ package com.vaadin.graph.shared;
  * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
  */
 public class ArcProxy extends IndexedElement {
-	public static final String ID = "id";
-	public static final String TYPE = "type";
-	public static final String FROM_ID = "fromId";
-	public static final String TO_ID = "toId";
-	public static final String LABEL = "label";
-	public static final String GROUP = "group";
+    private static final long serialVersionUID = 1L;
 
-	private final String type;
+	private String type;
 	private String label;
 	private boolean group = false;
 	private String fromNode;
 	private String toNode;
+
+    public ArcProxy() {
+    	super();
+    }
 
 	public ArcProxy(String id, String type) {
 		super(id);
@@ -77,12 +76,10 @@ public class ArcProxy extends IndexedElement {
 
     @Override
     public String toString() {
-        return '{' + key(ArcProxy.ID) + q(id) + ','
-                + key(ArcProxy.TYPE) + q(type) + ','
-                + key(ArcProxy.LABEL) + q(label) + ','
-                + key(ArcProxy.GROUP) + group + ','
-                + key(ArcProxy.FROM_ID) + q(fromNode)
-                + ',' + key(ArcProxy.TO_ID) + q(toNode)
-                + '}';
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("Arc[").append(getId()).append("] ");
+    	sb.append('"').append(getLabel()).append('"');
+    	sb.append(getFromNode()).append(" -> ").append(getToNode());
+    	return sb.toString();
     }
 }

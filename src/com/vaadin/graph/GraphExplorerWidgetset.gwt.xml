@@ -41,4 +41,14 @@
      information and instructions.
     -->
     <!-- <set-configuration-property name="devModeRedirectEnabled" value="true" /> -->
+    
+    
+    <!-- Fix GWTGraphics binding in case of IE10 (should actually be in org/vaadin/gwtgraphics/GWTGraphics.gwt.xml)-->
+	<replace-with class='org.vaadin.gwtgraphics.client.impl.SVGImpl'>
+		<when-type-is class='org.vaadin.gwtgraphics.client.impl.SVGImpl'/>
+        <any>
+        	<when-property-is name='user.agent' value='ie10'/>
+		</any>
+	</replace-with>
+    
 </module>

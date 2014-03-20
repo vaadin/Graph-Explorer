@@ -25,7 +25,7 @@ public class NodeProxy extends IndexedElement {
     private static final long serialVersionUID = 1L;
 
     private String content = "";
-    private String iconUrl = "";
+    private String iconUrl = null;
     private int x = -1;
     private int y = -1;
     private NodeKind kind = NodeKind.NORMAL;

@@ -108,18 +108,20 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
 	@Override
 	public void updateNode(String nodeId, NodeState state, int x, int y) {
 		NodeProxy node = layoutEngine.getModel().getNode(nodeId);
-		node.setState(state);
-		node.setX(x);
-		node.setY(y);
-        Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
-        lockedNodes.add(node);
-        refreshLayout(lockedNodes, true, null);
+		if (node != null) {
+			node.setState(state);
+			node.setX(x);
+			node.setY(y);
+			Set<NodeProxy> lockedNodes = new HashSet<NodeProxy>();
+			lockedNodes.add(node);
+			refreshLayout(lockedNodes, true, null);
+		}
 	}
 
 	@Override
 	public void clientResized(int clientWidth, int clientHeight) {
 		if ((this.clientWidth == 0) && (this.clientHeight == 0)) {
-			//initial layout
+			//initial layout - center the home node
 			NodeProxy homeNode = layoutEngine.getModel().getNode(repository.getHomeNode().getId());
 			if (homeNode != null) {
 				homeNode.setX(clientWidth / 2);
@@ -152,16 +154,16 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
         refreshLayout(lockedNodes, lockExpanded, null);
     }
 
-    private void expand(NodeProxy node) {
+    protected void expand(NodeProxy node) {
 		controller.loadNeighbors(node, repository, layoutEngine.getModel());
         node.setState(NodeState.EXPANDED);
-        if ((clientWidth > 0) && (clientHeight >0)) {
+        if ((clientWidth > 0) && (clientHeight > 0)) {
         	node.setX(clientWidth / 2);
         	node.setY(clientHeight / 2);
         }
 	}
     
-    private void collapse(NodeProxy node) {
+    protected void collapse(NodeProxy node) {
         node.setState(NodeState.COLLAPSED);
         for (NodeProxy neighbor : layoutEngine.getModel().getNeighbors(node)) {
             boolean collapsed = NodeState.COLLAPSED.equals(neighbor.getState());

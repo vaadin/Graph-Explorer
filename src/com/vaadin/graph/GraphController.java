@@ -58,10 +58,10 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
     private ArcProxy createArc(A arc, N tail, N head) {
-        ArcProxy p = new ArcProxy("" + arc.getId(), arc.getLabel());
+        ArcProxy p = new ArcProxy(arc.getId(), arc.getLabel());
         p.setLabel(getArcLabel(arc));
-        p.setFromNode("" + tail.getId());
-        p.setToNode("" + head.getId());
+        p.setFromNode(tail.getId());
+        p.setToNode(head.getId());
         p.setStyle(getArcStyle(arc));
         return p;
     }
@@ -73,7 +73,9 @@ public class GraphController<N extends Node, A extends Arc> {
     protected String getNodeContent(Node node) {
         StringBuilder builder = new StringBuilder("<b>" + node.getLabel() + "</b>");
         for (Map.Entry<String, Object> property : node.getProperties().entrySet()) {
-            builder.append("<br>").append("<i>").append(property.getKey()).append(":</i> ").append(property.getValue());
+        	if (!GraphElement.PROPERTY_NAME_STYLE.equals(property.getKey())) {
+        		builder.append("<br/>").append("<i>").append(property.getKey()).append(":</i> ").append(property.getValue());
+        	}
         }
         return builder.toString();
     }
@@ -86,7 +88,7 @@ public class GraphController<N extends Node, A extends Arc> {
     	if (node.getIcon() != null) {
     		return ResourceReference.create(node.getIcon(), null, null).getURL();
     	} else {
-    		return "";
+    		return null;
     	}
     }
 
@@ -115,7 +117,7 @@ public class GraphController<N extends Node, A extends Arc> {
      * @return image url to be displayed in the node 
      */
     protected String getGroupNodeIconUrl(int nrArcs) {
-  		return "";
+  		return null;
     }
 
     /**
@@ -125,7 +127,9 @@ public class GraphController<N extends Node, A extends Arc> {
     protected String getNodeLabel(Node node) {
         StringBuilder builder = new StringBuilder(node.getLabel() + "; ");
         for (Map.Entry<String, Object> property : node.getProperties().entrySet()) {
-            builder.append(property.getKey()).append(": ").append(property.getValue()).append(", ");
+        	if (!GraphElement.PROPERTY_NAME_STYLE.equals(property.getKey())) {
+        		builder.append(property.getKey()).append(": ").append(property.getValue()).append(", ");
+        	}
         }
         return builder.toString();
     }
@@ -137,7 +141,9 @@ public class GraphController<N extends Node, A extends Arc> {
     protected String getArcLabel(Arc arc) {
         StringBuilder builder = new StringBuilder("<b>" + arc.getLabel() + "</b>");
         for (Map.Entry<?, ?> property : arc.getProperties().entrySet()) {
-            builder.append("<br>").append("<i>").append(property.getKey()).append(":</i> ").append(property.getValue());
+        	if (!GraphElement.PROPERTY_NAME_STYLE.equals(property.getKey())) {
+        		builder.append("<br/>").append("<i>").append(property.getKey()).append(":</i> ").append(property.getValue());
+        	}
         }
         return builder.toString();
     }
@@ -191,7 +197,7 @@ public class GraphController<N extends Node, A extends Arc> {
                 N parent = repository.getNodeById(parentId);
                 for (A arc : groups.get(groupId).values()) {
                     N child = repository.getOpposite(parent, arc);
-                    String id = "" + child.getId();
+                    String id = child.getId();
                     String label = getNodeLabel(child);
                     members.put(id, label);
                     matchList.addItem(id);
@@ -231,7 +237,7 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
     protected NodeProxy load(Node node, LayoutEngineModel model) {
-        String id = "" + node.getId();
+        String id = node.getId();
         NodeProxy p = new NodeProxy(id);
         if (!model.addNode(p)) {
             p = model.getNode(id);
@@ -239,7 +245,7 @@ public class GraphController<N extends Node, A extends Arc> {
         p.setContent(getNodeContent(node));
         p.setIconUrl(getNodeIconUrl(node));
         p.setStyle(getNodeStyle(node));
-        if (p.getContent().isEmpty()) {
+        if ((p.getContent() == null) || p.getContent().isEmpty()) {
             p.setKind(NodeKind.EMPTY);
         }
         return p;
@@ -279,7 +285,7 @@ public class GraphController<N extends Node, A extends Arc> {
             for (String label : repository.getArcLabels()) {
                 Map<String, A> arcs = new HashMap<String, A>();
                 for (A arc : repository.getArcs(node, label, dir)) {
-                    arcs.put("" + repository.getOpposite(node, arc).getId(), arc);
+                    arcs.put(repository.getOpposite(node, arc).getId(), arc);
                 }
                 int nrArcs = arcs.size();
                 if (nrArcs > getGroupThreshold()) {
@@ -305,7 +311,7 @@ public class GraphController<N extends Node, A extends Arc> {
                     groups.put(groupId, arcs);
                 } else {
                     for (A arc : arcs.values()) {
-                        String id = "" + arc.getId();
+                        String id = arc.getId();
                         if (model.getArc(id) == null) {
                             Node other = repository.getOpposite(node, arc);
                             NodeProxy vOther = load(other, model);

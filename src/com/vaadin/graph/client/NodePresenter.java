@@ -166,17 +166,14 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler, M
 
 	public void onUpdateInModel() {
 		StringBuilder html = new StringBuilder();
-		if (model.getIconUrl() != null && !model.getIconUrl().isEmpty()) {
+		if ((model.getIconUrl() != null) && !model.getIconUrl().isEmpty()) {
 			html.append("<div class='icon'>");
-			html.append("<img src='")
-					.append(connector.getConnection().translateVaadinUri(
+			html.append("<img src='").append(connector.getConnection().translateVaadinUri(
 							model.getIconUrl())).append("'></img>");
-			html.append("<div class='label'>").append(model.getContent())
-					.append("</div>");
+			html.append("<div class='label'>").append(model.getContent()).append("</div>");
 			html.append("</div>");
 		} else {
-			html.append("<div class='label'>").append(model.getContent())
-					.append("</div>");
+			html.append("<div class='label'>").append(model.getContent()).append("</div>");
 		}
 		view.setHTML(html.toString());
 		limitToBoundingBox();

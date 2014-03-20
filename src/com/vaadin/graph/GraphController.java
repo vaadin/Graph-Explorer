@@ -49,19 +49,15 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
 	private ArcProxy createGroupRel(String arcId, String arcType, String fromId, String toId) {
-        ArcProxy arc = new ArcProxy(arcId, arcType);
+        ArcProxy arc = new ArcProxy(arcId, fromId, toId);
         arc.setGroup(true);
         arc.setLabel(getGroupArcLabel(arcType));
-        arc.setFromNode(fromId);
-        arc.setToNode(toId);
         return arc;
     }
 
     private ArcProxy createArc(A arc, N tail, N head) {
-        ArcProxy p = new ArcProxy(arc.getId(), arc.getLabel());
+        ArcProxy p = new ArcProxy(arc.getId(), tail.getId(), head.getId());
         p.setLabel(getArcLabel(arc));
-        p.setFromNode(tail.getId());
-        p.setToNode(head.getId());
         p.setStyle(getArcStyle(arc));
         return p;
     }
@@ -255,17 +251,17 @@ public class GraphController<N extends Node, A extends Arc> {
         StringTokenizer tokenizer = new StringTokenizer(groupId);
         final String parentId = tokenizer.nextToken();
         final N parent = repository.getNodeById(parentId);
-        Map<String, A> arcs = groups.get(groupId);
+        Map<String, A> groupArcs = groups.get(groupId);
         Collection<NodeProxy> loaded = new HashSet<NodeProxy>();
         for (String id : memberIds) {
-            A arc = arcs.remove(id);
+            A arc = groupArcs.remove(id);
             loaded.add(load(repository.getOpposite(parent, arc), model));
             model.addArc(createArc(arc, repository.getTail(arc), repository.getHead(arc)));
         }
         NodeProxy group = model.getNode(groupId);
-        if (arcs.size() > 0) {
-            group.setContent(getGroupNodeContent(arcs.size()));
-            group.setIconUrl(getGroupNodeIconUrl(arcs.size()));
+        if (groupArcs.size() > 0) {
+            group.setContent(getGroupNodeContent(groupArcs.size()));
+            group.setIconUrl(getGroupNodeIconUrl(groupArcs.size()));
         } else {
             model.removeNode(group);
             groups.remove(groupId);
@@ -280,8 +276,7 @@ public class GraphController<N extends Node, A extends Arc> {
         }
         n.setState(NodeState.EXPANDED);
         N node = repository.getNodeById(n.getId());
-        for (Arc.Direction dir : new Arc.Direction[] {Arc.Direction.INCOMING,
-                                                      Arc.Direction.OUTGOING}) {
+        for (Arc.Direction dir : Arc.Direction.values()) {
             for (String label : repository.getArcLabels()) {
                 Map<String, A> arcs = new HashMap<String, A>();
                 for (A arc : repository.getArcs(node, label, dir)) {

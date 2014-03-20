@@ -23,8 +23,7 @@ package com.vaadin.graph.shared;
 public class ArcProxy extends IndexedElement {
     private static final long serialVersionUID = 1L;
 
-	private String type;
-	private String label;
+	private String label = "";
 	private boolean group = false;
 	private String fromNode;
 	private String toNode;
@@ -34,13 +33,10 @@ public class ArcProxy extends IndexedElement {
     	super();
     }
 
-	public ArcProxy(String id, String type) {
+	public ArcProxy(String id, String fromNode, String toNode) {
 		super(id);
-		this.type = type;
-	}
-
-	public String getType() {
-		return type;
+		this.fromNode = fromNode;
+		this.toNode = toNode;
 	}
 
 	public String getLabel() {

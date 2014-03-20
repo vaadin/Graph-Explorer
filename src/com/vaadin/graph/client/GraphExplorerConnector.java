@@ -1,7 +1,6 @@
 package com.vaadin.graph.client;
 
 import com.google.gwt.user.client.Random;
-import com.vaadin.client.Util;
 import com.vaadin.client.communication.RpcProxy;
 import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.ui.AbstractComponentConnector;
@@ -38,24 +37,16 @@ public class GraphExplorerConnector extends AbstractComponentConnector implement
 
 	@Override
 	public void layout() {
-        int height = getLayoutManager().getOuterHeight(getWidget().getElement());
-        int width = getLayoutManager().getOuterWidth(getWidget().getElement());
-
-        Util.setHeightExcludingPaddingAndBorder(getWidget().getElement(), height, 0, true);
-        int offsetHeight = getWidget().getOffsetHeight();
-        getWidget().canvas.setHeight(offsetHeight);
-
-        Util.setWidthExcludingPaddingAndBorder(getWidget().getElement(), width, 0, true);
-        int offsetWidth = getWidget().getOffsetWidth();
-        getWidget().canvas.setWidth(offsetWidth);
+        int width = getLayoutManager().getInnerWidth(getWidget().getElement());
+        int height = getLayoutManager().getInnerHeight(getWidget().getElement());
         
-        int newWidth = getWidget().getOffsetWidth();
-        int newHeight = getWidget().getOffsetHeight();
-        if ((newWidth > 0 && newHeight > 0) && (newWidth != oldWidth || newHeight != oldHeight)) {
-           	rpc.clientResized(newWidth, newHeight);
+        if ((width > 0 && height > 0) && (width != oldWidth || height != oldHeight)) {
+            getWidget().canvas.setWidth(width);
+            getWidget().canvas.setHeight(height);
+           	rpc.clientResized(width, height);
         }
-        oldHeight = getWidget().getOffsetHeight();
-        oldWidth = getWidget().getOffsetWidth();
+        oldHeight = height;
+        oldWidth = width;
 	}
 
     @Override

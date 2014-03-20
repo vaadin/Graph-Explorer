@@ -36,9 +36,8 @@ public class VGraphExplorer extends Composite {
     public VGraphExplorer() {
         initWidget(root);
         canvas.getElement().getStyle().setPosition(Position.ABSOLUTE);
-        root.add(canvas);
-        root.getElement().getStyle().setPosition(Position.ABSOLUTE);
         canvas.setStyleName(STYLE_CANVAS);
+        root.add(canvas);
         setStyleName(CSS_CLASSNAME);
     }
 

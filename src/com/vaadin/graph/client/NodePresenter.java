@@ -168,8 +168,7 @@ class NodePresenter implements Controller, MouseDownHandler, MouseMoveHandler, M
 		StringBuilder html = new StringBuilder();
 		if ((model.getIconUrl() != null) && !model.getIconUrl().isEmpty()) {
 			html.append("<div class='icon'>");
-			html.append("<img src='").append(connector.getConnection().translateVaadinUri(
-							model.getIconUrl())).append("'></img>");
+			html.append(connector.getConnection().getIcon(model.getIconUrl()).getElement().getString());
 			html.append("<div class='label'>").append(model.getContent()).append("</div>");
 			html.append("</div>");
 		} else {

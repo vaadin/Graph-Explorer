@@ -1,4 +1,4 @@
-package com.vaadin.graph;
+package com.vaadin.graph.layout;
 
 import java.awt.Dimension;
 

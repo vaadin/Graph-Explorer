@@ -13,12 +13,13 @@
  * License for the specific language governing permissions and limitations under 
  * the License. 
  */
-package com.vaadin.graph;
+package com.vaadin.graph.layout;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.vaadin.graph.LayoutEngineModel;
 import com.vaadin.graph.shared.ArcProxy;
 import com.vaadin.graph.shared.NodeProxy;
 

@@ -1,4 +1,4 @@
-package com.vaadin.graph;
+package com.vaadin.graph.layout;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
@@ -7,6 +7,7 @@ import java.util.Random;
 
 import org.apache.commons.collections15.Transformer;
 
+import com.vaadin.graph.LayoutEngine;
 import com.vaadin.graph.shared.ArcProxy;
 import com.vaadin.graph.shared.NodeProxy;
 

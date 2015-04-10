@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.vaadin.graph.layout.JungFRLayoutEngine;
 import com.vaadin.graph.shared.ArcProxy;
 import com.vaadin.graph.shared.GraphExplorerServerRpc;
 import com.vaadin.graph.shared.GraphExplorerState;

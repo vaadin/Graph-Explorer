@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
-Implementation-Title: Graph Explorer
-Implementation-Version: 0.7.0
-Vaadin-Package-Version: 1
-Vaadin-Widgetsets: com.vaadin.graph.GraphExplorerWidgetset
 Vaadin-Stylesheets: VAADIN/themes/graph-explorer/graph-explorer.scss
+Implementation-Title: Graph Explorer (Vaadin 7)
+Implementation-Version: 0.7.0
+Vaadin-Widgetsets: com.vaadin.graph.GraphExplorerWidgetset
+Vaadin-Package-Version: 1
 

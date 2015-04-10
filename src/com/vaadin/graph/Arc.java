@@ -15,8 +15,17 @@
  */
 package com.vaadin.graph;
 
+/**
+ * An interface representing graphs Arc/Edge
+ *
+ */
 public interface Arc extends GraphElement {
-    public static enum Direction {
-        INCOMING, OUTGOING;
-    }
+
+	/**
+	 * Arc direction
+	 *
+	 */
+	public static enum Direction {
+		INCOMING, OUTGOING;
+	}
 }

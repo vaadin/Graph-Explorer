@@ -15,6 +15,10 @@ import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
 
+/**
+ * LayoutEngine implementation using the JUNG library
+ *
+ */
 public abstract class JungLayoutEngine implements LayoutEngine {
 
 	private static final long serialVersionUID = 1L;

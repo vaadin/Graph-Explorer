@@ -17,9 +17,17 @@ package com.vaadin.graph;
 
 import com.vaadin.server.Resource;
 
-
+/**
+ * An interface representing a graphs Node/Vertex
+ *
+ */
 public interface Node extends GraphElement {
-	
-    Resource getIcon();
+
+	/**
+	 * Answer a UI resource used to visualize the node
+	 * 
+	 * @return an icon resource or null
+	 */
+	public Resource getIcon();
 
 }

@@ -37,25 +37,22 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * For loading a graph from a graph database.
- * 
- * @author Marlon Richert @ <a href="http://vaadin.com/">Vaadin</a>
+ * Graph visualization controller component used to control/override graph construction and visualization.
+ *  
+ * Addon consumers are expected to subclass this controller to provide customized visualization.
  */
 public class GraphController<N extends Node, A extends Arc> {
 
     private final Map<String, Map<String, A>> groups = new HashMap<String, Map<String, A>>();
 
-    public GraphController() {
-    }
-
-	private ArcProxy createGroupRel(String arcId, String arcType, String fromId, String toId) {
+	protected ArcProxy createGroupRel(String arcId, String arcType, String fromId, String toId) {
         ArcProxy arc = new ArcProxy(arcId, fromId, toId);
         arc.setGroup(true);
         arc.setLabel(getGroupArcLabel(arcType));
         return arc;
     }
 
-    private ArcProxy createArc(A arc, N tail, N head) {
+	protected ArcProxy createArc(A arc, N tail, N head) {
         ArcProxy p = new ArcProxy(arc.getId(), tail.getId(), head.getId());
         p.setLabel(getArcLabel(arc));
         p.setStyle(getArcStyle(arc));

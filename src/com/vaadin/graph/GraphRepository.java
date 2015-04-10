@@ -17,40 +17,73 @@ package com.vaadin.graph;
 
 import java.util.Collection;
 
+/**
+ * An interface for graph elements repository/provider
+ *
+ * @param <N>
+ *            type of node elements
+ * @param <A>
+ *            type of arc elements
+ */
 public interface GraphRepository<N extends Node, A extends Arc> {
-    /** Gets the node that the given arc points away from. */
-    N getTail(A arc);
 
-    /** Gets the node that the given arc points to. */
-    N getHead(A arc);
+	/**
+	 * Gets the node that the given arc points away from.
+	 * 
+	 * @param arc
+	 * @return tail node
+	 */
+	public N getTail(A arc);
 
-    /** Returns a list of all possible arc labels in this graph. */
-    Iterable<String> getArcLabels();
+	/**
+	 * Gets the node that the given arc points to.
+	 * 
+	 * @param arc
+	 * @return head node
+	 */
+	public N getHead(A arc);
 
-    /**
-     * Gets all arcs connected to the given node, with the given label, in the
-     * given direction.
-     * 
-     * @param node
-     *            return only arcs connected to this node
-     * @param label
-     *            return only arcs with this label
-     * @param dir
-     *            INCOMING for arcs pointing towards the given node, OUTGOING
-     *            for arcs pointing away from the given node
-     */
-    Collection<A> getArcs(N node, String label, Arc.Direction dir);
+	/**
+	 * Returns a list of all possible arc labels in this graph.
+	 * 
+	 * @return list of labels of all graph's arcs
+	 */
+	public Iterable<String> getArcLabels();
 
-    /** Gets the "origin" of the graph. */
-    N getHomeNode();
+	/**
+	 * Gets all arcs connected to the given node, with the given label, in the
+	 * given direction.
+	 * 
+	 * @param node
+	 *            return only arcs connected to this node
+	 * @param label
+	 *            return only arcs with this label
+	 * @param dir
+	 *            INCOMING for arcs pointing towards the given node, OUTGOING
+	 *            for arcs pointing away from the given node
+	 */
+	public Collection<A> getArcs(N node, String label, Arc.Direction dir);
 
-    /** Gets the node at the other end of the given arc. */
-    N getOpposite(N node, A arc);
+	/**
+	 * Gets the root/origin of the graph
+	 * 
+	 * @return grpah's root/home node
+	 */
+	public N getHomeNode();
 
-    /**
-     * Returns the node with the given ID.
-     * 
-     * @return null if there's no such node
-     */
-    N getNodeById(String id);
+	/**
+	 * Gets the node at the other end of the given arc.
+	 * 
+	 * @param node
+	 * @param arc
+	 * @return at the other end of the given arc.
+	 */
+	public N getOpposite(N node, A arc);
+
+	/**
+	 * Returns the node with the given ID.
+	 * 
+	 * @return node with the given ID or null if there's no such node
+	 */
+	public N getNodeById(String id);
 }

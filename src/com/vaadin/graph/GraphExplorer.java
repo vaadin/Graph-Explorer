@@ -35,6 +35,12 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+/**
+ * UI component displaying graph elements
+ *
+ * @param <N> type of node elements
+ * @param <A> type of arc elements
+ */
 public class GraphExplorer<N extends Node, A extends Arc> extends AbstractComponent implements GraphExplorerServerRpc {
     private static final long serialVersionUID = 1L;
 
@@ -47,10 +53,22 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
     private final GraphRepository<N, A> repository;
     private LayoutEngine layoutEngine;
 
+    /**
+     * Constructor (using JUNG library FR layout engine)
+     * 
+     * @param repository provider of the graph data
+     */
     public GraphExplorer(GraphRepository<N, A> repository) {
     	this(repository, new GraphController<N, A>(), new JungFRLayoutEngine());
     }
 
+    /**
+     * Constructor
+     * 
+     * @param repository provider of the graph data
+     * @param controller
+     * @param layoutEngine
+     */
     public GraphExplorer(GraphRepository<N, A> repository, GraphController<N, A> controller, LayoutEngine layoutEngine) {
     	super();
     	registerRpc(this, GraphExplorerServerRpc.class);

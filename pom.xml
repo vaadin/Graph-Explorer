@@ -6,12 +6,12 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>graph-explorer</artifactId>
 	<packaging>jar</packaging>
-	<version>0.7.0</version>
+	<version>0.7.1</version>
 	<name>Graph Explorer (Vaadin 7)</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>7.3.10</vaadin.version>
+		<vaadin.version>7.6.3</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 
 		<!-- ZIP Manifest fields -->
@@ -20,7 +20,7 @@
 		<Implementation-Title>${project.name}</Implementation-Title>
 		<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
 		<Vaadin-License-Title>Apache License 2.0</Vaadin-License-Title>
-		<Vaadin-Addon>${artifactId}-${project.version}.jar</Vaadin-Addon>
+		<Vaadin-Addon>${project.artifactId}-${project.version}.jar</Vaadin-Addon>
 	</properties>
 
 	<scm>
@@ -76,11 +76,6 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>
-			<version>${vaadin.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-client-compiled</artifactId>
 			<version>${vaadin.version}</version>
 		</dependency>
 		<dependency>

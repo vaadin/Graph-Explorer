@@ -30,7 +30,7 @@ public interface GraphRepository<N extends Node, A extends Arc> {
 	/**
 	 * Gets the node that the given arc points away from.
 	 * 
-	 * @param arc
+	 * @param arc graph arc to get tail of
 	 * @return tail node
 	 */
 	public N getTail(A arc);
@@ -38,7 +38,7 @@ public interface GraphRepository<N extends Node, A extends Arc> {
 	/**
 	 * Gets the node that the given arc points to.
 	 * 
-	 * @param arc
+	 * @param arc graph arc to get head of
 	 * @return head node
 	 */
 	public N getHead(A arc);
@@ -61,6 +61,7 @@ public interface GraphRepository<N extends Node, A extends Arc> {
 	 * @param dir
 	 *            INCOMING for arcs pointing towards the given node, OUTGOING
 	 *            for arcs pointing away from the given node
+	 * @return collection of arcs connector to the given node
 	 */
 	public Collection<A> getArcs(N node, String label, Arc.Direction dir);
 
@@ -74,8 +75,8 @@ public interface GraphRepository<N extends Node, A extends Arc> {
 	/**
 	 * Gets the node at the other end of the given arc.
 	 * 
-	 * @param node
-	 * @param arc
+	 * @param node graph node to get the opposite arc
+	 * @param arc graph arc to get the opposite end
 	 * @return at the other end of the given arc.
 	 */
 	public N getOpposite(N node, A arc);
@@ -83,6 +84,7 @@ public interface GraphRepository<N extends Node, A extends Arc> {
 	/**
 	 * Returns the node with the given ID.
 	 * 
+	 * @param id id of the node
 	 * @return node with the given ID or null if there's no such node
 	 */
 	public N getNodeById(String id);

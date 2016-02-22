@@ -29,6 +29,7 @@ public class GraphProxy {
     /**
      * Adds a new arc from the given tail to the given head.
      * 
+     * @param arc arc presenter
      * @return true, if successful; false, otherwise
      */
     public boolean addArc(ArcPresenter arc) {

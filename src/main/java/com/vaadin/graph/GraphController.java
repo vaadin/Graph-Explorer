@@ -60,7 +60,7 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
     /**
-     * @param node
+     * @param node a graph node to get conent for
      * @return content (html snippet) to be displayed in the node 
      */
     protected String getNodeContent(Node node) {
@@ -74,7 +74,7 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
     /**
-     * @param node
+     * @param node a graph node to get icon for
      * @return image url to be displayed in the node 
      */
     protected String getNodeIconUrl(Node node) {
@@ -86,7 +86,7 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
     /**
-     * @param node
+     * @param node a graph node to get CSS style for
      * @return CSS style of the node 
      */
     protected String getNodeStyle(Node node) {
@@ -98,7 +98,7 @@ public class GraphController<N extends Node, A extends Arc> {
     }
     
     /**
-     * @param nrArcs
+     * @param nrArcs number of arcs
      * @return content (html snippet) to be displayed in the "group" node 
      */
     protected String getGroupNodeContent(int nrArcs) {    	
@@ -106,7 +106,7 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
     /**
-     * @param nrArcs
+     * @param nrArcs number of arcs
      * @return image url to be displayed in the node 
      */
     protected String getGroupNodeIconUrl(int nrArcs) {
@@ -114,7 +114,7 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
     /**
-     * @param node
+     * @param node a graph node to get label for
      * @return label (text) to represent node in node selector
      */
     protected String getNodeLabel(Node node) {
@@ -128,7 +128,7 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
     /**
-     * @param arcType
+     * @param arc a graph arc to get label for
      * @return label (html snippet) to be displayed in the arc
      */
     protected String getArcLabel(Arc arc) {
@@ -142,7 +142,7 @@ public class GraphController<N extends Node, A extends Arc> {
     }
 
     /**
-     * @param node
+     * @param arc a graph arc to get CSS style for
      * @return CSS style of the arc
      */
     protected String getArcStyle(Arc arc) {

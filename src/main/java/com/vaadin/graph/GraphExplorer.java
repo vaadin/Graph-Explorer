@@ -66,8 +66,8 @@ public class GraphExplorer<N extends Node, A extends Arc> extends AbstractCompon
      * Constructor
      * 
      * @param repository provider of the graph data
-     * @param controller
-     * @param layoutEngine
+     * @param controller controller component used to customize behavior 
+     * @param layoutEngine graph layout engine implementation
      */
     public GraphExplorer(GraphRepository<N, A> repository, GraphController<N, A> controller, LayoutEngine layoutEngine) {
     	super();

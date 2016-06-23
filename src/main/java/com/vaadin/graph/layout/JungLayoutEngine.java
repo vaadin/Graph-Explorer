@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Random;
 
-import org.apache.commons.collections15.Transformer;
+import com.google.common.base.Function;
 
 import com.vaadin.graph.LayoutEngine;
 import com.vaadin.graph.shared.ArcProxy;
@@ -41,8 +41,8 @@ public abstract class JungLayoutEngine implements LayoutEngine {
             layout.lock(v, true);
         }
 
-        layout.setInitializer(new Transformer<NodeProxy, Point2D>() {
-            public Point2D transform(NodeProxy input) {
+        layout.setInitializer(new Function<NodeProxy, Point2D>() {
+            public Point2D apply(NodeProxy input) {
                 int x = input.getX();
                 int y = input.getY();
                 return new Point2D.Double(x == -1 ? new Random().nextInt(width) : x,
@@ -57,7 +57,7 @@ public abstract class JungLayoutEngine implements LayoutEngine {
         	}
         }
         for (NodeProxy v : model.getGraph().getVertices()) {
-            Point2D location = layout.transform(v);
+            Point2D location = layout.apply(v);
             v.setX((int) location.getX());
             v.setY((int) location.getY());
         }

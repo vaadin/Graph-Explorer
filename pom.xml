@@ -6,13 +6,16 @@
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>graph-explorer</artifactId>
 	<packaging>jar</packaging>
-	<version>0.7.2</version>
+	<version>0.7.3</version>
 	<name>Graph Explorer (Vaadin 7)</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>7.6.6</vaadin.version>
+		<vaadin.version>7.7.6</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+
+		<gwt-graphics.version>1.0.0</gwt-graphics.version>
+		<jung.version>2.1.1</jung.version>
 
 		<!-- ZIP Manifest fields -->
 		<Implementation-Version>${project.version}</Implementation-Version>
@@ -88,18 +91,18 @@
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>gwt-graphics</artifactId>
-			<version>1.0.0</version>
+			<version>${gwt-graphics.version}</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>net.sf.jung</groupId>
 			<artifactId>jung-graph-impl</artifactId>
-			<version>2.1</version>
+			<version>${jung.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.jung</groupId>
 			<artifactId>jung-algorithms</artifactId>
-			<version>2.1</version>
+			<version>${jung.version}</version>
 		</dependency>	
 	</dependencies>
 

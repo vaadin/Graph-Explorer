@@ -21,20 +21,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
+import com.vaadin.data.ValueProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.graph.shared.ArcProxy;
 import com.vaadin.graph.shared.NodeProxy;
 import com.vaadin.graph.shared.NodeProxy.NodeKind;
 import com.vaadin.graph.shared.NodeProxy.NodeState;
 import com.vaadin.server.ResourceReference;
-import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.Table.ColumnHeaderMode;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.Column;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.components.grid.HeaderRow;
 
 /**
  * Graph visualization controller component used to control/override graph construction and visualization.
@@ -162,66 +163,44 @@ public class GraphController<N extends Node, A extends Arc> {
         @SuppressWarnings("serial")
         class SelectorUI extends CustomComponent implements NodeSelector {
 
-            private static final String NODENAME = "nodename";
-            Table matchList = new Table();
-            private final Map<String, String> members = new HashMap<String, String>();
+            protected final Grid<N> matchList;
+            protected final ListDataProvider<N> members;
 
             public SelectorUI() {
-                VerticalLayout layout = new VerticalLayout();
-
+            	matchList = new Grid<>();
+                matchList.setSizeFull();
+                matchList.setSelectionMode(SelectionMode.MULTI);
+                Column<N, String> column = matchList.addColumn((node) -> getNodeLabel(node)).setCaption("");
+               
                 TextField stringMatcher = new TextField();
-                layout.addComponent(stringMatcher);
                 stringMatcher.setWidth(100, Unit.PERCENTAGE);
 
-                layout.addComponent(matchList);
-                layout.setExpandRatio(matchList, 1.0f);
-                matchList.setSizeFull();
-                matchList.setPageLength(40);
-
-                matchList.setSelectable(true);
-                matchList.setMultiSelect(true);
-                matchList.addContainerProperty(NODENAME, String.class, "");
-                matchList.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
-
-                stringMatcher.setTextChangeEventMode(TextChangeEventMode.LAZY);
+                HeaderRow header = matchList.getHeaderRow(0);
+                header.getCell(column).setComponent(stringMatcher);
 
                 StringTokenizer tokenizer = new StringTokenizer(groupId);
                 String parentId = tokenizer.nextToken();
-                N parent = repository.getNodeById(parentId);
-                for (A arc : groups.get(groupId).values()) {
-                    N child = repository.getOpposite(parent, arc);
-                    String id = child.getId();
-                    String label = getNodeLabel(child);
-                    members.put(id, label);
-                    matchList.addItem(id);
-                    matchList.getContainerProperty(id, NODENAME).setValue(label);
-                }
+                final N parent = repository.getNodeById(parentId);
+                members = new ListDataProvider<N>(
+                		groups.get(groupId).values().stream().map((arc) -> repository.getOpposite(parent, arc)).collect(Collectors.toList()));
+                matchList.setDataProvider(members);
 
-                stringMatcher.addTextChangeListener(new TextChangeListener() {
-                    public void textChange(TextChangeEvent event) {
-                        String query = event.getText().toLowerCase().replaceAll("\\s", "");
-                        matchList.removeAllItems();
-                        for (Map.Entry<String, String> entry : members.entrySet()) {
-                            String nodeId = entry.getKey();
-                            String value = entry.getValue();
-                            if (value.toLowerCase().replaceAll("\\s", "").contains(query)) {
-                                matchList.addItem(nodeId);
-                                matchList.getContainerProperty(nodeId, NODENAME).setValue(value);
-                            }
+                stringMatcher.addValueChangeListener(event -> {
+                	members.setFilter(ValueProvider.identity(), node -> {
+                        if (node == null) {
+                            return false;
                         }
-                    }
+                        String nodeLabel = getNodeLabel(node).toLowerCase().replaceAll("\\s", "");
+                        String filter = event.getValue().toLowerCase().replaceAll("\\s", "");
+                        return nodeLabel.contains(filter);
+                    });
                 });
-              layout.setSizeFull();
-              setCompositionRoot(layout);
+              setCompositionRoot(matchList);
               setSizeFull();
             }
 
             public Collection<String> getSelectedNodeIds() {
-                Collection<String> match = (Collection<String>) matchList.getValue();
-                if (match.size() == 0) {
-                    return (Collection<String>) matchList.getItemIds();
-                }
-                return match;
+                return matchList.getSelectedItems().stream().map((node) -> node.getId()).collect(Collectors.toList());
             }
 
         }
@@ -244,7 +223,7 @@ public class GraphController<N extends Node, A extends Arc> {
         return p;
     }
 
-    public Collection<NodeProxy> loadMembers(String groupId, Collection<String> memberIds, GraphRepository<N, A> repository, LayoutEngineModel model) {
+    public Collection<NodeProxy> loadMembers(String groupId, Iterable<String> memberIds, GraphRepository<N, A> repository, LayoutEngineModel model) {
         StringTokenizer tokenizer = new StringTokenizer(groupId);
         final String parentId = tokenizer.nextToken();
         final N parent = repository.getNodeById(parentId);

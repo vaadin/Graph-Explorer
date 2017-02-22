@@ -5,13 +5,13 @@
 	
 	<groupId>org.vaadin.addons</groupId>
 	<artifactId>graph-explorer</artifactId>
-	<packaging>jar</packaging>
-	<version>0.7.3</version>
+	<packaging>bundle</packaging>
+	<version>0.8.0</version>
 	<name>Graph Explorer (Vaadin 7)</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>7.7.6</vaadin.version>
+		<vaadin.version>8.0.0</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 
 		<gwt-graphics.version>1.0.0</gwt-graphics.version>
@@ -21,7 +21,7 @@
 		<Implementation-Version>${project.version}</Implementation-Version>
 		<!-- Must not change this because of the Directory -->
 		<Implementation-Title>${project.name}</Implementation-Title>
-		<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+		<Implementation-Vendor>Vaadin Community</Implementation-Vendor>
 		<Vaadin-License-Title>Apache License 2.0</Vaadin-License-Title>
 		<Vaadin-Addon>${project.artifactId}-${project.version}.jar</Vaadin-Addon>
 	</properties>
@@ -114,8 +114,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 
@@ -169,6 +169,19 @@
 				</executions>
 			</plugin>
 
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.5.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>!com.vaadin.graph.client,com.vaadin.graph.*</Export-Package>
+						<Import-Package>!com.google.gwt.*,!com.vaadin.client.*,!org.vaadin.gwtgraphics.*,*</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>

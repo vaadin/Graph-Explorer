@@ -15,7 +15,10 @@
  */
 package com.vaadin.graph.client;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Client-side proxy of the server-side graph model.

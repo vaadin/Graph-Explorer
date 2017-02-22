@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Implementation-Title: Graph Explorer
-Implementation-Version: 0.3.0
-Vaadin-Package-Version: 1
-Class-Path: 
-Vaadin-Widgetsets: com.vaadin.graph.GraphExplorerWidgetset
-
